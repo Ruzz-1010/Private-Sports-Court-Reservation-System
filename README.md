@@ -84,3 +84,17 @@ Start the PostgreSQL 16 cluster when needed:
 ```bash
 sudo pg_ctlcluster 16 main start
 ```
+
+## Email Delivery for the Demo
+
+The payment confirmation job sends the verified amount, payment method, payment
+status, reservation reference, and receipt number to the customer's registered
+email address. Start the queue worker during the demo:
+
+```bash
+php artisan queue:work
+```
+
+For delivery to real inboxes without purchasing a domain, configure Gmail SMTP
+in the local `.env` using a Google App Password. Never use a normal Gmail
+password and never commit the `.env` file.

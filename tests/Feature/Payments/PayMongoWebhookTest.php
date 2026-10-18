@@ -13,8 +13,10 @@ use App\Models\PaymentEvent;
 use App\Models\Receipt;
 use App\Models\Reservation;
 use App\Models\User;
+use App\Notifications\ReservationConfirmed;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
@@ -231,6 +233,33 @@ class PayMongoWebhookTest extends TestCase
 
         $this->sendWebhook($payload)->assertOk();
         Queue::assertPushed(SendConfirmationEmail::class, 1);
+    }
+
+    public function test_confirmation_job_emails_payment_and_receipt_details_to_the_customer(): void
+    {
+        Queue::fake();
+        Notification::fake();
+        [$reservation, $payment] = $this->pendingOnlineReservation();
+
+        $this->sendWebhook($this->payload($reservation, $payment))->assertOk();
+
+        $receipt = Receipt::where('reservation_id', $reservation->id)->firstOrFail();
+
+        (new SendConfirmationEmail($reservation->id))->handle();
+
+        Notification::assertSentTo(
+            $reservation->user,
+            ReservationConfirmed::class,
+            function (ReservationConfirmed $notification) use ($reservation, $receipt): bool {
+                $mail = $notification->toMail($reservation->user);
+
+                return $mail->subject === "Reservation confirmed — {$reservation->reference_number}"
+                    && in_array('Amount paid: PHP 1,000.00', $mail->introLines, true)
+                    && in_array('Payment method: Online', $mail->introLines, true)
+                    && in_array('Payment status: Paid', $mail->introLines, true)
+                    && in_array('Receipt number: '.$receipt->receipt_number, $mail->introLines, true);
+            },
+        );
     }
 
     public function test_an_amount_mismatch_is_flagged_for_review(): void

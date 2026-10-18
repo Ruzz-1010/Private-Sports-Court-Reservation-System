@@ -37,6 +37,23 @@ return [
 
     'mailers' => [
 
+        /*
+        | Mailtrap. Used for development and the presentation so the team can
+        | see every confirmation email without owning a mailbox. Credentials are
+        | the SMTP username and password shown in the Mailtrap inbox settings.
+        */
+        'mailtrap' => [
+            'transport' => 'smtp',
+            'host' => env('MAILTRAP_HOST', 'smtp.mailtrap.io'),
+            'port' => (int) env('MAILTRAP_PORT', 2525),
+            'username' => env('MAILTRAP_USERNAME'),
+            'password' => env('MAILTRAP_PASSWORD'),
+            // Symfony mailer accepts smtp or smtps only; smtps negotiates
+            // STARTTLS on the standard Mailtrap port.
+            'scheme' => 'smtps',
+            'timeout' => 30,
+        ],
+
         'smtp' => [
             'transport' => 'smtp',
             'scheme' => env('MAIL_SCHEME'),
@@ -79,10 +96,15 @@ return [
             'transport' => 'array',
         ],
 
+        /*
+        | Falls back to the log driver when Mailtrap is unreachable, so a mail
+        | outage during the presentation degrades to a visible log entry instead
+        | of a failed job. Never reverses a confirmed reservation either way.
+        */
         'failover' => [
             'transport' => 'failover',
             'mailers' => [
-                'smtp',
+                'mailtrap',
                 'log',
             ],
             'retry_after' => 60,
