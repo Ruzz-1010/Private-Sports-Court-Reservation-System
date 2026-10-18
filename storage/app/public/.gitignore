@@ -1,2 +1,7 @@
 *
 !.gitignore
+
+# Seeded placeholder court photos are committed so a fresh clone has a working
+# demo. Photos uploaded through the admin UI stay ignored.
+!courts/
+!courts/*.jpg

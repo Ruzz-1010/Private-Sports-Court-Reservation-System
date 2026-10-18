@@ -41,12 +41,15 @@
             </h2>
             <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach (\App\Models\Court::query()->active()->orderBy('name')->get() as $court)
-                    <div class="rounded-lg border border-slate-200 bg-white p-5">
-                        <h3 class="font-semibold text-slate-900">{{ $court->name }}</h3>
-                        <p class="mt-1 text-sm text-slate-600">{{ $court->location }}</p>
-                        <p class="mt-3 text-sm font-medium text-slate-900">
-                            ₱{{ number_format((float) $court->hourly_rate, 2) }} / hour
-                        </p>
+                    <div class="overflow-hidden rounded-lg border border-slate-200 bg-white">
+                        <x-court-photo :court="$court" class="h-40 rounded-none border-0" />
+                        <div class="p-5">
+                            <h3 class="font-semibold text-slate-900">{{ $court->name }}</h3>
+                            <p class="mt-1 text-sm text-slate-600">{{ $court->location }}</p>
+                            <p class="mt-3 text-sm font-medium text-slate-900">
+                                ₱{{ number_format((float) $court->hourly_rate, 2) }} / hour
+                            </p>
+                        </div>
                     </div>
                 @endforeach
             </div>

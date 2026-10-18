@@ -6,9 +6,10 @@ This file is the primary implementation guide for every AI agent and developer w
 
 The system is an academic final system integration project for a private sports facility located in Barangay San Jose, Puerto Princesa City, Palawan. It must demonstrate persistent CRUD operations, authentication and role authorization, secure payment integration with asynchronous webhooks, transactional email, reports, validation, and protection against conflicting reservations.
 
-The Laravel 13 application is scaffolded and Phase 1 of the implementation order is
-complete: PostgreSQL schema, the database-level overlap guard, authentication, roles,
-and the admin seeder. Phase 2 onward (court CRUD, reservations, payments, receipts,
+The Laravel 13 application is scaffolded and Phases 1 and 2 of the implementation
+order are complete: PostgreSQL schema, the database-level overlap guard,
+authentication, roles, the admin seeder, and full court CRUD with authorization.
+Phase 3 onward (availability, reservations, holds, expiration, payments, receipts,
 email, reports) is not yet implemented. Do not claim that a feature is implemented
 until the code and its verification exist.
 

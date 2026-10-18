@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\CourtController as AdminCourtController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
@@ -45,5 +46,8 @@ Route::middleware(['auth'])->group(function (): void {
 
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function (): void {
         Route::get('dashboard', AdminDashboardController::class)->name('dashboard');
+
+        Route::resource('courts', AdminCourtController::class);
+        Route::post('courts/{court}/restore', [AdminCourtController::class, 'restore'])->name('courts.restore');
     });
 });

@@ -25,8 +25,9 @@
     <h2 class="font-semibold text-slate-900">Courts</h2>
     <div class="mt-4 divide-y divide-slate-200">
         @foreach ($courts as $court)
-            <div class="flex items-center justify-between py-3">
-                <div>
+            <div class="flex items-center gap-4 py-3">
+                <x-court-photo :court="$court" class="h-12 w-16 shrink-0 rounded-md" />
+                <div class="min-w-0 flex-1">
                     <p class="font-medium text-slate-900">{{ $court->name }}</p>
                     <p class="text-sm text-slate-600">{{ $court->location }}</p>
                 </div>

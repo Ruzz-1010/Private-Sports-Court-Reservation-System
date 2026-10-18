@@ -11,11 +11,25 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['name', 'location', 'description', 'hourly_rate', 'is_active'])]
+#[Fillable(['name', 'location', 'description', 'image_path', 'hourly_rate', 'is_active'])]
 class Court extends Model
 {
     /** @use HasFactory<CourtFactory> */
     use HasFactory, SoftDeletes;
+
+    public const IMAGE_DISK = 'public';
+
+    public const IMAGE_DIRECTORY = 'courts';
+
+    /**
+     * Public URL for the court photo, or null when none has been uploaded.
+     */
+    public function imageUrl(): ?string
+    {
+        return $this->image_path
+            ? asset('storage/'.$this->image_path)
+            : null;
+    }
 
     /**
      * Get the attributes that should be cast.
