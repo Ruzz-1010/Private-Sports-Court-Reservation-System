@@ -6,13 +6,14 @@ This file is the primary implementation guide for every AI agent and developer w
 
 The system is an academic final system integration project for a private sports facility located in Barangay San Jose, Puerto Princesa City, Palawan. It must demonstrate persistent CRUD operations, authentication and role authorization, secure payment integration with asynchronous webhooks, transactional email, reports, validation, and protection against conflicting reservations.
 
-The Laravel 13 application is scaffolded and Phases 1 through 3 of the
+The Laravel 13 application is scaffolded and Phases 1 through 4 of the
 implementation order are complete: PostgreSQL schema, the database-level overlap
 guard, authentication, roles, the admin seeder, full court CRUD with authorization,
 availability calculation, transaction-safe reservation creation with slot holds,
-customer history, and the expiration sweeper. Payments, receipts, email, and
-reports are not yet implemented. Do not claim that a feature is implemented until
-the code and its verification exist.
+customer history, the expiration sweeper, payment confirmation through a signed
+idempotent webhook, and administrator on-site payment verification. Receipt PDF
+downloads, the email view, and reports are not yet implemented. Do not claim that
+a feature is implemented until the code and its verification exist.
 
 ## Source Documents and Project Files
 
@@ -33,6 +34,17 @@ the code and its verification exist.
 - `app/Services/Availability/AvailabilityService.php`: single source of truth for
   slot availability. Never duplicate its rules in controllers or views.
 - `app/Actions/Reservations/CreateReservation.php`: transaction-safe booking write.
+- `app/Contracts/PaymentGateway.php`: provider-independent payment interface.
+  `PayMongoGateway` talks to the real provider; `FakeGateway` drives local
+  development. Selected by `PAYMENT_GATEWAY` in `config/payments.php`.
+- `app/Actions/Payments/ConfirmPayment.php`: the single path that marks a payment
+  paid, confirms the reservation, and issues the receipt. Both the webhook and
+  on-site verification use it so they cannot diverge.
+- `app/Http/Controllers/Webhooks/PayMongoWebhookController.php`: signature check,
+  idempotency, amount and currency validation, then confirmation.
+- `app/Http/Controllers/Customer/PaymentSimulatorController.php`: local stand-in for
+  the provider's hosted checkout page. Sends a genuinely signed webhook to this
+  application's own endpoint so the production path is exercised end to end.
 
 When a requirement in this file conflicts with an explicit instruction from the user, follow the user's latest instruction and update this file. When this file conflicts with the instructor's source document, identify the conflict before changing behavior.
 
@@ -480,6 +492,28 @@ composer audit
 
 `composer run dev` starts the server, queue worker, log viewer, and Vite dev server
 together. Run the individual processes above when debugging one in isolation.
+
+The dev server must run with `--no-reload`, otherwise it ignores
+`PHP_CLI_SERVER_WORKERS` and creates a single worker. The payment simulator posts a
+webhook to this application's own endpoint while its own request is still open, so
+a single-worker server deadlocks for 30 seconds and the webhook appears to fail.
+
+```bash
+php artisan serve --no-reload        # required for the payment simulator
+php artisan queue:work               # required to deliver confirmation emails
+```
+
+## Payment Integration
+
+`PAYMENT_GATEWAY=fake` (the default) uses the local simulator. It builds the same
+JSON shape PayMongo sends, signs it with HMAC-SHA256 using
+`PAYMONGO_WEBHOOK_SECRET`, and POSTs it to `/webhooks/paymongo`. The real webhook
+controller then runs signature verification, idempotency, amount and currency
+validation, and the confirmation transaction, so the production path is exercised
+without live credentials.
+
+Set `PAYMENT_GATEWAY=paymongo` with real credentials to use hosted checkout. The
+webhook route must also be reachable over public HTTPS for real callbacks.
 
 ## Testing Environment
 

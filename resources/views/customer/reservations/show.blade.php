@@ -27,7 +27,27 @@
                     The payment deadline has passed. This hold will expire and the slot will be released.
                 </p>
             @endif
-            <p class="mt-2 text-xs text-amber-700">Payment processing arrives in the next phase.</p>
+            <div class="mt-4 flex flex-wrap gap-3">
+                @if ($reservation->payment_method->value === 'online')
+                    <form method="POST" action="{{ route('customer.payments.checkout', $reservation) }}">
+                        @csrf
+                        <button type="submit" class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800">
+                            Pay online
+                        </button>
+                    </form>
+                @else
+                    <p class="rounded-lg bg-white px-4 py-2 text-sm font-medium text-slate-700">
+                        Pay at the facility, then an administrator verifies it.
+                    </p>
+                @endif
+
+                @if ($reservation->holdIsActive())
+                    <a href="{{ route('customer.payments.simulator', ['reference' => $reservation->reference_number]) }}"
+                       class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                        Open payment simulator
+                    </a>
+                @endif
+            </div>
         </div>
     @endif
 

@@ -11,10 +11,10 @@
 
 @php
     $nav = [
-        ['label' => 'Dashboard', 'route' => 'admin.dashboard', 'icon' => 'M3 12l9-9 9 9M5 10v10a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V10'],
-        ['label' => 'Courts', 'route' => 'admin.courts.index', 'icon' => 'M4 6h16M4 12h16M4 18h16'],
+        ['label' => 'Dashboard', 'route' => 'admin.dashboard', 'url' => route('admin.dashboard'), 'icon' => 'M3 12l9-9 9 9M5 10v10a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V10'],
+        ['label' => 'Courts', 'route' => 'admin.courts.index', 'url' => route('admin.courts.index'), 'icon' => 'M4 6h16M4 12h16M4 18h16'],
         ['label' => 'Reservations', 'route' => 'admin.dashboard', 'icon' => 'M8 7V3m8 4V3M3 11h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z', 'soon' => true],
-        ['label' => 'Payments', 'route' => 'admin.dashboard', 'icon' => 'M3 10h18M7 15h4', 'soon' => true],
+        ['label' => 'Payments', 'route' => 'admin.payments.index', 'url' => route('admin.payments.index'), 'icon' => 'M3 10h18M7 15h4'],
         ['label' => 'Reports', 'route' => 'admin.dashboard', 'icon' => 'M4 19V5m0 14h16M8 16V9m4 7v-4m4 4V7', 'soon' => true],
     ];
 @endphp
@@ -44,7 +44,7 @@
                         <span class="ml-auto hidden rounded bg-slate-800 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-slate-500 md:inline">Soon</span>
                     </span>
                 @else
-                    <a href="{{ route($item['route']) }}" title="{{ $item['label'] }}"
+                    <a href="{{ $item['url'] ?? route($item['route']) }}" title="{{ $item['label'] }}"
                        @if ($isActive) aria-current="page" @endif
                        class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium
                               {{ $isActive ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
