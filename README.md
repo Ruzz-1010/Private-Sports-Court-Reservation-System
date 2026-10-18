@@ -6,7 +6,7 @@ The system will allow customers to view court availability, reserve schedules, p
 
 ## Project Status
 
-Planning and architecture are complete. The repository contains a Laravel-ready folder structure, but the Laravel framework has not yet been installed because PHP and Composer are not currently available in the development environment.
+Planning and architecture are complete. Laravel 13 is installed with PHP 8.3, Composer dependencies, Node.js dependencies, and compiled frontend assets. The default framework migrations and tests pass using the temporary SQLite development configuration. PostgreSQL 16 is installed and will become the primary database after its local service and project database are configured.
 
 Read [AGENTS.md](AGENTS.md) before implementing features.
 
@@ -41,7 +41,33 @@ Read [AGENTS.md](AGENTS.md) before implementing features.
 - Laravel Queue and Scheduler
 - Pest or PHPUnit
 
-Exact installation and development commands will be added after the Laravel scaffold is installed and verified.
+## Development Commands
+
+Install dependencies and prepare the application:
+
+```bash
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+npm run build
+```
+
+Run the local development processes:
+
+```bash
+composer run dev
+```
+
+Run validation:
+
+```bash
+php artisan test
+vendor/bin/pint --test
+npm run build
+composer audit
+```
 
 ## Environment Setup
 
@@ -52,3 +78,9 @@ bash scripts/setup-environment.sh
 ```
 
 The command requests the local sudo password through the terminal and installs PHP, Composer, required PHP extensions, PostgreSQL, and supporting utilities. Node.js and npm are already available on the current machine.
+
+Start the PostgreSQL 16 cluster when needed:
+
+```bash
+sudo pg_ctlcluster 16 main start
+```

@@ -6,7 +6,11 @@ This file is the primary implementation guide for every AI agent and developer w
 
 The system is an academic final system integration project for a private sports facility located in Barangay San Jose, Puerto Princesa City, Palawan. It must demonstrate persistent CRUD operations, authentication and role authorization, secure payment integration with asynchronous webhooks, transactional email, reports, validation, and protection against conflicting reservations.
 
-The application code has not been scaffolded yet. The repository currently contains project documents, analysis, and flowchart assets. Do not claim that a feature is implemented until the code and verification exist.
+The Laravel 13 application is scaffolded and Phase 1 of the implementation order is
+complete: PostgreSQL schema, the database-level overlap guard, authentication, roles,
+and the admin seeder. Phase 2 onward (court CRUD, reservations, payments, receipts,
+email, reports) is not yet implemented. Do not claim that a feature is implemented
+until the code and its verification exist.
 
 ## Source Documents and Project Files
 
@@ -19,6 +23,9 @@ The application code has not been scaffolded yet. The repository currently conta
 - `docs/diagrams/admin-flow.png`: administrator workflow image.
 - `docs/diagrams/system-flow.png`: internal system workflow image.
 - `docs/diagrams/`: use-case, architecture, and payment sequence images.
+- `app/Enums/`: `Role`, `ReservationStatus`, `PaymentMethod`, `PaymentStatus`.
+- `database/migrations/2026_10_18_132036_add_overlap_guard_to_reservations_table.php`:
+  the `reservations_no_overlapping_holds` exclusion constraint.
 
 When a requirement in this file conflicts with an explicit instruction from the user, follow the user's latest instruction and update this file. When this file conflicts with the instructor's source document, identify the conflict before changing behavior.
 
@@ -438,18 +445,49 @@ Work in small, verifiable vertical slices:
 
 ## Commands
 
-No application commands are available until the Laravel project is scaffolded. After scaffolding, replace this section with exact verified commands for:
+The Laravel 13 scaffold is installed and runs on PHP 8.3 with PostgreSQL 16. All
+commands below were executed successfully against this repository.
 
-- Installing dependencies
-- Starting the application
-- Starting frontend asset compilation
-- Running migrations and seeders
-- Running the queue worker
-- Running the scheduler locally
-- Running tests
-- Formatting code
+```bash
+# Install
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
 
-Never invent commands in handoff notes. Verify them against the actual repository.
+# Database
+php artisan migrate
+php artisan db:seed
+
+# Run
+npm run build
+php artisan serve                                   # http://127.0.0.1:8000
+php artisan queue:work                              # background email delivery
+php artisan schedule:work                           # hold expiration sweeper
+
+# Verify
+php artisan test
+vendor/bin/pint                                     # format changed files
+composer audit
+```
+
+`composer run dev` starts the server, queue worker, log viewer, and Vite dev server
+together. Run the individual processes above when debugging one in isolation.
+
+## Testing Environment
+
+`phpunit.xml` points tests at the same PostgreSQL server but an isolated `testing`
+schema (`DB_SCHEMA=testing`) rather than SQLite. This is required: the
+`reservations_no_overlapping_holds` exclusion constraint is PostgreSQL-only, so an
+in-memory SQLite database would silently skip the concurrency tests. Create that
+schema once with:
+
+```sql
+CREATE SCHEMA IF NOT EXISTS testing;
+```
+
+Never point tests at the `public` schema. `RefreshDatabase` runs `migrate:fresh`,
+which would wipe development data.
 
 ## Open Decisions
 
