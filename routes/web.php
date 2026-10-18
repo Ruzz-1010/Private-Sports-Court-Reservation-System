@@ -4,7 +4,9 @@ use App\Http\Controllers\Admin\CourtController as AdminCourtController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Customer\AvailabilityController as CustomerAvailabilityController;
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
+use App\Http\Controllers\Customer\ReservationController as CustomerReservationController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -42,6 +44,15 @@ Route::middleware(['auth'])->group(function (): void {
 
     Route::middleware('role:customer')->prefix('customer')->name('customer.')->group(function (): void {
         Route::get('dashboard', CustomerDashboardController::class)->name('dashboard');
+
+        Route::get('courts/{court}/availability', [CustomerAvailabilityController::class, 'index'])->name('availability.index');
+        Route::get('courts/{court}/slots', [CustomerAvailabilityController::class, 'slots'])->name('availability.slots');
+
+        Route::get('reservations', [CustomerReservationController::class, 'index'])->name('reservations.index');
+        Route::get('reservations/create/{court}', [CustomerReservationController::class, 'create'])->name('reservations.create');
+        Route::post('reservations', [CustomerReservationController::class, 'store'])->name('reservations.store');
+        Route::get('reservations/{reservation}', [CustomerReservationController::class, 'show'])->name('reservations.show');
+        Route::delete('reservations/{reservation}', [CustomerReservationController::class, 'destroy'])->name('reservations.destroy');
     });
 
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function (): void {

@@ -1,8 +1,18 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+/*
+|--------------------------------------------------------------------------
+| Scheduled tasks
+|--------------------------------------------------------------------------
+|
+| Unpaid reservations must release their slot promptly, because the database
+| exclusion constraint cannot use now() in its predicate and will keep
+| rejecting inserts until the hold is actually marked expired.
+|
+*/
+
+Schedule::command('reservations:expire')
+    ->everyMinute()
+    ->withoutOverlapping();

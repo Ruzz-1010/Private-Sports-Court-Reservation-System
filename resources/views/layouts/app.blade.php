@@ -53,9 +53,10 @@
                 </div>
             @endif
 
-            {{ $slot ?? '' }}
+            {{-- Only @yield is used here; $slot is reserved for Blade components. --}}
             @yield('content')
         </main>
     </div>
+    @stack('scripts')
 </body>
 </html>

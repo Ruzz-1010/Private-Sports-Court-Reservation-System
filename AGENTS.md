@@ -6,12 +6,13 @@ This file is the primary implementation guide for every AI agent and developer w
 
 The system is an academic final system integration project for a private sports facility located in Barangay San Jose, Puerto Princesa City, Palawan. It must demonstrate persistent CRUD operations, authentication and role authorization, secure payment integration with asynchronous webhooks, transactional email, reports, validation, and protection against conflicting reservations.
 
-The Laravel 13 application is scaffolded and Phases 1 and 2 of the implementation
-order are complete: PostgreSQL schema, the database-level overlap guard,
-authentication, roles, the admin seeder, and full court CRUD with authorization.
-Phase 3 onward (availability, reservations, holds, expiration, payments, receipts,
-email, reports) is not yet implemented. Do not claim that a feature is implemented
-until the code and its verification exist.
+The Laravel 13 application is scaffolded and Phases 1 through 3 of the
+implementation order are complete: PostgreSQL schema, the database-level overlap
+guard, authentication, roles, the admin seeder, full court CRUD with authorization,
+availability calculation, transaction-safe reservation creation with slot holds,
+customer history, and the expiration sweeper. Payments, receipts, email, and
+reports are not yet implemented. Do not claim that a feature is implemented until
+the code and its verification exist.
 
 ## Source Documents and Project Files
 
@@ -27,6 +28,11 @@ until the code and its verification exist.
 - `app/Enums/`: `Role`, `ReservationStatus`, `PaymentMethod`, `PaymentStatus`.
 - `database/migrations/2026_10_18_132036_add_overlap_guard_to_reservations_table.php`:
   the `reservations_no_overlapping_holds` exclusion constraint.
+- `config/reservation.php`: all booking business rules (timezone, operating hours,
+  increments, duration limits, advance window, lead time, hold durations).
+- `app/Services/Availability/AvailabilityService.php`: single source of truth for
+  slot availability. Never duplicate its rules in controllers or views.
+- `app/Actions/Reservations/CreateReservation.php`: transaction-safe booking write.
 
 When a requirement in this file conflicts with an explicit instruction from the user, follow the user's latest instruction and update this file. When this file conflicts with the instructor's source document, identify the conflict before changing behavior.
 
