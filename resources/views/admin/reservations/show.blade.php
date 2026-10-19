@@ -6,5 +6,24 @@
     <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-2"><h2 class="text-lg font-bold text-slate-950">Booking details</h2><dl class="mt-5 grid gap-5 sm:grid-cols-2"><div><dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">Court</dt><dd class="mt-1 font-semibold text-slate-900">{{ $reservation->court->name }}</dd><dd class="text-sm text-slate-600">{{ $reservation->court->location }}</dd></div><div><dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">Customer</dt><dd class="mt-1 font-semibold text-slate-900">{{ $reservation->user->name }}</dd><dd class="text-sm text-slate-600">{{ $reservation->user->email }}</dd></div><div><dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">Schedule</dt><dd class="mt-1 font-semibold text-slate-900">{{ $reservation->starts_at->setTimezone(config('reservation.timezone'))->format('l, M j, Y') }}</dd><dd class="text-sm text-slate-600">{{ $reservation->starts_at->setTimezone(config('reservation.timezone'))->format('g:i A') }}–{{ $reservation->ends_at->setTimezone(config('reservation.timezone'))->format('g:i A') }}</dd></div><div><dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">Quoted total</dt><dd class="mt-1 text-xl font-bold text-slate-950">₱{{ number_format((float) $reservation->total_amount, 2) }}</dd><dd class="text-sm text-slate-600">{{ ucfirst(str_replace('_', ' ', $reservation->payment_method->value)) }}</dd></div></dl></section>
     <aside class="rounded-2xl bg-slate-950 p-6 text-white shadow-sm"><p class="text-sm font-medium text-slate-400">Payment deadline</p><p class="mt-2 text-lg font-bold">{{ $reservation->payment_deadline?->setTimezone(config('reservation.timezone'))->format('M j, g:i A') ?? 'Not applicable' }}</p><p class="mt-4 text-sm text-slate-400">A reservation is confirmed only after a verified payment.</p></aside>
 </div>
+@if ($reservation->receipt)
+    <section class="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-6 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <h2 class="font-bold text-emerald-950">Receipt issued</h2>
+                <p class="mt-1 text-sm text-emerald-800">
+                    {{ $reservation->receipt->receipt_number }} &middot;
+                    {{ $reservation->receipt->currency }} {{ number_format((float) $reservation->receipt->amount_paid, 2) }} paid
+                    on {{ $reservation->receipt->transaction_date->setTimezone(config('reservation.timezone'))->format('M j, Y g:i A') }}
+                </p>
+            </div>
+            <a href="{{ route('customer.receipts.show', $reservation->receipt) }}"
+               class="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800">
+                Download receipt (PDF)
+            </a>
+        </div>
+    </section>
+@endif
+
 <section class="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"><div class="border-b border-slate-100 px-6 py-4"><h2 class="font-bold text-slate-950">Payment attempts</h2></div><div class="divide-y divide-slate-100">@forelse($reservation->payments as $payment)<div class="flex flex-wrap items-center justify-between gap-3 px-6 py-4"><div><p class="font-semibold text-slate-900">₱{{ number_format((float) $payment->amount, 2) }} · {{ ucfirst(str_replace('_', ' ', $payment->method->value)) }}</p><p class="mt-1 text-xs text-slate-500">{{ $payment->created_at->setTimezone(config('reservation.timezone'))->format('M j, Y g:i A') }}</p></div><span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">{{ ucfirst(str_replace('_', ' ', $payment->status->value)) }}</span></div>@empty<div class="px-6 py-10 text-center text-sm text-slate-500">No payment attempts recorded.</div>@endforelse</div></section>
 @endsection

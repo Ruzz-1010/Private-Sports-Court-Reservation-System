@@ -28,7 +28,7 @@ class ReservationConfirmed extends Notification
         $total = number_format((float) $reservation->total_amount, 2);
         $paymentMethod = ucfirst(str_replace('_', ' ', $receipt?->payment_method ?? 'online'));
 
-        return (new MailMessage)
+        $mail = (new MailMessage)
             ->subject("Reservation confirmed — {$reservation->reference_number}")
             ->greeting("Hi {$notifiable->name},")
             ->line('Your payment was verified and your court reservation is confirmed.')
@@ -40,8 +40,19 @@ class ReservationConfirmed extends Notification
             ->line("Payment method: {$paymentMethod}")
             ->line('Payment status: Paid')
             ->line('Reference: '.$reservation->reference_number)
-            ->line('Receipt number: '.($receipt?->receipt_number ?? 'Processing'))
-            ->action('View reservation and receipt', route('customer.reservations.show', $reservation))
-            ->line('Keep this email as proof of your confirmed reservation.');
+            ->line('Receipt number: '.($receipt?->receipt_number ?? 'Processing'));
+
+        // MailMessage renders a single action button, and calling action() a
+        // second time silently discards the first. The button therefore points
+        // at the receipt when one exists and falls back to the reservation page.
+        if ($receipt !== null) {
+            $mail->action('Download receipt (PDF)', route('customer.receipts.show', $receipt));
+        } else {
+            $mail->action('View reservation', route('customer.reservations.show', $reservation));
+        }
+
+        return $mail
+            ->line('Keep this email as proof of your confirmed reservation.')
+            ->line('You can download this receipt again any time from your reservation history.');
     }
 }

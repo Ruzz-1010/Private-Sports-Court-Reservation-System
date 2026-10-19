@@ -41,6 +41,7 @@ return [
 
     'webhook' => [
         'path' => env('MAYA_WEBHOOK_PATH', 'webhooks/maya'),
+        'public_url' => env('MAYA_WEBHOOK_URL'),
         'rate_limit' => (int) env('MAYA_WEBHOOK_RATE_LIMIT', 60),
     ],
 

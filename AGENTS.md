@@ -292,6 +292,28 @@ If a payment succeeds after the hold has expired and another customer already ow
 
 ## Receipt and Email Rules
 
+`ConfirmPayment` issues the receipt inside the same transaction that marks the
+payment paid, so a receipt never exists without a verified payment and exactly
+one exists per payment.
+
+`app/Services/Receipts/GenerateReceiptPdf.php` renders the receipt row to PDF
+with `barryvdh/laravel-dompdf`, which is pure PHP and needs no system binary.
+The template is `resources/views/receipts/pdf.blade.php` and uses plain CSS,
+because dompdf has no Tailwind. Only values snapshotted onto the receipt row are
+printed, so a later court rename or rate change cannot rewrite a receipt a
+customer already downloaded.
+
+`ReceiptPolicy::download` is the authorization control, not the route. The
+download route sits in the shared authenticated group rather than inside
+`role:customer`, because administrators also need it for reconciliation, but
+the policy still resolves ownership from the reservation, so one customer can
+never open another customer's receipt. `config('reservation.facility_name')`
+and `facility_address` are printed on the document.
+
+The confirmation email has a single action button pointing at the receipt PDF.
+`MailMessage::action()` overwrites rather than appending, so calling it twice
+silently drops the first button.
+
 After verified payment:
 
 - Generate exactly one logical receipt for the successful payment.

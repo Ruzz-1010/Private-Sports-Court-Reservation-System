@@ -96,6 +96,25 @@
         </dl>
     </div>
 
+    @if ($reservation->receipt)
+        <div class="mt-6 rounded-lg border border-emerald-200 bg-emerald-50 p-6">
+            <div class="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                    <h2 class="font-semibold text-emerald-900">Payment receipt</h2>
+                    <p class="mt-1 text-sm text-emerald-800">
+                        Receipt <span class="font-semibold">{{ $reservation->receipt->receipt_number }}</span>
+                        &middot; {{ $reservation->receipt->currency }} {{ number_format((float) $reservation->receipt->amount_paid, 2) }} paid
+                    </p>
+                    <p class="mt-1 text-sm text-emerald-800">You can download this any time from your reservation history.</p>
+                </div>
+                <a href="{{ route('customer.receipts.show', $reservation->receipt) }}"
+                   class="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800">
+                    Download receipt (PDF)
+                </a>
+            </div>
+        </div>
+    @endif
+
     @can('cancel', $reservation)
         <div class="mt-6 rounded-lg border border-red-200 bg-white p-6">
             <h2 class="font-semibold text-slate-900">Cancel reservation</h2>

@@ -10,6 +10,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Customer\AvailabilityController as CustomerAvailabilityController;
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
 use App\Http\Controllers\Customer\PaymentController as CustomerPaymentController;
+use App\Http\Controllers\Customer\ReceiptController as CustomerReceiptController;
 use App\Http\Controllers\Customer\ReservationController as CustomerReservationController;
 use App\Http\Controllers\Webhooks\MayaWebhookController;
 use Illuminate\Support\Facades\Route;
@@ -76,6 +77,12 @@ Route::middleware(['auth'])->group(function (): void {
 
         Route::post('reservations/{reservation}/checkout', [CustomerPaymentController::class, 'checkout'])->name('payments.checkout');
     });
+
+    // Reachable by customers for their own receipts and by administrators for
+    // reconciliation. It sits outside the role groups because ReceiptPolicy, not
+    // the route, decides ownership: one customer still cannot open another
+    // customer's receipt.
+    Route::get('receipts/{receipt}', [CustomerReceiptController::class, 'show'])->name('customer.receipts.show');
 
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function (): void {
         Route::get('dashboard', AdminDashboardController::class)->name('dashboard');

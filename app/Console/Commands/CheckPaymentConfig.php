@@ -104,12 +104,18 @@ class CheckPaymentConfig extends Command
      */
     private function publicUrl(): string
     {
+        $configuredUrl = config('payments.webhook.public_url');
+
+        if (is_string($configuredUrl) && $configuredUrl !== '') {
+            return rtrim($configuredUrl, '/');
+        }
+
         return rtrim((string) config('app.url'), '/').'/'.config('payments.webhook.path');
     }
 
     private function hasPublicUrl(): bool
     {
-        $url = (string) config('app.url');
+        $url = (string) (config('payments.webhook.public_url') ?: config('app.url'));
 
         return preg_match('#^https://#', $url) === 1
             && preg_match('#^(localhost|127\.0\.0\.1|\[::1\])#', $url) === 0;

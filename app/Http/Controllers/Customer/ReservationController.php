@@ -32,7 +32,7 @@ class ReservationController extends Controller
     {
         $reservations = $request->user()
             ->reservations()
-            ->with('court')
+            ->with(['court', 'receipt'])
             ->orderBy('starts_at', 'desc')
             ->paginate(10);
 
@@ -48,7 +48,7 @@ class ReservationController extends Controller
     {
         $this->authorize('view', $reservation);
 
-        $reservation->load(['court', 'payments']);
+        $reservation->load(['court', 'payments', 'receipt']);
 
         return view('customer.reservations.show', [
             'reservation' => $reservation,

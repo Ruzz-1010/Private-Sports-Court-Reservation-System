@@ -27,6 +27,7 @@
                     <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Schedule</th>
                     <th scope="col" class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-600">Amount</th>
                     <th scope="col" class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-600">Status</th>
+                    <th scope="col" class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-600">Receipt</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-200">
@@ -46,6 +47,16 @@
                         <td class="px-4 py-3 text-right text-sm text-slate-900">₱{{ number_format((float) $reservation->total_amount, 2) }}</td>
                         <td class="px-4 py-3 text-center">
                             <x-reservation-status :status="$reservation->status->value" />
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            @if ($reservation->receipt)
+                                <a href="{{ route('customer.receipts.show', $reservation->receipt) }}"
+                                   class="inline-flex items-center gap-1 text-sm font-medium text-slate-700 underline hover:text-slate-900">
+                                    PDF
+                                </a>
+                            @else
+                                <span class="text-sm text-slate-400">&mdash;</span>
+                            @endif
                         </td>
                     </tr>
                 @endforeach
