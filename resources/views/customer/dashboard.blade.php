@@ -3,20 +3,21 @@
 @section('content')
 
 {{-- Header --}}
-<div class="mb-8 flex flex-wrap items-end justify-between gap-4">
-    <div>
-        <p class="text-sm font-medium text-slate-500">
+<div class="relative mb-8 flex flex-wrap items-end justify-between gap-4 overflow-hidden rounded-[2rem] bg-slate-950 px-6 py-9 text-white shadow-xl shadow-slate-300 sm:px-9">
+    <div class="absolute inset-0 -z-0 bg-[radial-gradient(circle_at_top_right,_rgba(20,184,166,0.32),transparent_28%),radial-gradient(circle_at_5%_95%,_rgba(79,70,229,0.42),transparent_34%)]"></div>
+    <div class="relative z-10">
+        <p class="text-sm font-semibold text-indigo-200">
             {{ now(config('reservation.timezone'))->format('l, F j, Y') }}
         </p>
-        <h1 class="mt-1 text-3xl font-bold tracking-tight text-slate-900">
+        <h1 class="mt-1 text-3xl font-bold tracking-tight text-white">
             Welcome back, {{ \Illuminate\Support\Str::before(auth()->user()->name, ' ') }}
         </h1>
-        <p class="mt-2 text-slate-600">Pick a court, check the calendar, and book your slot.</p>
+        <p class="mt-2 text-slate-300">Find your time, choose a court, and reserve in a few steps.</p>
     </div>
 
     @if ($courts->isNotEmpty())
         <a href="{{ route('customer.availability.index', ['court' => $courts->first()->id]) }}"
-           class="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-slate-800">
+           class="relative z-10 inline-flex items-center gap-2 rounded-xl bg-teal-300 px-5 py-3 text-sm font-bold text-slate-950 shadow-lg shadow-teal-500/20 hover:bg-teal-200">
             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
             </svg>
@@ -27,7 +28,7 @@
 
 {{-- Next booking --}}
 @if ($nextBooking)
-    <div class="mb-8 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+    <div class="mb-8 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
         <div class="border-b border-slate-200 bg-slate-900 px-6 py-3">
             <h2 class="text-sm font-semibold text-white">Your next booking</h2>
         </div>
@@ -78,7 +79,7 @@
 
 {{-- Stats --}}
 <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
         <div class="flex items-center gap-3">
             <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true">
@@ -92,7 +93,7 @@
         </div>
     </div>
 
-    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
         <div class="flex items-center gap-3">
             <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true">
@@ -106,7 +107,7 @@
         </div>
     </div>
 
-    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
         <div class="flex items-center gap-3">
             <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-green-50 text-green-600">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true">
@@ -120,7 +121,7 @@
         </div>
     </div>
 
-    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
         <div class="flex items-center gap-3">
             <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-50 text-violet-600">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true">

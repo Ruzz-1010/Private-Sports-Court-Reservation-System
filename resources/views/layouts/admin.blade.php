@@ -7,27 +7,27 @@
     <title>{{ isset($title) ? $title.' · ' : '' }}Admin · {{ config('app.name') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="h-full bg-slate-100 font-sans text-slate-900 antialiased">
+<body class="h-full bg-[#f7f8fc] font-sans text-slate-900 antialiased">
 
 @php
     $nav = [
         ['label' => 'Dashboard', 'route' => 'admin.dashboard', 'url' => route('admin.dashboard'), 'icon' => 'M3 12l9-9 9 9M5 10v10a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V10'],
         ['label' => 'Courts', 'route' => 'admin.courts.index', 'url' => route('admin.courts.index'), 'icon' => 'M4 6h16M4 12h16M4 18h16'],
-        ['label' => 'Reservations', 'route' => 'admin.dashboard', 'icon' => 'M8 7V3m8 4V3M3 11h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z', 'soon' => true],
+        ['label' => 'Reservations', 'route' => 'admin.reservations.index', 'url' => route('admin.reservations.index'), 'icon' => 'M8 7V3m8 4V3M3 11h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z'],
         ['label' => 'Payments', 'route' => 'admin.payments.index', 'url' => route('admin.payments.index'), 'icon' => 'M3 10h18M7 15h4'],
-        ['label' => 'Reports', 'route' => 'admin.dashboard', 'icon' => 'M4 19V5m0 14h16M8 16V9m4 7v-4m4 4V7', 'soon' => true],
+        ['label' => 'Reports', 'route' => 'admin.reports.index', 'url' => route('admin.reports.index'), 'icon' => 'M4 19V5m0 14h16M8 16V9m4 7v-4m4 4V7'],
     ];
 @endphp
 
 <div class="flex min-h-full">
 
     {{-- Sidebar --}}
-    <aside class="flex w-16 shrink-0 flex-col border-r border-slate-800 bg-slate-900 md:w-60">
+    <aside class="flex w-16 shrink-0 flex-col border-r border-slate-800 bg-[#0b1020] md:w-64">
         <div class="flex h-16 items-center gap-2 border-b border-slate-800 px-3 md:px-5">
-            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-slate-700 text-sm font-bold text-white">SC</span>
+            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-teal-300 text-sm font-black text-slate-950">SC</span>
             <span class="hidden text-sm font-semibold leading-tight text-white md:block">
-                Court Admin
-                <span class="block text-xs font-normal text-slate-400">San Jose, PPC</span>
+                San Jose Courts
+                <span class="block text-xs font-normal text-slate-400">Admin workspace</span>
             </span>
         </div>
 
@@ -83,7 +83,7 @@
     {{-- Content --}}
     <div class="flex min-w-0 flex-1 flex-col">
 
-        <main class="flex-1 px-4 py-6 sm:px-6 lg:px-8">
+        <main class="flex-1 px-4 py-7 sm:px-6 lg:px-8 xl:px-10">
             @if (session('status'))
                 <div role="status" class="mb-6 rounded-md bg-green-50 px-4 py-3 text-sm text-green-800">
                     {{ session('status') }}

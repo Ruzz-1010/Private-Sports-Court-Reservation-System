@@ -3,14 +3,15 @@
 use App\Http\Controllers\Admin\CourtController as AdminCourtController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\PaymentVerificationController as AdminPaymentVerificationController;
+use App\Http\Controllers\Admin\ReportController as AdminReportController;
+use App\Http\Controllers\Admin\ReservationController as AdminReservationController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Customer\AvailabilityController as CustomerAvailabilityController;
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
 use App\Http\Controllers\Customer\PaymentController as CustomerPaymentController;
-use App\Http\Controllers\Customer\PaymentSimulatorController as CustomerPaymentSimulatorController;
 use App\Http\Controllers\Customer\ReservationController as CustomerReservationController;
-use App\Http\Controllers\Webhooks\PayMongoWebhookController;
+use App\Http\Controllers\Webhooks\MayaWebhookController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -23,14 +24,14 @@ Route::get('/', function () {
 |--------------------------------------------------------------------------
 |
 | Public and unauthenticated because the provider calls it server to server.
-| It is rate limited and every payload must carry a valid signature, so an
-| unauthenticated request still cannot change any state.
+| It is rate limited. Maya's payment state is then retrieved using the secret
+| API key before an unauthenticated callback can change any local state.
 |
 */
 
-Route::post(config('payments.webhook.path'), PayMongoWebhookController::class)
+Route::post(config('payments.webhook.path'), MayaWebhookController::class)
     ->middleware('throttle:'.config('payments.webhook.rate_limit'))
-    ->name('webhooks.paymongo');
+    ->name('webhooks.maya');
 
 /*
 |--------------------------------------------------------------------------
@@ -74,10 +75,6 @@ Route::middleware(['auth'])->group(function (): void {
         Route::delete('reservations/{reservation}', [CustomerReservationController::class, 'destroy'])->name('reservations.destroy');
 
         Route::post('reservations/{reservation}/checkout', [CustomerPaymentController::class, 'checkout'])->name('payments.checkout');
-
-        // Local stand-in for the provider's hosted checkout page.
-        Route::get('payments/simulate/{reference}', [CustomerPaymentSimulatorController::class, 'show'])->name('payments.simulator');
-        Route::post('payments/simulate/{reference}/send', [CustomerPaymentSimulatorController::class, 'send'])->name('payments.simulator.send');
     });
 
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function (): void {
@@ -85,6 +82,9 @@ Route::middleware(['auth'])->group(function (): void {
 
         Route::resource('courts', AdminCourtController::class);
         Route::post('courts/{court}/restore', [AdminCourtController::class, 'restore'])->name('courts.restore');
+
+        Route::resource('reservations', AdminReservationController::class)->only(['index', 'show']);
+        Route::get('reports', [AdminReportController::class, 'index'])->name('reports.index');
 
         Route::get('payments', [AdminPaymentVerificationController::class, 'index'])->name('payments.index');
         Route::post('payments/{payment}/verify', [AdminPaymentVerificationController::class, 'verify'])->name('payments.verify');

@@ -39,7 +39,8 @@ class PaymentController extends Controller
 
         $url = $payment->provider_metadata['checkout_url'] ?? null;
 
-        // The fake gateway returns its simulator route instead of a provider URL.
+        // Maya returns its hosted QR payment URL. A browser redirect alone never
+        // confirms the reservation; only the verified webhook can do that.
         if ($url === null) {
             return redirect()->route('customer.reservations.show', $reservation);
         }

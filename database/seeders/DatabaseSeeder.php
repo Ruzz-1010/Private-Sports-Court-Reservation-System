@@ -18,7 +18,6 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             CourtSeeder::class,
             DemoReservationSeeder::class,
-            DemoPaymentSeeder::class,
         ]);
     }
 }

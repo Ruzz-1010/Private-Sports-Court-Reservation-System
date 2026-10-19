@@ -8,23 +8,22 @@ return [
     |--------------------------------------------------------------------------
     |
     | The application talks to this adapter, never to a provider SDK directly.
-    | Switching between the real gateway and a local simulator is a config
-    | change, which is what makes the payment flow testable and demoable
-    | without live credentials.
+    | Maya Pay with Maya Dynamic QRPh is the provider. It creates the QR code
+    | and hosts the checkout page, so wallet credentials and card details never
+    | reach this application.
     |
-    | gateway: "paymongo" for the real hosted checkout, "fake" for the local
-    | simulator used in development and during presentations.
+    | Set the sandbox keys to PAYMENT_GATEWAY=maya and switch MAYA_BASE_URL to
+    | https://pg-maya.paymaya.com for live mode.
     |
     */
 
-    'gateway' => env('PAYMENT_GATEWAY', 'fake'),
+    'gateway' => env('PAYMENT_GATEWAY', 'maya'),
 
-    'paymongo' => [
-        'secret_key' => env('PAYMONGO_SECRET_KEY'),
-        'public_key' => env('PAYMONGO_PUBLIC_KEY'),
-        'webhook_secret' => env('PAYMONGO_WEBHOOK_SECRET'),
-        'base_url' => env('PAYMONGO_BASE_URL', 'https://api.paymongo.com/v1'),
-        'timeout' => (int) env('PAYMONGO_TIMEOUT', 15),
+    'maya' => [
+        'public_key' => env('MAYA_PUBLIC_KEY'),
+        'secret_key' => env('MAYA_SECRET_KEY'),
+        'base_url' => env('MAYA_BASE_URL', 'https://pg-sandbox.paymaya.com'),
+        'timeout' => (int) env('MAYA_TIMEOUT', 15),
     ],
 
     /*
@@ -32,16 +31,17 @@ return [
     | Webhook
     |--------------------------------------------------------------------------
     |
-    | Endpoints are rate limited because they are publicly reachable. The
-    | limiter stops casual abuse; signature verification is what actually
-    | authenticates a callback.
+    | Publicly reachable over HTTPS, so it is rate limited to stop casual
+    | abuse. Maya publishes no per-request signature for Dynamic QRPh, so the
+    | rate limiter is not the security control. The handler re-verifies every
+    | payment through Maya's secret-key endpoint and compares amount, currency,
+    | status, and reference before any state changes.
     |
     */
 
     'webhook' => [
-        'path' => env('PAYMONGO_WEBHOOK_PATH', 'webhooks/paymongo'),
-        'signature_header' => 'Paymongo-Signature',
-        'rate_limit' => (int) env('PAYMONGO_WEBHOOK_RATE_LIMIT', 60),
+        'path' => env('MAYA_WEBHOOK_PATH', 'webhooks/maya'),
+        'rate_limit' => (int) env('MAYA_WEBHOOK_RATE_LIMIT', 60),
     ],
 
     /*

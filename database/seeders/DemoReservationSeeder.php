@@ -109,7 +109,7 @@ class DemoReservationSeeder extends Seeder
             Payment::create([
                 'reservation_id' => $reservation->id,
                 'method' => $method,
-                'provider' => $method === PaymentMethod::Online ? 'paymongo' : null,
+                'provider' => $method === PaymentMethod::Online ? 'maya' : null,
                 'amount' => $reservation->total_amount,
                 'currency' => config('reservation.currency'),
                 'status' => $entry['paid'] ? PaymentStatus::Paid : PaymentStatus::Pending,

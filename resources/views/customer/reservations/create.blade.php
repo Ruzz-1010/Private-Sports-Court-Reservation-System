@@ -83,7 +83,7 @@
                                @checked(old('payment_method', 'online') === 'online') class="mt-0.5">
                         <span>
                             <span class="block text-sm font-medium text-slate-900">Pay online</span>
-                            <span class="block text-xs text-slate-600">PayMongo checkout. Slot held for {{ config('reservation.hold_minutes.online') }} minutes.</span>
+                            <span class="block text-xs text-slate-600">Maya QR code checkout. Slot held for {{ config('reservation.hold_minutes.online') }} minutes.</span>
                         </span>
                     </label>
                     <label class="flex cursor-pointer items-start gap-3 rounded-md border border-slate-300 p-3 has-[:checked]:border-slate-900">

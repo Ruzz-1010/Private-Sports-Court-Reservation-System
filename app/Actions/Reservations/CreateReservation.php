@@ -76,7 +76,7 @@ class CreateReservation
             Payment::create([
                 'reservation_id' => $reservation->getKey(),
                 'method' => $method,
-                'provider' => $method === PaymentMethod::Online ? 'paymongo' : null,
+                'provider' => $method === PaymentMethod::Online ? config('payments.gateway') : null,
                 'amount' => $reservation->total_amount,
                 'currency' => config('reservation.currency'),
             ]);

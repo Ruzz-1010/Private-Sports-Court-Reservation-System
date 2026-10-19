@@ -3,6 +3,7 @@
 namespace Tests\Feature\Reservations;
 
 use App\Actions\Reservations\CreateReservation;
+use App\Contracts\PaymentGateway;
 use App\Enums\PaymentMethod;
 use App\Enums\ReservationStatus;
 use App\Enums\Role;
@@ -65,7 +66,10 @@ class CreateReservationTest extends TestCase
 
         $this->assertSame(PaymentMethod::Online, $payment->method);
         $this->assertSame($reservation->total_amount, $payment->amount);
-        $this->assertSame('paymongo', $payment->provider);
+
+        // The provider recorded on the attempt must match the bound gateway, so
+        // a payment can always be traced back to the integration that made it.
+        $this->assertSame(app(PaymentGateway::class)->name(), $payment->provider);
     }
 
     public function test_the_total_is_calculated_from_duration_and_rate(): void

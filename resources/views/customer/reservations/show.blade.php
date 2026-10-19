@@ -40,13 +40,6 @@
                         Pay at the facility, then an administrator verifies it.
                     </p>
                 @endif
-
-                @if ($reservation->holdIsActive())
-                    <a href="{{ route('customer.payments.simulator', ['reference' => $reservation->reference_number]) }}"
-                       class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
-                        Open payment simulator
-                    </a>
-                @endif
             </div>
         </div>
     @endif

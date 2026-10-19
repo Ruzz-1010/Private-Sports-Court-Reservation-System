@@ -7,7 +7,7 @@
     <title>{{ isset($title) ? $title.' · ' : '' }}{{ config('app.name') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="h-full bg-slate-50 font-sans text-slate-900 antialiased">
+<body class="h-full bg-[#f7f8fc] font-sans text-slate-900 antialiased">
 
 @php
     // Guest pages have no session, so skip the nav and its database lookup.
@@ -27,12 +27,12 @@
 <div class="min-h-full">
 
     {{-- Top navigation --}}
-    <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur">
-        <nav class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4" aria-label="Main">
+    <header class="sticky top-0 z-20 border-b border-slate-200/80 bg-white/85 backdrop-blur-xl">
+        <nav class="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6" aria-label="Main">
             <div class="flex items-center gap-6">
                 <a href="{{ route('customer.dashboard') }}" class="flex shrink-0 items-center gap-2">
-                    <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-xs font-bold text-white">SC</span>
-                    <span class="hidden text-sm font-semibold text-slate-900 md:block">Court Reservation</span>
+                    <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-950 text-xs font-black text-teal-300 shadow-lg shadow-slate-300">SC</span>
+                    <span class="hidden text-sm font-black tracking-tight text-slate-950 md:block">San Jose Courts</span>
                 </a>
 
                 <div class="hidden items-center gap-1 md:flex">
@@ -42,8 +42,8 @@
                                @if (request()->routeIs($item['route'])) aria-current="page" @endif
                                class="flex shrink-0 items-center gap-2 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium
                                       {{ request()->routeIs($item['route'])
-                                          ? 'bg-slate-100 text-slate-900'
-                                          : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
+                                          ? 'bg-slate-950 text-white'
+                                          : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950' }}">
                                 <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="{{ $item['icon'] }}"/>
                                 </svg>
@@ -59,13 +59,13 @@
                     <span class="hidden text-sm text-slate-600 xl:block">{{ auth()->user()->name }}</span>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                        <button type="submit" class="rounded-xl border border-slate-200 px-3.5 py-2 text-sm font-bold text-slate-700 hover:bg-slate-100">
                             Log out
                         </button>
                     </form>
                 @else
                     <a href="{{ route('login') }}" class="text-sm font-medium text-slate-600 hover:text-slate-900">Log in</a>
-                    <a href="{{ route('register') }}" class="rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-700">
+                    <a href="{{ route('register') }}" class="rounded-xl bg-slate-950 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-slate-800">
                         Register
                     </a>
                 @endauth
@@ -88,7 +88,7 @@
         @endif
     </header>
 
-    <main class="mx-auto max-w-6xl px-4 py-8">
+    <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:py-10">
         @if (session('status'))
             <div role="status" class="mb-6 rounded-md bg-green-50 px-4 py-3 text-sm text-green-800">
                 {{ session('status') }}
