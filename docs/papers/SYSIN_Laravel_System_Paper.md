@@ -218,55 +218,7 @@ The instructor's specification requires that the chosen technologies be **justif
 
 ## 3.2 Architectural Block Diagram
 
-```
-┌───────────────────────────────────────────────────────────────────┐
-│                            BROWSER (Customer / Admin)               │
-│        HTML forms · server-rendered pages · Tailwind styling       │
-└───────────────────────────────┬───────────────────────────────────┘
-                                │  HTTPS (session + CSRF token)
-                                ▼
-┌───────────────────────────────────────────────────────────────────┐
-│                        LARAVEL APPLICATION                         │
-│                                                                    │
-│  ┌──────────────────────────────────────────────────────────────┐  │
-│  │ Middleware:  auth · role:customer | role:admin · throttle    │  │
-│  └──────────────────────────────────────────────────────────────┘  │
-│                                │                                    │
-│  ┌───────────────┐   ┌────────────────────────────────────────┐   │
-│  │  Controllers  │──▶│  Actions / Services (business logic)   │   │
-│  │               │   │  • AvailabilityService                 │   │
-│  │ • Customer    │   │  • CreateReservation                   │   │
-│  │ • Admin       │   │  • CreateCheckoutSession              │   │
-│  │ • Webhook     │   │  • ConfirmPayment  ◀── single path     │   │
-│  │ • Auth        │   │  • GenerateReceiptPdf                  │   │
-│  └───────────────┘   │  • PayMongoGateway                     │   │
-│          │           │  • ExpireOverdueHolds                  │   │
-│          ▼           └────────────────────────────────────────┘   │
-│  ┌───────────────┐   ┌────────────────────────────────────────┐   │
-│  │   Policies    │   │  Eloquent Models (User, Court,         │   │
-│  │ (ownership)   │   │  Reservation, Payment, Receipt, ...)    │   │
-│  └───────────────┘   └────────────────────────────────────────┘   │
-│                                │                                    │
-│  ┌───────────────┐               │                                    │
-│  │  Jobs / Queue │               │                                    │
-│  │ SendConfirm-  │               │                                    │
-│  │ ationEmail    │               │                                    │
-│  └───────────────┘               │                                    │
-└────────────────────────────────┼───────────────────────────────────┘
-                                 │
-                 ┌───────────────┼────────────────┐
-                 ▼               ▼                ▼
-      ┌─────────────────┐ ┌──────────────┐ ┌────────────────────┐
-      │   PostgreSQL    │ │  PayMongo    │ │  Mailtrap / SMTP   │
-      │   16.15         │ │  Checkout +  │ │  (log fallback)    │
-      │                 │ │  signed      │ │                    │
-      │ • EXCLUDE gist  │ │  webhook     │ └────────────────────┘
-      │ • transactions │ └──────────────┘
-      │ • queues       │        ▲
-      └─────────────────┘        │
-                ▲                │
-                └──── callbacks (HTTPS, HMAC-SHA256, public endpoint)
-```
+![Architectural block diagram](../diagrams/architecture-block-diagram.png)
 
 **Design notes.**
 
@@ -278,94 +230,13 @@ The instructor's specification requires that the chosen technologies be **justif
 
 ### 3.3.1 Online Payment and Webhook Verification
 
-```
-Customer          Browser           Laravel App        PostgreSQL        PayMongo
-   │                 │                   │                  │                 │
-   │ choose court/   │                   │                  │                 │
-   │ date/time ─────▶│ POST /reservations                  │                 │
-   │                 │──────────────────▶│                  │                 │
-   │                 │                   │ BEGIN            │                 │
-   │                 │                   │ recompute total  │                 │
-   │                 │                   │ validate avail.  │                 │
-   │                 │                   │ INSERT reservation + payment ───▶│
-   │                 │                   │ COMMIT           │                 │
-   │                 │                   │                  │                 │
-   │                 │◀── reservation Pending, slot held ────│                 │
-   │                 │                   │                  │                 │
-   │ pay online ────▶│ POST /reservations/{id}/checkout    │                 │
-   │                 │──────────────────▶│                  │                 │
-   │                 │                   │ POST /v2/checkout_sessions        │
-   │                 │                   │─────────────────────────────────▶│
-   │                 │                   │ checkout_id, checkout_url         │
-   │                 │                   │◀─────────────────────────────────│
-   │                 │                   │ store session id on payment      │
-   │                 │◀── 302 redirect to PayMongo hosted page ─│                 │
-   │                 │                   │                  │                 │
-   │ pay on hosted page (card / wallet / QRPh) ─────────────────────────────────▶│
-   │                 │                   │                  │                 │
-   │◀── success redirect (DISPLAY SIGNAL ONLY) ─────────────│                 │
-   │                 │                   │                  │                 │
-   │                 │                   │◀══ POST /webhooks/paymongo ═══════│
-   │                 │                   │   Paymongo-Signature: t=…,te=…   │
-   │                 │                   │                  │                 │
-   │                 │                   │ 1. verify HMAC over raw body     │
-   │                 │                   │ 2. reject if timestamp > 5 min   │
-   │                 │                   │ 3. idempotency: event seen?      │
-   │                 │                   │ 4. find payment by session id    │
-   │                 │                   │ 5. GET checkout session (secret) │
-   │                 │                   │─────────────────────────────────▶│
-   │                 │                   │◀── amount, currency, reference ──│
-   │                 │                   │ 6. compare against payment      │
-   │                 │                   │                  │                 │
-   │                 │                   │  ┌─ all match? ─┐                 │
-   │                 │                   │  │ NO → status  │                 │
-   │                 │                   │  │  requires_   │                 │
-   │                 │                   │  │  review      │                 │
-   │                 │                   │  └──────────────┘                 │
-   │                 │                   │  ┌─ match ──────┐                 │
-   │                 │                   │  │ BEGIN         │                 │
-   │                 │                   │  │ payment=paid  │                 │
-   │                 │                   │  │ reservation=  │                 │
-   │                 │                   │  │  confirmed    │                 │
-   │                 │                   │  │ issue receipt │                 │
-   │                 │                   │  │ record event  │                 │
-   │                 │                   │  │ COMMIT        │                 │
-   │                 │                   │  └───────────────┘                 │
-   │                 │                   │                  │                 │
-   │                 │                   │ AFTER COMMIT: dispatch           │
-   │                 │                   │   SendConfirmationEmail ───────▶ Mailtrap
-   │◀═══ 200 OK ════════════════════════│  (no receipt ⇒ no confirmation)   │
-```
+![Online payment and webhook verification sequence](../diagrams/sequence-payment-webhook.png)
 
 **The two principles this diagram encodes.** First, step 6 — the browser redirect in the middle of the flow changes nothing. Second, the callback is verified twice: the signature proves the message came from PayMongo and was not replayed, and the independent retrieval proves the transaction genuinely settled at the expected amount.
 
 ### 3.3.2 On-Site Payment Verification
 
-```
-Administrator        Browser          Laravel App           PostgreSQL
-      │                 │                  │                    │
-      │ open Payments   │                  │                    │
-      │────────────────▶│ GET /admin/payments                    │
-      │                 │─────────────────▶│                    │
-      │                 │◀── pending on-site attempts ───────────│
-      │                 │                  │                    │
-      │ verify cash     │                  │                    │
-      │────────────────▶│ POST /admin/payments/{id}/verify      │
-      │                 │─────────────────▶│                    │
-      │                 │                  │ authorize (admin)   │
-      │                 │                  │ BEGIN               │
-      │                 │                  │ re-check reservation│
-      │                 │                  │  still valid       │
-      │                 │                  │ payment = paid     │
-      │                 │                  │ verified_by = admin│
-      │                 │                  │ reservation=confirm│
-      │                 │                  │ issue ONE receipt  │
-      │                 │                  │ write audit_log    │
-      │                 │                  │ COMMIT             │
-      │                 │                  │                    │
-      │                 │◀── success ──────│                    │
-      │                 │                  │ AFTER COMMIT: dispatch email
-```
+![On-site payment verification sequence](../diagrams/sequence-onsite-payment.png)
 
 ---
 
