@@ -34,6 +34,8 @@ class CheckPaymentConfig extends Command
                 'driver' => $gateway->name(),
                 'base_url' => config('payments.maya.base_url'),
                 'webhook_path' => config('payments.webhook.path'),
+                'webhook_url' => $this->publicUrl(),
+                'webhook_reachable' => $this->hasPublicUrl(),
                 'mailer' => config('mail.default'),
                 'queue' => config('queue.default'),
                 'checks' => $checks,
@@ -49,6 +51,18 @@ class CheckPaymentConfig extends Command
         $this->line('  secret key ..... '.$this->stateOf('payments.maya.secret_key'));
         $this->line('  webhook path ... /'.config('payments.webhook.path'));
         $this->line('  verification ... server to server lookup before any state change');
+
+        $this->newLine();
+        $this->line('Webhook URL to register in the Maya dashboard');
+        $this->line('  '.$this->publicUrl());
+        $this->line('  status ........ '.($this->hasPublicUrl() ? 'publicly reachable' : 'LOCAL, Maya cannot call it'));
+
+        if (! $this->hasPublicUrl()) {
+            $this->newLine();
+            $this->warn('  Expose this machine, then set APP_URL to the tunnel address:');
+            $this->warn('    cloudflared tunnel --url http://127.0.0.1:8000');
+            $this->warn('    APP_URL=https://<subdomain>.trycloudflare.com');
+        }
 
         $this->newLine();
         $this->line('Email');
@@ -72,8 +86,7 @@ class CheckPaymentConfig extends Command
             $this->warn('  QUEUE_CONNECTION is sync. Run "php artisan queue:work" in a second terminal.');
         }
 
-        $this->warn('  Maya must reach '.config('app.url').'/'.config('payments.webhook.path')
-            .' over public HTTPS. From localhost it cannot. Use a tunnel, or confirm on-site payment instead.');
+        $this->warn('  The queue worker must be running in a second terminal or no confirmation email is delivered.');
 
         $this->newLine();
 
@@ -84,6 +97,22 @@ class CheckPaymentConfig extends Command
         }
 
         return $ready ? self::SUCCESS : self::FAILURE;
+    }
+
+    /**
+     * The address Maya must be able to reach.
+     */
+    private function publicUrl(): string
+    {
+        return rtrim((string) config('app.url'), '/').'/'.config('payments.webhook.path');
+    }
+
+    private function hasPublicUrl(): bool
+    {
+        $url = (string) config('app.url');
+
+        return preg_match('#^https://#', $url) === 1
+            && preg_match('#^(localhost|127\.0\.0\.1|\[::1\])#', $url) === 0;
     }
 
     private function stateOf(string $key): string

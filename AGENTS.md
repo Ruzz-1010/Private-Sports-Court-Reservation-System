@@ -520,8 +520,34 @@ sync with `MAYA_WEBHOOK_PATH`. A mismatch makes every callback return 419.
 `test_the_webhook_path_is_excluded_from_csrf_verification` guards this.
 
 The route must be reachable over public HTTPS for Maya to call it. From
-localhost it cannot, so local verification relies on on-site payment or a
-tunnel. Confirm readiness with `php artisan config:check-integrations`.
+localhost it cannot. Confirm readiness with `php artisan config:check-integrations`,
+which prints the exact webhook URL to register and whether it is publicly
+reachable.
+
+## Receiving Maya Webhooks Locally
+
+Maya cannot call `localhost`. Expose the machine with a quick tunnel, then set
+`APP_URL` to the address it prints.
+
+```bash
+cloudflared tunnel --url http://127.0.0.1:8000
+```
+
+It prints a `https://<subdomain>.trycloudflare.com` address. Put that in `.env`,
+run `php artisan config:clear`, and register `<that address>/webhooks/maya` in
+the Maya dashboard.
+
+Three terminals are then required for a full online payment demo:
+
+```bash
+php artisan serve
+php artisan queue:work        # confirmation email delivery
+cloudflared tunnel --url http://127.0.0.1:8000
+```
+
+The tunnel address changes on every restart, so the Maya dashboard value must be
+updated each time. Keep `APP_URL` local when only on-site payment is being
+demonstrated; nothing else depends on it.
 
 ## Testing Environment
 
