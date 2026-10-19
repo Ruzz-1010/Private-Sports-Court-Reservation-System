@@ -37,3 +37,6 @@
 /.mcp.json
 /CLAUDE.md
 /opencode.json
+
+# Stray artifacts from local tooling
+/tmp/
