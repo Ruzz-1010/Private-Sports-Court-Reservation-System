@@ -3,7 +3,7 @@
 @section('content')
 
 {{-- Header --}}
-<div class="relative mb-8 flex flex-wrap items-end justify-between gap-4 overflow-hidden rounded-[2rem] bg-slate-950 px-6 py-9 text-white shadow-xl shadow-slate-300 sm:px-9">
+<div class="motion-reveal relative mb-8 flex flex-wrap items-end justify-between gap-4 overflow-hidden rounded-[2rem] bg-slate-950 px-6 py-9 text-white shadow-xl shadow-slate-300 sm:px-9">
     <div class="absolute inset-0 -z-0 bg-[radial-gradient(circle_at_top_right,_rgba(20,184,166,0.32),transparent_28%),radial-gradient(circle_at_5%_95%,_rgba(79,70,229,0.42),transparent_34%)]"></div>
     <div class="relative z-10">
         <p class="text-sm font-semibold text-indigo-200">
@@ -78,7 +78,7 @@
 @endif
 
 {{-- Stats --}}
-<div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+<div class="motion-reveal-delay mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
     <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
         <div class="flex items-center gap-3">
             <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600">

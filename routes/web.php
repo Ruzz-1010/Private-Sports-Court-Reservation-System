@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\CourtBlockController as AdminCourtBlockController;
 use App\Http\Controllers\Admin\CourtController as AdminCourtController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\PaymentVerificationController as AdminPaymentVerificationController;
@@ -12,7 +13,7 @@ use App\Http\Controllers\Customer\DashboardController as CustomerDashboardContro
 use App\Http\Controllers\Customer\PaymentController as CustomerPaymentController;
 use App\Http\Controllers\Customer\ReceiptController as CustomerReceiptController;
 use App\Http\Controllers\Customer\ReservationController as CustomerReservationController;
-use App\Http\Controllers\Webhooks\MayaWebhookController;
+use App\Http\Controllers\Webhooks\PayMongoWebhookController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -25,14 +26,14 @@ Route::get('/', function () {
 |--------------------------------------------------------------------------
 |
 | Public and unauthenticated because the provider calls it server to server.
-| It is rate limited. Maya's payment state is then retrieved using the secret
-| API key before an unauthenticated callback can change any local state.
+| It is rate limited. PayMongo webhook signatures are verified and the checkout is then
+| retrieved server to server before a callback can change any local state.
 |
 */
 
-Route::post(config('payments.webhook.path'), MayaWebhookController::class)
+Route::post(config('payments.webhook.path'), PayMongoWebhookController::class)
     ->middleware('throttle:'.config('payments.webhook.rate_limit'))
-    ->name('webhooks.maya');
+    ->name('webhooks.paymongo');
 
 /*
 |--------------------------------------------------------------------------
@@ -89,6 +90,8 @@ Route::middleware(['auth'])->group(function (): void {
 
         Route::resource('courts', AdminCourtController::class);
         Route::post('courts/{court}/restore', [AdminCourtController::class, 'restore'])->name('courts.restore');
+
+        Route::resource('court-blocks', AdminCourtBlockController::class)->only(['index', 'store', 'destroy']);
 
         Route::resource('reservations', AdminReservationController::class)->only(['index', 'show']);
         Route::get('reports', [AdminReportController::class, 'index'])->name('reports.index');

@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use App\Contracts\PaymentGateway;
-use App\Services\Payments\MayaGateway;
+use App\Services\Payments\PayMongoGateway;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -17,7 +17,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(PaymentGateway::class, fn (): PaymentGateway => new MayaGateway);
+        $this->app->bind(PaymentGateway::class, fn (): PaymentGateway => new PayMongoGateway);
     }
 
     /**

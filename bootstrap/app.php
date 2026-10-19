@@ -25,12 +25,12 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // The payment provider calls the webhook server to server with no
         // session and no CSRF token. Excluding the path does not weaken the
-        // route: the handler never trusts the payload, it re-verifies every
-        // payment through Maya's secret-key endpoint before changing state.
+        // route: the handler never trusts the payload, it verifies PayMongo's signature and rechecks every
+        // checkout through PayMongo's secret-key endpoint before changing state.
         // The path is read from the environment because the config repository
         // is not yet bound while this file is evaluated.
         $middleware->validateCsrfTokens(except: [
-            env('MAYA_WEBHOOK_PATH', 'webhooks/maya'),
+            env('PAYMONGO_WEBHOOK_PATH', 'webhooks/paymongo'),
         ]);
 
         $middleware->web(append: [

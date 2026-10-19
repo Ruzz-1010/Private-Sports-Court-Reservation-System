@@ -40,7 +40,7 @@ class CreateCheckoutSession
                 'provider_checkout_session_id' => $session['id'],
                 'provider_metadata' => array_merge($payment->provider_metadata ?? [], [
                     'checkout_url' => $session['url'],
-                    'maya_request_reference' => $session['reference'] ?? null,
+                    'paymongo_reference' => $session['reference'] ?? null,
                 ]),
             ]);
 

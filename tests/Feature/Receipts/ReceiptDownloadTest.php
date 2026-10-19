@@ -44,7 +44,7 @@ class ReceiptDownloadTest extends TestCase
         $payment = Payment::create([
             'reservation_id' => $reservation->id,
             'method' => $method,
-            'provider' => 'maya',
+            'provider' => 'paymongo',
             'amount' => 1000,
             'currency' => 'PHP',
             'status' => PaymentStatus::Pending,

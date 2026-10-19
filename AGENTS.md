@@ -35,14 +35,14 @@ a feature is implemented until the code and its verification exist.
   slot availability. Never duplicate its rules in controllers or views.
 - `app/Actions/Reservations/CreateReservation.php`: transaction-safe booking write.
 - `app/Contracts/PaymentGateway.php`: provider-independent payment interface.
-  `MayaGateway` is the only implementation and talks to Maya Dynamic QRPh. There
-  is no payment simulator: automated tests stub Maya's HTTP responses with
+  `PayMongoGateway` is the only implementation and talks to PayMongo Hosted Checkout QRPh. There
+  is no payment simulator: automated tests stub PayMongo HTTP responses with
   `Http::fake()` instead, so the real request and response shapes stay covered.
 - `app/Actions/Payments/ConfirmPayment.php`: the single path that marks a payment
   paid, confirms the reservation, and issues the receipt. Both the webhook and
   on-site verification use it so they cannot diverge.
-- `app/Http/Controllers/Webhooks/MayaWebhookController.php`: looks up the payment
-  through Maya using the secret API key, validates reference, amount, and currency,
+- `app/Http/Controllers/Webhooks/PayMongoWebhookController.php`: looks up the payment
+  through PayMongo using the secret API key, validates reference, amount, and currency,
   then processes it idempotently.
 
 When a requirement in this file conflicts with an explicit instruction from the user, follow the user's latest instruction and update this file. When this file conflicts with the instructor's source document, identify the conflict before changing behavior.
@@ -81,7 +81,7 @@ Use this stack unless the user explicitly changes it:
 - Frontend: Laravel Blade templates, Tailwind CSS, and Alpine.js.
 - Calendar: FullCalendar.js or an equivalent calendar component integrated into Blade.
 - Database: PostgreSQL.
-- Online payment: Maya Dynamic QRPh in sandbox mode during development and presentation.
+- Online payment: PayMongo Hosted Checkout QRPh in sandbox mode during development and presentation.
 - Email: Laravel Mail. Use Mailtrap during development; final demo email provider may be changed through environment configuration.
 - Receipt: server-generated PDF using a maintained Laravel-compatible PDF package.
 - Queue: Laravel queue with the database driver initially. Do not require Redis for the first working version.
@@ -99,7 +99,7 @@ Start with a modular Laravel monolith:
 - Browser and Blade UI
 - Laravel routes, controllers, requests, policies, services, jobs, and commands
 - PostgreSQL database
-- Maya Dynamic QRPh adapter and webhook endpoint
+- PayMongo Hosted Checkout QRPh adapter and signed webhook endpoint
 - Email adapter and queued notification jobs
 - PDF receipt generator
 - Scheduled expiration command or job
@@ -262,11 +262,11 @@ Exact operating hours, booking increments, minimum and maximum duration, advance
 ### Online payment
 
 1. Validate availability and create a pending reservation with a deadline inside a transaction.
-2. Create a Maya Dynamic QRPh payment and save its payment identifier on a payment attempt.
-3. Redirect the customer to Maya's hosted QR page. Wallet credentials must never touch this application.
+2. Create a PayMongo Hosted Checkout QRPh payment and save its payment identifier on a payment attempt.
+3. Redirect the customer to PayMongo's hosted QR page. Wallet credentials must never touch this application.
 4. Treat browser success and cancel redirects as user-interface signals only. A redirect must not confirm a reservation.
-5. Receive the Maya webhook at a dedicated public HTTPS endpoint.
-6. Retrieve the payment through Maya's secret-key endpoint; do not trust the webhook payload alone.
+5. Receive the PayMongo webhook at a dedicated public HTTPS endpoint.
+6. Retrieve the checkout session through PayMongo's secret-key endpoint; do not trust the webhook payload alone.
 7. Reject or log invalid signatures without updating payment or reservation status.
 8. Enforce idempotency using the provider event identifier.
 9. Validate the expected reservation association, amount, currency, test/live mode, and payment status.
@@ -343,7 +343,7 @@ For records connected to transactions, preserve history. Archive or soft-delete 
 - Enforce server-side authorization on every protected route.
 - Rate-limit login and public webhook endpoints appropriately.
 - Verify webhook signatures and idempotency.
-- Never store raw card numbers, CVV, Maya API keys, SMTP credentials, or other secrets in the database or repository.
+- Never store raw card numbers, CVV, PayMongo API keys, SMTP credentials, or other secrets in the database or repository.
 - Keep secrets in environment variables and provide safe placeholder names in `.env.example`.
 - Escape output by default. Sanitize only where rich text is intentionally supported.
 - Use HTTPS in the deployed environment.
@@ -397,7 +397,7 @@ Tests must cover meaningful business behavior, especially:
 7. Conflict protection under concurrent or near-concurrent booking attempts.
 8. Court-block conflicts.
 9. Pending reservation expiration and slot release.
-10. Valid, invalid, and duplicate Maya webhook events.
+10. Valid, invalid, and duplicate PayMongo webhook events.
 11. Amount, currency, reference, or mode mismatch handling.
 12. Late successful payment reconciliation.
 13. Authorized on-site verification and rejection of unauthorized verification.
@@ -438,7 +438,7 @@ Work in small, verifiable vertical slices:
 ### Phase 4: Payments
 
 - Payment-attempt records.
-- Maya client abstraction.
+- PayMongo client abstraction.
 - Dynamic QRPh payment creation.
 - Server-verified, idempotent webhook handler.
 - On-site verification.
@@ -521,55 +521,40 @@ php artisan queue:work               # required to deliver confirmation emails
 
 ## Payment Integration
 
-Maya Pay with Maya Dynamic QRPh is the only provider. `MayaGateway` creates the
-one-time QR payment and `MayaWebhookController` confirms it. There is no
-simulator and no second gateway implementation.
+PayMongo Hosted Checkout QRPh is the online provider. `PayMongoGateway` creates a
+checkout session and `PayMongoWebhookController` confirms it. The customer is redirected
+to PayMongo's hosted page, where QRPh is shown; the app never receives wallet credentials.
 
-Maya publishes no per-request webhook signature for Dynamic QRPh, so the
-callback is treated as an untrusted notification. The handler looks the payment
-up through Maya's secret-key endpoint and compares status, amount, currency,
-and request reference against the local payment attempt before anything is
-confirmed. Rate limiting is abuse control, not authentication.
+PayMongo signs every callback with the endpoint signing secret. The webhook first verifies
+the raw request signature, then retrieves the checkout session using the PayMongo secret
+API key and compares its paid amount, currency, reference number, and payment ID before
+confirming a reservation. Repeated `evt_` deliveries are idempotent.
 
-`MAYA_PUBLIC_KEY` and `MAYA_SECRET_KEY` select sandbox or live credentials, and
-`MAYA_BASE_URL` selects the matching host (`https://pg-sandbox.paymaya.com` or
-`https://pg-maya.paymaya.com`). Never mix a sandbox key with a live base URL.
+Use `PAYMONGO_SECRET_KEY=sk_test_...` in development. Register the public endpoint URL
+`/webhooks/paymongo` in PayMongo Dashboard → Developers → Webhooks, subscribe to
+`checkout_session.payment.paid`, and copy the returned signing secret to
+`PAYMONGO_WEBHOOK_SECRET`. The webhook route is excluded from CSRF protection in
+`bootstrap/app.php`, using `PAYMONGO_WEBHOOK_PATH`.
 
-The webhook route (`/webhooks/maya`) is excluded from CSRF verification because
-Maya is a server and sends no token. That path is read from the environment in
-`bootstrap/app.php`, before the config repository is bound, so it must stay in
-sync with `MAYA_WEBHOOK_PATH`. A mismatch makes every callback return 419.
-`test_the_webhook_path_is_excluded_from_csrf_verification` guards this.
+## Receiving PayMongo Webhooks Locally
 
-The route must be reachable over public HTTPS for Maya to call it. From
-localhost it cannot. Confirm readiness with `php artisan config:check-integrations`,
-which prints the exact webhook URL to register and whether it is publicly
-reachable.
-
-## Receiving Maya Webhooks Locally
-
-Maya cannot call `localhost`. Expose the machine with a quick tunnel, then set
-`APP_URL` to the address it prints.
+PayMongo cannot call localhost. Start a temporary HTTPS tunnel:
 
 ```bash
 cloudflared tunnel --url http://127.0.0.1:8000
 ```
 
-It prints a `https://<subdomain>.trycloudflare.com` address. Put that in `.env`,
-run `php artisan config:clear`, and register `<that address>/webhooks/maya` in
-the Maya dashboard.
+Set the returned address plus `/webhooks/paymongo` as `PAYMONGO_WEBHOOK_URL`, run
+`php artisan config:clear`, then register that exact address in the PayMongo Test Mode
+dashboard. The tunnel URL changes after a restart, so update the dashboard endpoint too.
 
-Three terminals are then required for a full online payment demo:
+For a full local demo, run the app server, queue worker, and tunnel in separate terminals:
 
 ```bash
 php artisan serve
-php artisan queue:work        # confirmation email delivery
+php artisan queue:work
 cloudflared tunnel --url http://127.0.0.1:8000
 ```
-
-The tunnel address changes on every restart, so the Maya dashboard value must be
-updated each time. Keep `APP_URL` local when only on-site payment is being
-demonstrated; nothing else depends on it.
 
 ## Testing Environment
 

@@ -3,7 +3,7 @@
 @section('content')
 @php($courts = \App\Models\Court::query()->active()->orderBy('name')->get())
 
-<section class="relative isolate overflow-hidden rounded-[2rem] bg-slate-950 px-6 py-16 text-white shadow-2xl shadow-slate-300 sm:px-10 lg:px-16 lg:py-24">
+<section class="motion-reveal relative isolate overflow-hidden rounded-[2rem] bg-slate-950 px-6 py-16 text-white shadow-2xl shadow-slate-300 sm:px-10 lg:px-16 lg:py-24">
     <div class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,_rgba(20,184,166,0.38),transparent_30%),radial-gradient(circle_at_15%_85%,_rgba(79,70,229,0.45),transparent_34%)]"></div>
     <div class="absolute -right-20 top-16 -z-10 h-72 w-72 rounded-full border border-white/10"></div>
     <div class="grid items-center gap-12 lg:grid-cols-[1.15fr_.85fr]">
@@ -34,7 +34,7 @@
 
 <section id="courts" class="py-16 sm:py-20">
     <div class="flex flex-wrap items-end justify-between gap-4"><div><p class="text-sm font-bold uppercase tracking-[0.16em] text-indigo-600">Play your way</p><h2 class="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Courts made for game day.</h2></div><p class="max-w-md text-sm leading-6 text-slate-600">Choose a facility, check the open schedule, and lock in your next match.</p></div>
-    <div class="mt-9 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+    <div class="motion-reveal-delay mt-9 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         @forelse ($courts as $court)
             <article class="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/70"><div class="relative"><x-court-photo :court="$court" class="h-52 rounded-none border-0 transition duration-500 group-hover:scale-105" /><div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950/55 to-transparent"></div><span class="absolute bottom-4 left-4 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-slate-950 backdrop-blur">₱{{ number_format((float) $court->hourly_rate, 2) }}/hour</span></div><div class="p-6"><h3 class="text-xl font-black text-slate-950">{{ $court->name }}</h3><p class="mt-2 text-sm text-slate-600">{{ $court->location }}</p><a href="{{ auth()->check() ? route('customer.availability.index', $court) : route('register') }}" class="mt-5 inline-flex items-center text-sm font-bold text-indigo-600 hover:text-indigo-800">Check availability <span class="ml-2">→</span></a></div></article>
         @empty

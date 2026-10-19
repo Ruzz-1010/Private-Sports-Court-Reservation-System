@@ -265,3 +265,15 @@ flowchart TD
 | On-site rejection path continues (`AK1`) | Original ended in a dead end with no way back. |
 | Scheduler connected (`AX`) | Expiry runs off the payment deadline, so it is shown as triggered by it. |
 | HTTPS/TLS step | Required by the security section of the paper. |
+
+## Implementation status after the updated paper
+
+| Paper flow | Current system behavior |
+| --- | --- |
+| Customer availability and booking | Implemented: operating rules, pending holds, PostgreSQL overlap protection, and customer-owned reservation history. |
+| Online payment | PayMongo Hosted Checkout QRPh is the active provider flow. The signed webhook and server-side checkout verification confirm payment; browser redirects do not. |
+| On-site payment | Implemented: the reservation stays pending until an administrator verifies the payment; confirmation issues the same receipt flow. |
+| Admin court availability management | Implemented: court CRUD plus schedule blocks for maintenance, repairs, and private events. Blocks are checked by the same availability service used by customer bookings. |
+| Receipt and email | Receipt is generated only after confirmation and is available for authorized download. Confirmation email dispatch is queued after the database transaction. |
+| Expiration | Unpaid holds are expired by the scheduler and ignored by availability checks even if the scheduler is delayed. |
+| Reports | Implemented: filtered reservation, court utilization, and verified-payment revenue reports. |
