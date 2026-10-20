@@ -26,3 +26,74 @@
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: 1ms !important; }
 }
+
+/* Shared presentation layer: quiet depth, responsive motion, and consistent surfaces. */
+.ui-card {
+    position: relative;
+    overflow: hidden;
+    transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+}
+.ui-card::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(20,184,166,.8), rgba(99,102,241,.65), transparent 72%);
+    opacity: .5;
+}
+.ui-card:hover { transform: translateY(-3px); box-shadow: 0 18px 45px -28px rgba(15,23,42,.45); border-color: rgba(99,102,241,.25); }
+
+@keyframes pulse-glow { 0%,100% { box-shadow: 0 0 0 0 rgba(45,212,191,.12); } 50% { box-shadow: 0 0 0 8px rgba(45,212,191,0); } }
+.hero-pulse { animation: pulse-glow 3.5s ease-in-out infinite; }
+
+@media (max-width: 640px) {
+    .motion-reveal, .motion-reveal-delay { animation-duration: 420ms; }
+}
+/* Product UI guardrails: keep the interface restrained and operational. */
+.ui-card:hover { transform: translateY(-1px); box-shadow: 0 10px 24px -18px rgba(15,23,42,.35); }
+
+.auth-shell { position: relative; isolation: isolate; }
+.auth-shell::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: -5rem -8rem;
+    background: url('/images/courts/featured-pickleball.png') center/cover no-repeat;
+    filter: blur(26px) saturate(.7);
+    opacity: .13;
+    transform: scale(1.08);
+}
+@media (min-width: 1024px) {
+    .auth-shell { max-width: 42rem; }
+}
+[x-cloak] { display: none !important; }
+/* Auth pages share the same dark sports-club language as the landing page. */
+.auth-shell { background: #111827 !important; border-color: rgba(255,255,255,.12) !important; }
+.auth-shell > div:last-child { background: #111827; }
+.auth-shell label { color: #cbd5e1; }
+.auth-shell input:not([type="checkbox"]) { background: #1f2937; border-color: #374151; color: #f8fafc; }
+.auth-shell input:not([type="checkbox"])::placeholder { color: #94a3b8; }
+.auth-shell input:not([type="checkbox"]):focus { border-color: #a3e635; box-shadow: 0 0 0 3px rgba(163,230,53,.12); }
+.auth-shell .text-slate-950 { color: #f8fafc; }
+.auth-shell .text-slate-500 { color: #94a3b8; }
+.auth-shell .text-slate-600 { color: #cbd5e1; }
+.auth-shell .border-slate-200 { border-color: #374151; }
+.auth-shell .bg-white { background: #1f2937; }
+.auth-shell .bg-slate-100 { background: #273449; color: #bef264; }
+.auth-shell button[type="submit"] { background: #bef264; color: #111827; }
+.auth-shell button[type="submit"]:hover { background: #a3e635; }
+.auth-shell .text-teal-700 { color: #bef264; }
+.auth-shell a.font-semibold.text-teal-700 { color: #bef264; }
+/* Alternate auth treatment: clean light card over the dark court backdrop. */
+.auth-shell { background: #ffffff !important; border-color: #e2e8f0 !important; }
+.auth-shell > div:last-child { background: #ffffff; }
+.auth-shell h1, .auth-shell .text-white { color: #0f172a; }
+.auth-shell .text-slate-300 { color: #475569; }
+.auth-shell .text-slate-400 { color: #64748b; }
+.auth-shell .text-slate-500 { color: #64748b; }
+.auth-shell input:not([type="checkbox"]) { background: #ffffff; border-color: #cbd5e1; color: #0f172a; }
+.auth-shell input:not([type="checkbox"]):focus { border-color: #0f766e; box-shadow: 0 0 0 3px rgba(20,184,166,.12); }
+.auth-shell .text-lime-300 { color: #0f766e; }
+.auth-shell a.text-lime-300:hover, .auth-shell a:hover .text-lime-300 { color: #115e59; }
+.auth-shell button[type="submit"] { background: #0f172a; color: #ffffff; }
+.auth-shell button[type="submit"]:hover { background: #1e293b; }

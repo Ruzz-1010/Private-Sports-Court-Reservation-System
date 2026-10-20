@@ -7,7 +7,7 @@
     <title>{{ isset($title) ? $title.' · ' : '' }}{{ config('app.name') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="h-full bg-[#f7f8fc] font-sans text-slate-900 antialiased">
+<body class="h-full {{ request()->routeIs('home', 'login', 'register') ? 'bg-[#050505]' : 'bg-[radial-gradient(circle_at_0%_0%,_#eefdf9_0,_transparent_32%),radial-gradient(circle_at_100%_20%,_#eef2ff_0,_transparent_30%),#f7f8fc]' }} font-sans text-slate-900 antialiased">
 
 @php
     // Guest pages have no session, so skip the nav and its database lookup.
@@ -27,15 +27,20 @@
 <div class="min-h-full">
 
     {{-- Top navigation --}}
-    <header class="sticky top-0 z-20 border-b border-slate-200/80 bg-white/85 backdrop-blur-xl">
+    <header class="sticky top-0 z-20 border-b {{ $showNav ? 'border-slate-200/80 bg-white/90' : 'border-white/10 bg-[#050505]' }} backdrop-blur-xl">
         <nav class="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6" aria-label="Main">
             <div class="flex items-center gap-6">
                 <a href="{{ route('customer.dashboard') }}" class="flex shrink-0 items-center gap-2">
-                    <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-950 text-xs font-black text-teal-300 shadow-lg shadow-slate-300">SC</span>
-                    <span class="hidden text-sm font-black tracking-tight text-slate-950 md:block">San Jose Pickleball</span>
+                    <img src="{{ asset('images/san-jose-pickleball-logo.png') }}" alt="San Jose Pickleball" class="h-10 w-10 object-contain">
+                    <span class="hidden text-sm font-black tracking-tight {{ $showNav ? 'text-slate-950' : 'text-white' }} md:block">San Jose Pickleball</span>
                 </a>
 
                 <div class="hidden items-center gap-1 md:flex">
+                    @if (! $showNav)
+                        <a href="{{ route('home') }}#courts" class="rounded-md px-3 py-2 text-sm font-medium {{ $showNav ? 'text-slate-600 hover:bg-slate-100 hover:text-slate-950' : 'text-slate-400 hover:text-lime-300' }}">Courts</a>
+                        <a href="{{ route('home') }}#how-it-works" class="rounded-md px-3 py-2 text-sm font-medium {{ $showNav ? 'text-slate-600 hover:bg-slate-100 hover:text-slate-950' : 'text-slate-400 hover:text-lime-300' }}">How it works</a>
+                        <a href="{{ route('home') }}#location" class="rounded-md px-3 py-2 text-sm font-medium {{ $showNav ? 'text-slate-600 hover:bg-slate-100 hover:text-slate-950' : 'text-slate-400 hover:text-lime-300' }}">Location</a>
+                    @endif
                     @foreach ($showNav ? $nav : [] as $item)
                         @if ($item['url'])
                             <a href="{{ $item['url'] }}"
@@ -43,7 +48,7 @@
                                class="flex shrink-0 items-center gap-2 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium
                                       {{ request()->routeIs($item['route'])
                                           ? 'bg-slate-950 text-white'
-                                          : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950' }}">
+                                          : ($showNav ? 'text-slate-600 hover:bg-slate-100 hover:text-slate-950' : 'text-slate-400 hover:text-lime-300') }}">
                                 <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="{{ $item['icon'] }}"/>
                                 </svg>
@@ -64,8 +69,8 @@
                         </button>
                     </form>
                 @else
-                    <a href="{{ route('login') }}" class="text-sm font-medium text-slate-600 hover:text-slate-900">Log in</a>
-                    <a href="{{ route('register') }}" class="rounded-xl bg-slate-950 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-slate-800">
+                    <a href="{{ route('login') }}" class="text-sm font-medium {{ $showNav ? 'text-slate-600 hover:text-slate-900' : 'text-slate-300 hover:text-white' }}">Log in</a>
+                    <a href="{{ route('register') }}" class="rounded-md bg-lime-300 px-4 py-2 text-sm font-bold text-slate-950 shadow-sm hover:bg-lime-200">
                         Register
                     </a>
                 @endauth

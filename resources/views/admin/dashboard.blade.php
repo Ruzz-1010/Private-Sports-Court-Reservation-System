@@ -3,21 +3,21 @@
 @section('content')
 
 {{-- Header --}}
-<div class="motion-reveal relative mb-8 flex flex-wrap items-end justify-between gap-4 overflow-hidden rounded-[2rem] bg-slate-950 px-7 py-8 text-white shadow-xl shadow-slate-300 sm:px-9">
+<div class="motion-reveal relative mb-8 flex flex-wrap items-end justify-between gap-4 overflow-hidden rounded-xl bg-[#172033] px-7 py-9 text-white shadow-2xl shadow-indigo-200/30 sm:px-9">
     <div class="absolute inset-0 -z-0 bg-[radial-gradient(circle_at_top_right,_rgba(20,184,166,0.3),transparent_28%),radial-gradient(circle_at_10%_100%,_rgba(79,70,229,0.4),transparent_34%)]"></div>
     <div class="relative z-10">
     <p class="text-sm font-semibold text-teal-200">
         {{ now(config('reservation.timezone'))->format('l, F j, Y') }}
     </p>
-    <h1 class="mt-1 text-3xl font-black tracking-tight text-white">Facility overview</h1>
-    <p class="mt-2 text-sm text-slate-300">A clear view of today’s pickleball courts, bookings, and collections.</p>
+    <h1 class="mt-1 text-3xl font-bold tracking-tight text-white">Today at a glance</h1>
+    <p class="mt-2 text-sm text-slate-300">Keep the facility moving with a clear view of bookings, courts, and collections.</p>
     </div>
-    <div class="relative z-10 flex gap-2"><a href="{{ route('admin.reservations.index') }}" class="rounded-xl border border-white/15 bg-white/10 px-4 py-2.5 text-sm font-bold text-white backdrop-blur hover:bg-white/15">Reservations</a><a href="{{ route('admin.courts.create') }}" class="rounded-xl bg-teal-300 px-4 py-2.5 text-sm font-bold text-slate-950 shadow-lg shadow-teal-500/20 hover:bg-teal-200">Add pickleball court</a></div>
+    <div class="relative z-10 flex gap-2"><a href="{{ route('admin.reservations.index') }}" class="rounded-xl border border-white/15 bg-white/10 px-4 py-2.5 text-sm font-bold text-white backdrop-blur hover:bg-white/15">Reservations</a><a href="{{ route('admin.courts.create') }}" class="rounded-xl bg-teal-300 px-4 py-3 text-sm font-bold text-slate-950 shadow-lg shadow-teal-500/20 hover:bg-teal-200">Add pickleball court</a></div>
 </div>
 
 {{-- Stat tiles --}}
 <div class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="ui-card ui-card rounded-xl border border-slate-200/80 bg-white/90 p-5 shadow-sm">
         <div class="flex items-start justify-between">
             <div>
                 <p class="text-sm font-medium text-slate-600">Today's bookings</p>
@@ -32,7 +32,7 @@
         <p class="mt-3 text-xs text-slate-500">{{ $confirmedCount }} confirmed &middot; {{ $pendingCount }} pending</p>
     </div>
 
-    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="ui-card ui-card rounded-xl border border-slate-200/80 bg-white/90 p-5 shadow-sm">
         <div class="flex items-start justify-between">
             <div>
                 <p class="text-sm font-medium text-slate-600">Collected (all time)</p>
@@ -47,7 +47,7 @@
         <p class="mt-3 text-xs text-slate-500">₱{{ number_format($revenueThisMonth, 2) }} this month</p>
     </div>
 
-    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="ui-card ui-card rounded-xl border border-slate-200/80 bg-white/90 p-5 shadow-sm">
         <div class="flex items-start justify-between">
             <div>
         <p class="text-sm font-medium text-slate-600">Active pickleball courts</p>
@@ -64,7 +64,7 @@
         </a>
     </div>
 
-    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="ui-card ui-card rounded-xl border border-slate-200/80 bg-white/90 p-5 shadow-sm">
         <div class="flex items-start justify-between">
             <div>
                 <p class="text-sm font-medium text-slate-600">Registered customers</p>
@@ -84,7 +84,7 @@
 
     {{-- Today's schedule --}}
     <div class="lg:col-span-2">
-        <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div class="overflow-hidden ui-card ui-card ui-card rounded-xl border border-slate-200/80 bg-white/90 shadow-sm">
             <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
                 <h2 class="font-semibold text-slate-900">Today's schedule</h2>
                 <a href="{{ route('admin.reservations.index', ['date' => now(config('reservation.timezone'))->toDateString()]) }}" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">View all today</a>
@@ -112,7 +112,7 @@
         </div>
 
         {{-- Courts --}}
-        <div class="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div class="mt-6 overflow-hidden ui-card ui-card ui-card rounded-xl border border-slate-200/80 bg-white/90 shadow-sm">
             <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
                 <h2 class="font-semibold text-slate-900">Pickleball courts</h2>
                 <a href="{{ route('admin.courts.index') }}" class="text-sm font-medium text-slate-600 hover:text-slate-900">Manage all</a>
@@ -144,7 +144,7 @@
 
     {{-- Sidebar: action items --}}
     <div class="space-y-6">
-        <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div class="overflow-hidden ui-card ui-card ui-card rounded-xl border border-slate-200/80 bg-white/90 shadow-sm">
             <div class="border-b border-slate-200 px-5 py-4">
                 <h2 class="font-semibold text-slate-900">Needs your attention</h2>
             </div>
@@ -180,7 +180,7 @@
             @endif
         </div>
 
-        <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div class="overflow-hidden ui-card ui-card ui-card rounded-xl border border-slate-200/80 bg-white/90 shadow-sm">
             <div class="border-b border-slate-200 px-5 py-4">
                 <h2 class="font-semibold text-slate-900">Recent activity</h2>
             </div>

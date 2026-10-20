@@ -1,46 +1,4 @@
 @extends('layouts.app')
-
 @section('content')
-<div class="mx-auto max-w-md">
-    <h1 class="mb-6 text-2xl font-semibold text-slate-900">Log in</h1>
-
-    <form method="POST" action="{{ route('login') }}" class="space-y-4 rounded-lg bg-white p-6 shadow-sm">
-        @csrf
-
-        <div>
-            <label for="email" class="block text-sm font-medium text-slate-700">Email address</label>
-            <input id="email" name="email" type="email" value="{{ old('email') }}" required autofocus
-                   autocomplete="username"
-                   class="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm focus:border-slate-500 focus:outline-none">
-            @error('email')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <div>
-            <label for="password" class="block text-sm font-medium text-slate-700">Password</label>
-            <input id="password" name="password" type="password" required autocomplete="current-password"
-                   class="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm focus:border-slate-500 focus:outline-none">
-            @error('password')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <div class="flex items-center gap-2">
-            <input id="remember" name="remember" type="checkbox"
-                   class="rounded border-slate-300 text-slate-900 focus:ring-slate-500">
-            <label for="remember" class="text-sm text-slate-700">Remember me</label>
-        </div>
-
-        <button type="submit"
-                class="w-full rounded-md bg-slate-900 px-4 py-2 font-medium text-white hover:bg-slate-700">
-            Log in
-        </button>
-
-        <p class="text-center text-sm text-slate-600">
-            No account yet?
-            <a href="{{ route('register') }}" class="font-medium text-slate-900 underline">Register</a>
-        </p>
-    </form>
-</div>
+<div class="auth-shell mx-auto max-w-md rounded-2xl border border-white/10 bg-[#111827] p-6 shadow-2xl shadow-black/40 sm:p-8"><div class="flex items-center justify-between"><a href="{{ route('home') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-lime-300"><span aria-hidden="true">←</span> Home</a><img src="{{ asset('images/san-jose-pickleball-logo.png') }}" alt="San Jose Pickleball" class="h-12 w-12 object-contain"></div><div class="mt-8"><p class="text-xs font-bold uppercase tracking-[.18em] text-lime-300">Member access</p><h1 class="mt-2 text-2xl font-bold tracking-tight text-white">Sign in</h1><p class="mt-2 text-sm text-slate-400">Access your reservations and court schedule.</p></div><form method="POST" action="{{ route('login') }}" class="mt-7 space-y-4">@csrf<div><label for="email" class="block text-sm font-semibold text-slate-300">Email address</label><input id="email" name="email" type="email" value="{{ old('email') }}" required autofocus autocomplete="username" class="mt-2 block w-full rounded-lg border border-slate-700 bg-slate-900 px-3.5 py-3 text-sm text-white outline-none transition focus:border-lime-300 focus:ring-2 focus:ring-lime-300/20">@error('email')<p class="mt-1 text-sm text-red-300">{{ $message }}</p>@enderror</div><div><label for="password" class="block text-sm font-semibold text-slate-300">Password</label><div x-data="{ show: false }" class="relative"><input id="password" x-bind:type="show ? 'text' : 'password'" name="password" required autocomplete="current-password" class="mt-2 block w-full rounded-lg border border-slate-700 bg-slate-900 px-3.5 py-3 pr-11 text-sm text-white outline-none transition focus:border-lime-300 focus:ring-2 focus:ring-lime-300/20"><button type="button" @click="show=!show" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-lime-300" :aria-label="show ? 'Hide password' : 'Show password'"><span x-text="show ? '◉' : '◌'" class="text-lg"></span></button></div>@error('password')<p class="mt-1 text-sm text-red-300">{{ $message }}</p>@enderror</div><label class="flex items-center gap-2 text-sm text-slate-400"><input id="remember" name="remember" type="checkbox" class="rounded border-slate-700 bg-slate-900 text-lime-300 focus:ring-lime-300"> Remember me</label><button type="submit" class="w-full rounded-lg bg-lime-300 px-4 py-3 text-sm font-bold text-slate-950 transition hover:bg-lime-200">Sign in</button><p class="text-center text-sm text-slate-400">New here? <a href="{{ route('register') }}" class="font-semibold text-lime-300 hover:text-lime-200">Create an account</a></p></form></div>
 @endsection

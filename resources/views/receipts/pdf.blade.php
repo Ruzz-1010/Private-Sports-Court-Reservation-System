@@ -17,9 +17,12 @@
 
         .header {
             border-bottom: 2px solid #0f172a;
-            padding-bottom: 12px;
+            padding-bottom: 14px;
             margin-bottom: 18px;
         }
+
+        .brand { display: inline-block; vertical-align: middle; }
+        .brand-logo { width: 54px; height: 54px; object-fit: contain; vertical-align: middle; margin-right: 10px; }
 
         .facility { font-size: 15px; font-weight: bold; letter-spacing: .3px; }
         .address { font-size: 10px; color: #475569; margin-top: 2px; }
@@ -30,6 +33,7 @@
         .issued { font-size: 9px; color: #64748b; margin-top: 2px; }
 
         .paid-stamp {
+            border-radius: 4px;
             border: 2px solid #15803d;
             color: #15803d;
             font-size: 11px;
@@ -41,6 +45,7 @@
 
         table { width: 100%; border-collapse: collapse; }
         .section-title {
+            color: #0f766e;
             font-size: 10px;
             font-weight: bold;
             text-transform: uppercase;
@@ -64,6 +69,8 @@
         }
 
         .footer {
+            background: #f8fafc;
+            padding: 12px;
             margin-top: 22px;
             border-top: 1px solid #cbd5e1;
             padding-top: 10px;
@@ -79,8 +86,8 @@
     <table>
         <tr>
             <td style="width: 60%; text-align: left; border: none;">
-                <div class="facility">{{ $facilityName }}</div>
-                <div class="address">{{ $facilityAddress }}</div>
+                <img class="brand-logo" src="{{ public_path('images/san-jose-pickleball-logo.png') }}" alt="San Jose Pickleball logo"><span class="brand"><div class="facility">{{ $facilityName }}</div>
+                <div class="address">{{ $facilityAddress }}</div></span>
             </td>
             <td class="title-row" style="border: none;">
                 <div class="doc-title">RECEIPT</div>

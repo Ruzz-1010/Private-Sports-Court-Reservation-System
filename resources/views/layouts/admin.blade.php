@@ -7,7 +7,7 @@
     <title>{{ isset($title) ? $title.' · ' : '' }}Admin · {{ config('app.name') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="h-full bg-[#f7f8fc] font-sans text-slate-900 antialiased">
+<body class="h-full bg-[radial-gradient(circle_at_100%_0%,_#eefdf9_0,_transparent_28%),radial-gradient(circle_at_0%_45%,_#eef2ff_0,_transparent_30%),#f7f8fc] font-sans text-slate-900 antialiased">
 
 @php
     $nav = [
@@ -25,7 +25,7 @@
     {{-- Sidebar --}}
     <aside class="flex w-16 shrink-0 flex-col border-r border-slate-800 bg-[#0b1020] md:w-64">
         <div class="flex h-16 items-center gap-2 border-b border-slate-800 px-3 md:px-5">
-            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-teal-300 text-sm font-black text-slate-950">SC</span>
+            <img src="{{ asset('images/san-jose-pickleball-logo.png') }}" alt="San Jose Pickleball" class="h-10 w-10 shrink-0 object-contain">
             <span class="hidden text-sm font-semibold leading-tight text-white md:block">
                 San Jose Pickleball
                 <span class="block text-xs font-normal text-slate-400">Admin workspace</span>

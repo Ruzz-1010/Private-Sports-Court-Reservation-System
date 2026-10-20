@@ -54,7 +54,10 @@ class PayMongoGateway implements PaymentGateway
     public function fetchSession(string $sessionId): array
     {
         try {
-            $response = $this->client()->get('/v2/checkout_sessions/'.$sessionId);
+            // PayMongo only exposes checkout-session retrieval on /v1. The /v2
+            // path exists for creation but returns "route does not exist" for
+            // GET, which made server-side verification impossible.
+            $response = $this->client()->get('/v1/checkout_sessions/'.$sessionId);
         } catch (ConnectionException) {
             return ['status' => 'unknown', 'amount' => null, 'currency' => null, 'reference' => null, 'payment_id' => null];
         }
