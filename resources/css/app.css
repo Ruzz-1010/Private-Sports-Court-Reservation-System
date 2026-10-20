@@ -67,6 +67,13 @@
     .auth-shell { max-width: 42rem; }
 }
 [x-cloak] { display: none !important; }
+
+.admin-shell .admin-dashboard {
+    margin: 0 !important;
+    min-height: auto !important;
+    padding: 0 !important;
+    background: transparent !important;
+}
 /* Auth pages share the same dark sports-club language as the landing page. */
 .auth-shell { background: #111827 !important; border-color: rgba(255,255,255,.12) !important; }
 .auth-shell > div:last-child { background: #111827; }
