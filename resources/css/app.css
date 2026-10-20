@@ -161,3 +161,17 @@
 .admin-dashboard .bg-teal-300, .customer-dashboard .bg-teal-300 { background-color: #bef264 !important; }
 .admin-dashboard .text-teal-300, .customer-dashboard .text-teal-300 { color: #bef264 !important; }
 .admin-dashboard a[class*="bg-teal"], .customer-dashboard a[class*="bg-teal"] { color: #050505 !important; }
+/* Apply the home palette across every admin screen, not only the dashboard. */
+.admin-shell { background: #050505 !important; color: #f8fafc; }
+.admin-shell main { background: #050505; }
+.admin-shell [class*="bg-white"] { background-color: #111827 !important; border-color: rgba(255,255,255,.12) !important; }
+.admin-shell [class*="bg-slate-50"] { background-color: #0b1222 !important; }
+.admin-shell [class*="bg-slate-100"] { background-color: #1f2937 !important; }
+.admin-shell [class*="text-slate-950"], .admin-shell [class*="text-slate-900"] { color: #f8fafc !important; }
+.admin-shell [class*="text-slate-800"], .admin-shell [class*="text-slate-700"] { color: #cbd5e1 !important; }
+.admin-shell [class*="text-slate-600"], .admin-shell [class*="text-slate-500"] { color: #94a3b8 !important; }
+.admin-shell [class*="border-slate-"] { border-color: rgba(255,255,255,.12) !important; }
+.admin-shell input, .admin-shell select, .admin-shell textarea { background: #0f172a !important; border-color: #334155 !important; color: #f8fafc !important; }
+.admin-shell input:focus, .admin-shell select:focus, .admin-shell textarea:focus { border-color: #bef264 !important; box-shadow: 0 0 0 3px rgba(190,242,100,.12) !important; }
+.admin-shell [class*="bg-indigo-"], .admin-shell [class*="bg-teal-"] { background-color: #bef264 !important; color: #050505 !important; }
+.admin-shell [class*="text-indigo-"] { color: #bef264 !important; }
