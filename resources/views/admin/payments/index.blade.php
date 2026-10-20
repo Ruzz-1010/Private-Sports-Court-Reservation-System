@@ -26,14 +26,14 @@
                 <div class="flex flex-wrap items-start justify-between gap-4">
                     <div class="min-w-0">
                         <div class="flex flex-wrap items-center gap-2">
-                            <h2 class="text-lg font-semibold text-slate-900">{{ $reservation->court->name }}</h2>
+                            <h2 class="text-lg font-semibold text-slate-900">{{ $reservation->court?->name }}</h2>
                             <span class="inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-800 ring-1 ring-inset ring-amber-200">
                                 Awaiting verification
                             </span>
                         </div>
 
                         <p class="mt-1 text-sm text-slate-600">
-                            {{ $reservation->user->name }} &middot; {{ $reservation->user->email }}
+                            {{ $reservation->user?->name }} &middot; {{ $reservation->user?->email }}
                         </p>
                         <p class="mt-0.5 font-mono text-xs text-slate-500">{{ $reservation->reference_number }}</p>
 

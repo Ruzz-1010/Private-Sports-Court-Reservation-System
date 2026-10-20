@@ -68,7 +68,7 @@
                             @foreach ($reservations as $reservation)
                                 <tr>
                                     <td class="px-3 py-2 font-medium text-slate-900">{{ $reservation->reference_number }}</td>
-                                    <td class="px-3 py-2 text-sm text-slate-600">{{ $reservation->user->name }}</td>
+                                    <td class="px-3 py-2 text-sm text-slate-600">{{ $reservation->user?->name }}</td>
                                     <td class="px-3 py-2 text-sm text-slate-600">
                                         {{ $reservation->starts_at->format('M j, Y g:i A') }}
                                     </td>

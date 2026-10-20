@@ -37,8 +37,8 @@
             <tbody class="divide-y divide-slate-100">
             @forelse ($reservations as $reservation)
                 <tr class="hover:bg-slate-50/80">
-                    <td class="px-5 py-4"><p class="font-semibold text-slate-900">{{ $reservation->court->name }}</p><p class="mt-0.5 font-mono text-xs text-slate-500">{{ $reservation->reference_number }}</p></td>
-                    <td class="px-5 py-4"><p class="font-medium text-slate-800">{{ $reservation->user->name }}</p><p class="text-xs text-slate-500">{{ $reservation->user->email }}</p></td>
+                    <td class="px-5 py-4"><p class="font-semibold text-slate-900">{{ $reservation->court?->name }}</p><p class="mt-0.5 font-mono text-xs text-slate-500">{{ $reservation->reference_number }}</p></td>
+                    <td class="px-5 py-4"><p class="font-medium text-slate-800">{{ $reservation->user?->name }}</p><p class="text-xs text-slate-500">{{ $reservation->user?->email }}</p></td>
                     <td class="px-5 py-4 text-slate-700"><p>{{ $reservation->starts_at->setTimezone(config('reservation.timezone'))->format('M j, Y') }}</p><p class="text-xs text-slate-500">{{ $reservation->starts_at->setTimezone(config('reservation.timezone'))->format('g:i A') }}–{{ $reservation->ends_at->setTimezone(config('reservation.timezone'))->format('g:i A') }}</p></td>
                     <td class="px-5 py-4 font-semibold text-slate-900">₱{{ number_format((float) $reservation->total_amount, 2) }}</td>
                     <td class="px-5 py-4"><x-reservation-status :status="$reservation->status->value" /></td>

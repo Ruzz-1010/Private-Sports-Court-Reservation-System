@@ -101,8 +101,8 @@
                                 <p class="text-xs text-slate-500">{{ $reservation->ends_at->format('g:i A') }}</p>
                             </div>
                             <div class="min-w-0 flex-1">
-                                <p class="truncate text-sm font-medium text-slate-900">{{ $reservation->court->name }}</p>
-                                <p class="truncate text-xs text-slate-600">{{ $reservation->user->name }} &middot; {{ $reservation->reference_number }}</p>
+                                <p class="truncate text-sm font-medium text-slate-900">{{ $reservation->court?->name }}</p>
+                                <p class="truncate text-xs text-slate-600">{{ $reservation->user?->name }} &middot; {{ $reservation->reference_number }}</p>
                             </div>
                             <x-reservation-status :status="$reservation->status->value" />
                         </li>
@@ -164,8 +164,8 @@
                         <li class="px-5 py-4">
                             <div class="flex items-start justify-between gap-3">
                                 <div class="min-w-0">
-                                    <p class="truncate text-sm font-medium text-slate-900">{{ $payment->reservation->court->name }}</p>
-                                    <p class="truncate text-xs text-slate-600">{{ $payment->reservation->user->name }}</p>
+                                    <p class="truncate text-sm font-medium text-slate-900">{{ $payment->reservation->court?->name }}</p>
+                                    <p class="truncate text-xs text-slate-600">{{ $payment->reservation->user?->name }}</p>
                                     <p class="mt-1 font-mono text-xs text-slate-500">{{ $payment->reservation->reference_number }}</p>
                                 </div>
                                 <p class="shrink-0 text-sm font-semibold text-slate-900">₱{{ number_format((float) $payment->amount, 2) }}</p>
