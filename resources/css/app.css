@@ -109,3 +109,7 @@
 .auth-shell .text-lime-300 { color: #bef264; }
 .auth-shell button[type="submit"] { background: #bef264; color: #111827; }
 .auth-shell button[type="submit"]:hover { background: #d9f99d; }
+@media (min-width: 1024px) {
+    .auth-shell { max-width: 28rem !important; }
+    .auth-shell.sm\:p-8 { padding: 1.75rem !important; }
+}
