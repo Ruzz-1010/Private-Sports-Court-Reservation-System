@@ -7,7 +7,7 @@
     <title>{{ isset($title) ? $title.' · ' : '' }}Admin · {{ config('app.name') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="h-full bg-[radial-gradient(circle_at_100%_0%,_#eefdf9_0,_transparent_28%),radial-gradient(circle_at_0%_45%,_#eef2ff_0,_transparent_30%),#f7f8fc] font-sans text-slate-900 antialiased">
+<body class="admin-shell h-full bg-[#050505] font-sans text-slate-900 antialiased">
 
 @php
     $nav = [
