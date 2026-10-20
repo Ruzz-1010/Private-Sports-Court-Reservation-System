@@ -4,13 +4,13 @@
 
 <div class="admin-dashboard">{{-- Header --}}
 <div class="motion-reveal relative mb-8 flex flex-wrap items-end justify-between gap-4 overflow-hidden rounded-xl bg-[#172033] px-7 py-9 text-white shadow-2xl shadow-indigo-200/30 sm:px-9">
-    <div class="absolute inset-0 -z-0 bg-[radial-gradient(circle_at_top_right,_rgba(20,184,166,0.3),transparent_28%),radial-gradient(circle_at_10%_100%,_rgba(79,70,229,0.4),transparent_34%)]"></div>
+    <div class="absolute inset-0 -z-0 bg-[linear-gradient(120deg,rgba(190,242,100,.08),transparent_55%)]"></div>
     <div class="relative z-10">
     <p class="text-sm font-semibold text-teal-200">
         {{ now(config('reservation.timezone'))->format('l, F j, Y') }}
     </p>
-    <h1 class="mt-1 text-3xl font-bold tracking-tight text-white">Today at a glance</h1>
-    <p class="mt-2 text-sm text-slate-300">Keep the facility moving with a clear view of bookings, courts, and collections.</p>
+    <h1 class="mt-1 text-3xl font-bold tracking-tight text-white">Facility operations</h1>
+    <p class="mt-2 text-sm text-slate-300">Monitor today’s schedule, court availability, and payment activity from one workspace.</p>
     </div>
     <div class="relative z-10 flex gap-2"><a href="{{ route('admin.reservations.index') }}" class="rounded-xl border border-white/15 bg-white/10 px-4 py-2.5 text-sm font-bold text-white backdrop-blur hover:bg-white/15">Reservations</a><a href="{{ route('admin.courts.create') }}" class="rounded-xl bg-teal-300 px-4 py-3 text-sm font-bold text-slate-950 shadow-lg shadow-teal-500/20 hover:bg-teal-200">Add pickleball court</a></div>
 </div>
