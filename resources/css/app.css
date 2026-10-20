@@ -97,3 +97,15 @@
 .auth-shell a.text-lime-300:hover, .auth-shell a:hover .text-lime-300 { color: #115e59; }
 .auth-shell button[type="submit"] { background: #0f172a; color: #ffffff; }
 .auth-shell button[type="submit"]:hover { background: #1e293b; }
+/* Auth variant: glass panel that visually belongs to the landing-page hero. */
+.auth-shell { background: rgba(17,24,39,.78) !important; border-color: rgba(190,242,100,.35) !important; backdrop-filter: blur(18px); }
+.auth-shell > div:last-child { background: transparent; }
+.auth-shell h1, .auth-shell .text-white { color: #f8fafc; }
+.auth-shell .text-slate-300 { color: #cbd5e1; }
+.auth-shell .text-slate-400 { color: #cbd5e1; }
+.auth-shell .text-slate-500 { color: #94a3b8; }
+.auth-shell input:not([type="checkbox"]) { background: rgba(15,23,42,.72); border-color: rgba(255,255,255,.18); color: #f8fafc; }
+.auth-shell input:not([type="checkbox"]):focus { border-color: #bef264; box-shadow: 0 0 0 3px rgba(190,242,100,.14); }
+.auth-shell .text-lime-300 { color: #bef264; }
+.auth-shell button[type="submit"] { background: #bef264; color: #111827; }
+.auth-shell button[type="submit"]:hover { background: #d9f99d; }
