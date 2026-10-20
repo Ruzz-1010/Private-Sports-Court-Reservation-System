@@ -37,9 +37,9 @@
 
                 <div class="hidden items-center gap-1 md:flex">
                     @if (! $showNav)
-                        <a href="{{ route('home') }}#courts" class="rounded-md px-3 py-2 text-sm font-medium {{ $showNav ? 'text-slate-600 hover:bg-slate-100 hover:text-slate-950' : 'text-slate-400 hover:text-lime-300' }}">Courts</a>
-                        <a href="{{ route('home') }}#how-it-works" class="rounded-md px-3 py-2 text-sm font-medium {{ $showNav ? 'text-slate-600 hover:bg-slate-100 hover:text-slate-950' : 'text-slate-400 hover:text-lime-300' }}">How it works</a>
-                        <a href="{{ route('home') }}#location" class="rounded-md px-3 py-2 text-sm font-medium {{ $showNav ? 'text-slate-600 hover:bg-slate-100 hover:text-slate-950' : 'text-slate-400 hover:text-lime-300' }}">Location</a>
+                        <a href="{{ route('home') }}" class="rounded-md px-3 py-2 text-sm font-medium text-slate-400 hover:text-lime-300">Home</a>
+                        <a href="{{ route('home') }}#courts" class="rounded-md px-3 py-2 text-sm font-medium text-slate-400 hover:text-lime-300">Courts</a>
+                        <a href="{{ route('home') }}#location" class="rounded-md px-3 py-2 text-sm font-medium text-slate-400 hover:text-lime-300">Maps / Location</a>
                     @endif
                     @foreach ($showNav ? $nav : [] as $item)
                         @if ($item['url'])
