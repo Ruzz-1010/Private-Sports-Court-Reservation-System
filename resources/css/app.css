@@ -142,3 +142,12 @@
 .customer-dashboard .bg-slate-950, .admin-dashboard .bg-slate-950 { background: #0b1222 !important; }
 .customer-dashboard button, .customer-dashboard a.bg-slate-950 { border-radius: .375rem; }
 .admin-dashboard .rounded-2xl, .customer-dashboard .rounded-xl { border-radius: .5rem; }
+/* Ensure translucent Tailwind surfaces also inherit the dashboard theme. */
+.customer-dashboard [class*="bg-white"], .admin-dashboard [class*="bg-white"] { background-color: #111827 !important; border-color: rgba(255,255,255,.12) !important; }
+.customer-dashboard [class*="text-slate-950"], .admin-dashboard [class*="text-slate-950"] { color: #f8fafc !important; }
+.customer-dashboard [class*="text-slate-900"], .admin-dashboard [class*="text-slate-900"] { color: #f1f5f9 !important; }
+.customer-dashboard [class*="text-slate-600"], .admin-dashboard [class*="text-slate-600"] { color: #94a3b8 !important; }
+.customer-dashboard [class*="text-slate-500"], .admin-dashboard [class*="text-slate-500"] { color: #94a3b8 !important; }
+.customer-dashboard [class*="border-slate-"], .admin-dashboard [class*="border-slate-"] { border-color: rgba(255,255,255,.12) !important; }
+.customer-dashboard [class*="hover:bg-slate-50"]:hover, .admin-dashboard [class*="hover:bg-slate-50"]:hover { background-color: #1f2937 !important; }
+.customer-dashboard [class*="bg-slate-100"], .admin-dashboard [class*="bg-slate-100"] { background-color: #1f2937 !important; }
