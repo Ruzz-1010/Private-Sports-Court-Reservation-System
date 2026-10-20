@@ -113,3 +113,16 @@
     .auth-shell { max-width: 28rem !important; }
     .auth-shell.sm\:p-8 { padding: 1.75rem !important; }
 }
+/* Final auth surface: compact, quiet, and easy to scan. */
+.auth-shell { max-width: 25rem !important; background: #ffffff !important; border: 1px solid #e2e8f0 !important; border-radius: 1rem !important; padding: 1.5rem !important; backdrop-filter: none !important; }
+.auth-shell > div:last-child { background: transparent !important; }
+.auth-shell h1, .auth-shell .text-white { color: #0f172a !important; }
+.auth-shell .text-slate-300 { color: #334155 !important; }
+.auth-shell .text-slate-400, .auth-shell .text-slate-500 { color: #64748b !important; }
+.auth-shell .text-lime-300 { color: #0f766e !important; }
+.auth-shell input:not([type="checkbox"]) { background: #ffffff !important; border: 1px solid #cbd5e1 !important; color: #0f172a !important; }
+.auth-shell input:not([type="checkbox"]):focus { border-color: #0f766e !important; box-shadow: 0 0 0 3px rgba(20,184,166,.12) !important; }
+.auth-shell button[type="submit"] { background: #0f172a !important; color: #ffffff !important; }
+.auth-shell button[type="submit"]:hover { background: #1e293b !important; }
+.auth-shell .h-12.w-12 { height: 2.25rem; width: 2.25rem; }
+@media (min-width: 640px) { .auth-shell { padding: 1.75rem !important; } }
