@@ -175,3 +175,10 @@
 .admin-shell input:focus, .admin-shell select:focus, .admin-shell textarea:focus { border-color: #bef264 !important; box-shadow: 0 0 0 3px rgba(190,242,100,.12) !important; }
 .admin-shell [class*="bg-indigo-"], .admin-shell [class*="bg-teal-"] { background-color: #bef264 !important; color: #050505 !important; }
 .admin-shell [class*="text-indigo-"] { color: #bef264 !important; }
+/* Modern SaaS finishing layer for workspaces. */
+.admin-shell, .customer-dashboard { letter-spacing: -.01em; }
+.admin-shell .shadow-sm, .customer-dashboard .shadow-sm { box-shadow: 0 8px 24px rgba(0,0,0,.16) !important; }
+.admin-shell h1, .customer-dashboard h1 { letter-spacing: -.035em; }
+.admin-shell h2, .customer-dashboard h2 { letter-spacing: -.02em; }
+.admin-shell table th { font-size: .68rem; letter-spacing: .08em; }
+.admin-shell a, .customer-dashboard a { transition: background-color .18s ease, border-color .18s ease, color .18s ease, transform .18s ease; }
