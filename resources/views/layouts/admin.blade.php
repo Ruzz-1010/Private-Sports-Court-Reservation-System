@@ -23,7 +23,7 @@
 <div class="flex min-h-full">
 
     {{-- Sidebar --}}
-    <aside class="sticky top-0 flex h-screen w-16 shrink-0 flex-col border-r border-slate-800 bg-[#0b1020] md:w-64">
+    <aside class="sticky top-0 flex h-screen w-16 shrink-0 flex-col border-r border-slate-800 bg-[#050505] md:w-64">
         <div class="flex h-16 items-center gap-2 border-b border-slate-800 px-3 md:px-5">
             <img src="{{ asset('images/san-jose-pickleball-logo.png') }}" alt="San Jose Pickleball" class="h-10 w-10 shrink-0 object-contain">
             <span class="hidden text-sm font-semibold leading-tight text-white md:block">

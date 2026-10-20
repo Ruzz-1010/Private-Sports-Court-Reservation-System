@@ -155,3 +155,9 @@
 .admin-dashboard .motion-reveal { background-color: #111827 !important; }
 @media (min-width: 640px) { .admin-dashboard { margin-left: -1.5rem; margin-right: -1.5rem; padding-left: 1.5rem; padding-right: 1.5rem; } }
 @media (min-width: 1280px) { .admin-dashboard { margin-left: -2.5rem; margin-right: -2.5rem; padding-left: 2.5rem; padding-right: 2.5rem; } }
+/* Exact home palette for authenticated workspaces. */
+.admin-dashboard, .customer-dashboard { font-family: var(--font-sans); }
+.admin-dashboard .bg-slate-950, .customer-dashboard .bg-slate-950 { background-color: #050505 !important; }
+.admin-dashboard .bg-teal-300, .customer-dashboard .bg-teal-300 { background-color: #bef264 !important; }
+.admin-dashboard .text-teal-300, .customer-dashboard .text-teal-300 { color: #bef264 !important; }
+.admin-dashboard a[class*="bg-teal"], .customer-dashboard a[class*="bg-teal"] { color: #050505 !important; }
