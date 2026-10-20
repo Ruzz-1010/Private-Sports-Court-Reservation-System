@@ -88,7 +88,10 @@ class PayMongoWebhookTest extends TestCase
     private function stubPayMongo(array $overrides = []): void
     {
         Http::fake([
-            'https://api.paymongo.com/v2/checkout_sessions/cs_test_123' => Http::response([
+            // Retrieval is served on /v1 only; /v2 exists for creation and
+            // returns "route does not exist" for GET (verified against the
+            // live API), so the fake must match the same path the gateway calls.
+            'https://api.paymongo.com/v1/checkout_sessions/cs_test_123' => Http::response([
                 'data' => ['attributes' => array_merge([
                     'reference_number' => 'RSRV-PM-1',
                     'payments' => [[

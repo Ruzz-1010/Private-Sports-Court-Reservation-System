@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 #[Fillable([
     'reference_number',
@@ -64,7 +65,14 @@ class Reservation extends Model
      */
     public function court(): BelongsTo
     {
-        return $this->belongsTo(Court::class);
+        // Reservation history must outlive the court record. Courts with
+        // bookings are archived (soft-deleted) rather than destroyed, so the
+        // relation ignores the global soft-delete scope — otherwise every
+        // history, report, and receipt row for an archived court renders a
+        // null name. New bookings are unaffected: they resolve the court
+        // through route model binding and AvailabilityService, both of which
+        // still honour the soft-delete scope.
+        return $this->belongsTo(Court::class)->withoutGlobalScope(SoftDeletingScope::class);
     }
 
     /**
