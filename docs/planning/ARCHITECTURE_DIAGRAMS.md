@@ -97,7 +97,7 @@ flowchart TB
     BE["Backend<br/>Laravel Application<br/>Routes · Middleware · Controllers<br/>Services · Policies"]
     DB[("Database Engine<br/>PostgreSQL<br/>users · courts · reservations<br/>payments · receipts")]
     PAY["Payment Processor<br/>PayMongo Hosted Checkout"]
-    MAIL["Email Service<br/>Mailtrap / SMTP"]
+    MAIL["Email Service<br/>SMTP Provider<br/>queued confirmation + receipt PDF"]
 
     QUEUE[["Queue and Scheduler<br/>background email · hold expiration"]]
 
@@ -108,7 +108,7 @@ flowchart TB
     PAY -->|"signed webhook"| BE
     BE -.->|"queued email"| QUEUE
     QUEUE --> MAIL
-    MAIL -.->|"delivered receipt"| BROWSER
+    MAIL -.->|"confirmation email with receipt PDF"| BROWSER
 
     class BROWSER,PAY,MAIL ext;
     class FE,BE,QUEUE box;
@@ -140,28 +140,42 @@ sequenceDiagram
         A->>D: INSERT reservation (pending, deadline set)
         A->>D: INSERT payment (pending)
         A->>D: COMMIT
-        A->>P: Create checkout session
+        A->>P: Create checkout session (POST /v2/checkout_sessions)
         P-->>A: Checkout URL
         A-->>C: Redirect to PayMongo
-        Note over C,P: Card details go to PayMongo only.
-        P->>A: Webhook POST with signature
-        A->>A: Verify signature
+        Note over C,P: Wallet credentials go to PayMongo only.
+
+        P->>A: Webhook POST with Paymongo-Signature
+        A->>A: Verify HMAC-SHA256 over timestamp.raw_body
         alt Invalid signature
-            A-->>P: Reject
+            A-->>P: 400, nothing recorded
         else Valid signature
-            A->>D: Check event already processed
-            alt Already processed
-                A-->>P: Success, no duplicate
+            A->>A: Reject timestamp outside five-minute replay window
+            A->>D: Look up provider event id
+            alt Event already processed
+                A-->>P: 200, no duplicate work
             else New event
-                A->>A: Validate amount, currency, reference
-                A->>D: BEGIN
-                A->>D: UPDATE payment to paid
-                A->>D: UPDATE reservation to confirmed
-                A->>D: INSERT receipt
-                A->>D: INSERT payment event
-                A->>D: COMMIT
-                A-->>P: Success
-                A-->>C: Confirmed, receipt ready
+                A->>A: Keep only checkout_session.payment.paid
+                A->>D: Find payment by checkout session id
+                Note over A,P: The callback payload is never trusted.<br/>The session is re-read from PayMongo over /v1.
+                A->>P: GET /v1/checkout_sessions/{id}
+                P-->>A: Authoritative status, amount, currency, reference
+                A->>A: Compare retrieved values against local attempt
+                alt Disagreement or not paid
+                    A->>D: payment = requires_review
+                    A-->>P: 200, nothing confirmed
+                else Agreement and paid
+                    A->>D: BEGIN
+                    A->>D: UPDATE payment to paid
+                    A->>D: UPDATE reservation to confirmed
+                    A->>D: INSERT receipt (exactly one)
+                    A->>D: INSERT payment event (processed)
+                    A->>D: COMMIT
+                    A-->>P: 200
+                    Note over A,C: Dispatch only after commit.<br/>PDF rendered at send time and attached.
+                    A->>A: Queue SendConfirmationEmail
+                    A-->>C: Confirmation email with receipt PDF
+                end
             end
         end
     end
@@ -194,13 +208,17 @@ sequenceDiagram
         A->>D: Record rejected attempt and audit log
         A-->>ADM: Rejected with reason
     else Valid
+        Note over A: ConfirmPayment — the same action<br/>the webhook path calls.
         A->>D: BEGIN
         A->>D: UPDATE payment to paid, record admin
         A->>D: UPDATE reservation to confirmed
-        A->>D: INSERT receipt
+        A->>D: INSERT receipt (exactly one)
         A->>D: INSERT audit log
         A->>D: COMMIT
         A-->>ADM: Verified, receipt issued
+        Note over A,C: Dispatch only after commit, so the two<br/>paths send the identical notification.
+        A->>A: Queue SendConfirmationEmail
+        A-->>C: Confirmation email with receipt PDF
     end
 ```
 
@@ -216,5 +234,19 @@ sequenceDiagram
   webhook processing, which is the first sequence diagram.
 - Hold expiration, late payment reconciliation, and email retry are implemented but
   are described in text in section 4.3 rather than given separate diagrams.
-- These diagrams show the target design. Update them once the system is built and
-  tested, and record only observed test results.
+- These diagrams describe the **built** system, not a target design. They were
+  reconciled against the code after the PayMongo integration was verified
+  end to end. Three things were corrected when that happened:
+  - The webhook sequence omitted the independent `GET /v1/checkout_sessions/{id}`
+    retrieval, jumping straight from validation to the confirmation transaction.
+    That retrieval is the property the design actually depends on, because the
+    callback payload is never trusted.
+  - The on-site sequence omitted the queued confirmation email, which
+    `PaymentVerificationController` dispatches after commit using the same
+    `ConfirmPayment` action and the same notification as the webhook path.
+  - The block diagram still named Mailtrap. Delivery is verified against a live
+    SMTP provider, and the email now carries the rendered receipt PDF as an
+    attachment rather than only linking to it.
+- Regenerate the PNG exports from mermaid.live after editing this file. The paper
+  embeds `architecture-block-diagram.png`, `sequence-payment-webhook.png`, and
+  `sequence-onsite-payment.png`, so a stale export silently contradicts the text.

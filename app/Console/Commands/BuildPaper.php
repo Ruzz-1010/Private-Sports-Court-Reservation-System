@@ -71,13 +71,21 @@ class BuildPaper extends Command
 
     private function toHtml(string $markdown): string
     {
-        $body = $this->markdownToHtml($markdown);
-
         $title = collect(explode("\n", $markdown))
             ->first(fn (string $line): bool => str_starts_with($line, '# '))
             ? str_replace('# ', '', collect(explode("\n", $markdown))
                 ->first(fn (string $line): bool => str_starts_with($line, '# ')))
             : 'Technical Documentation';
+
+        // Everything before the first chapter is the title sheet. Wrapping it
+        // lets the layout centre it and space the date to the foot of the page
+        // while the chapters below keep the running body style.
+        $parts = preg_split('/^# Chapter/m', $markdown, 2) ?: [$markdown];
+        $body = '<div class="title-page">'.$this->markdownToHtml((string) $parts[0]).'</div>';
+
+        if (isset($parts[1])) {
+            $body .= "\n".$this->markdownToHtml('# Chapter'.$parts[1]);
+        }
 
         return view('paper.layout', ['body' => $body, 'title' => $title])->render();
     }
@@ -172,6 +180,20 @@ class BuildPaper extends Command
                 $flushParagraph();
                 $closeList();
                 $level = strlen($m[1]);
+
+                // The reference document opens each chapter on two centred
+                // lines, the chapter number above the name in capitals.
+                // "Chapter 4 — Implementation Details" is written that way in
+                // the source, so it is split here rather than restyled in CSS.
+                if ($level === 1
+                    && preg_match('/^(Chapter\s+\d+)\s*(?:[—–-])\s*(.+)$/iu', $m[2], $cm) === 1) {
+                    $html[] = '<h1><span class="chapter-label">'.$this->inline($cm[1])
+                        .'</span><span class="chapter-name">'.$this->inline($cm[2])
+                        .'</span></h1>';
+
+                    continue;
+                }
+
                 $html[] = "<h{$level}>{$this->inline($m[2])}</h{$level}>";
 
                 continue;
@@ -252,8 +274,13 @@ class BuildPaper extends Command
         }
 
         [$width, $height] = $size;
-        $maxWidth = 178.0;
-        $maxHeight = 218.0;
+
+        // Diagrams want the full printable width. The school seal on the title
+        // sheet must not, or it would occupy a third of the page: it is held to
+        // the size used by the reference document instead.
+        $isSeal = str_contains($path, 'assets/');
+        $maxWidth = $isSeal ? 34.0 : 178.0;
+        $maxHeight = $isSeal ? 34.0 : 218.0;
 
         $scale = min($maxWidth / $width, $maxHeight / $height);
         $renderWidth = $width * $scale;

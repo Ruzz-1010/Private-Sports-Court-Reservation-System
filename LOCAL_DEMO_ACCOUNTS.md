@@ -23,7 +23,7 @@ All demo customers use the same password: `customer123`.
 | Maria Santos | `maria@example.com` | `customer123` |
 | Pedro Reyes | `pedro@example.com` | `customer123` |
 
-These accounts are created by `DemoReservationSeeder`. The clean reset seeder preserves existing users but does not recreate a missing user account.
+These accounts are created by `DemoReservationSeeder`. The clean reset seeder removes other customer accounts while preserving these presentation accounts and the administrator.
 
 ## Start the application
 
@@ -46,7 +46,7 @@ php artisan queue:work
 
 ## Reset local demo data
 
-This keeps the administrator and customer accounts. It clears reservations, payments, receipts, payment events, audit logs, court blocks, jobs, sessions, cache, and courts, then creates Pickleball Court 1–5 again.
+This keeps only the administrator and the three documented customer accounts. It also removes newly-created customer accounts, then clears reservations, payments, receipts, payment events, audit logs, court blocks, jobs, sessions, cache, and courts before creating Pickleball Court 1–5 again.
 
 ```bash
 cd "/home/ruzz/Documents/Private reservation"

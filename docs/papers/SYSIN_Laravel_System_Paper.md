@@ -1,33 +1,28 @@
-# PRIVATE PICKLEBALL COURT RESERVATION SYSTEM
+![Wright College seal](assets/school-logo.png)
 
-## Located in San Jose, Puerto Princesa City, Palawan
+# PRIVATE PICKLEBALL COURT RESERVATION SYSTEM LOCATED IN SAN JOSE, PUERTO PRINCESA CITY, PALAWAN
 
 **Technical Documentation and System Integration Paper**
 
----
+**Project Title:** Private Pickleball Court Reservation System Located in San Jose, Puerto Princesa City, Palawan
 
-| | |
-|---|---|
-| **Project Title** | Private Pickleball Court Reservation System Located in San Jose, Puerto Princesa City, Palawan |
-| **Course** | BSIT — System Integration |
-| **Academic Term** | 1st Semester 2026–2027 |
-| **Date** | October 2026 |
+**Course:** BSIT
 
-### Prepared by
+**Prepared by:**
 
-| Name | Role |
-|---|---|
-| Ariel James Adesir | UI |
-| Fea Bulanay | Database |
-| **Johnruzzel Correa** | **Integration — Backend Lead** |
-| Jerome Gatila | Integration |
-| Jenny Benosa | Paper |
+Ariel James Adesir
+
+Fea Bulanay
+
+Johnruzzel Correa
+
+Jerome Gatila
+
+Jenny Benosa
 
 **Instructor:** Toni Rose Correa
 
-**Date of Presentation:** October 27, 2026
-
----
+October 27, 2026
 
 # Chapter 1 — Introduction
 
@@ -369,6 +364,8 @@ Any disagreement — wrong amount, wrong currency, wrong reference, or a transac
 
 The single most important property is that **the payload is never trusted**. A correctly signed callback that claims success still results in no confirmation if PayMongo's own records show the payment unsettled. Test `test_an_unpaid_checkout_is_flagged_even_with_a_valid_signature` asserts precisely this.
 
+A practical trap sits inside step 6. PayMongo exposes checkout-session **creation** on `/v2/checkout_sessions` but serves **retrieval** only on `/v1/checkout_sessions/{id}`; a `GET` against the `/v2` path returns `not_found` rather than an error the caller would notice as a versioning mistake. Because the gateway fell back to an empty result instead of failing loudly, every payment reached the mismatch branch and settled as `requires_review`, which presents as a webhook that silently does nothing. Correcting the path was necessary before any callback could confirm a reservation. The lesson generalises: when a provider exposes different API versions per verb, verify each verb independently rather than assuming a single version prefix.
+
 ### 4.3.3 On-Site Payment
 
 The reservation is held as Pending with the longer on-site deadline, and payment instructions are displayed. Only an administrator may verify. Verification re-checks that the reservation is still valid, then uses the **same** `ConfirmPayment` action as the webhook, so the two paths cannot diverge. The verifying administrator is recorded on the payment and in the audit log. Rejection requires a reason.
@@ -379,11 +376,15 @@ A scheduled command runs every minute and marks overdue Pending reservations Exp
 
 ### 4.3.5 Email Dispatch
 
-`SendConfirmationEmail` is queued to the database driver, so mail-server latency never blocks the customer's request. The notification contains the pickleball court, schedule, amount paid, payment method, payment status, reference number, and receipt number, and its single action button links to the PDF receipt.
+`SendConfirmationEmail` is queued to the database driver, so mail-server latency never blocks the customer's request. The notification contains the pickleball court, schedule, amount paid, payment method, payment status, reference number, and receipt number.
 
-`MailMessage::action()` overwrites rather than appends, so the notification issues exactly one button and falls back to the reservation page when no receipt exists — a detail that would otherwise silently drop the primary call to action.
+The rendered PDF receipt is **attached to the email** through `MailMessage::attachData()`, so the receipt travels with the message itself. A link alone would require the customer to open a browser, authenticate, and depend on the deployment URL staying constant; during development `APP_URL` points at a tunnel whose hostname changes every time the tunnel process restarts, which made emailed links dead on arrival. The message also carries a single action button to the online copy for anyone who prefers it.
 
-The mailer is configured with a **failover** transport: Mailtrap first, and the log driver second. If Mailtrap is unreachable, the message is written to the log instead of throwing. Email failure therefore never reverses a confirmed payment or reservation, and the failover also means a mail outage during a presentation degrades visibility rather than causing a failed job.
+`MailMessage::action()` overwrites rather than appends, so the notification issues exactly one button and falls back to the reservation page when no receipt exists — a detail that would otherwise silently drop the primary call to action. `attachData()` writes to `rawAttachments`, not `attachments`, which is easy to verify incorrectly and would appear to succeed while attaching nothing.
+
+The attachment and the download route serve the identical document: `GenerateReceiptPdf::render()` returns the PDF object and `handle()` streams the download response built from that same renderer. Because the notification is sent by the queued job after the payment transaction commits, `toMail()` renders the PDF at send time from committed data rather than freezing document bytes into the queue payload.
+
+Delivery is verified against a live SMTP provider rather than a log sink. Measured on this project, a plain message completes the SMTP handshake, authentication, and server acceptance in roughly six seconds, and the same message with the 1.7 MB receipt attached completes in roughly twenty-one seconds. Email failure never reverses a confirmed payment or reservation: the job retries independently with backoff and gives up quietly, leaving the confirmed reservation intact.
 
 ## 4.4 Application Security
 
@@ -621,14 +622,16 @@ The strongest engineering decision in the system is that correctness does not de
 
 ```
 $ php artisan test
-  Tests:      129
-  Passed:     129
+  Tests:      131
+  Passed:     131
   Failed:     0
   Errors:     0
-  Assertions: 327
+  Assertions: 332
 ```
 
-Test suites: Availability (21), Court Block Management (2), Court CRUD (18), Court Image (9), Create Reservation (12), On-Site Payment Verification (13), PayMongo Webhook (26), Receipt Download (10), Reservations Reports (3), Role Authorization (13), Example (2).
+Test suites: Availability (21), Court Block Management (2), Court CRUD (18), Court Image (9), Create Reservation (12), On-Site Payment Verification (13), PayMongo Webhook (26), Receipt Download (12), Reservations Reports (3), Role Authorization (13), Example (2).
+
+Counts are recorded from the PHPUnit summary line, not estimated. The two suites that changed during the verification work are PayMongo Webhook, which covers the checkout-session retrieval path, and Receipt Download, which now asserts that the confirmation email attaches the receipt PDF with the correct filename and MIME type and that a pending reservation attaches nothing.
 
 ---
 
