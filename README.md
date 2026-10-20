@@ -1,6 +1,6 @@
-# Private Sports Court Reservation System
+# Private Pickleball Court Reservation System
 
-A web-based reservation and payment system for a private sports facility in Barangay San Jose, Puerto Princesa City, Palawan.
+A web-based reservation and payment system for a private pickleball facility in Barangay San Jose, Puerto Princesa City, Palawan.
 
 The system will allow customers to view court availability, reserve schedules, pay online with a PayMongo Hosted Checkout QRPh payment or on-site, download receipts, receive email confirmation, and review reservation history. Administrators will manage courts, schedule blocks, reservations, payments, and reports.
 

@@ -1,8 +1,8 @@
-# Private Sports Court Reservation System
+# Private Pickleball Court Reservation System
 
 ## Purpose and source documents
 
-Build a reservation system for a private sports facility in Barangay San Jose, Puerto Princesa City, Palawan. Customers check availability, reserve a court, pay online or on-site, and obtain receipts. Administrators manage courts, schedules, bookings, payments, and reports.
+Build a reservation system for a private pickleball facility in Barangay San Jose, Puerto Princesa City, Palawan. Customers check availability, reserve a court, pay online or on-site, and obtain receipts. Administrators manage courts, schedules, bookings, payments, and reports.
 
 This analysis is based on the complete text of `FINAL SYSTEM INTEGRATION PROJECT.docx` and `private-resrvation.docx`. The latter's embedded image is a college logo. The folder currently contains these two source documents and no application code. The paper's external references have not been independently reviewed.
 

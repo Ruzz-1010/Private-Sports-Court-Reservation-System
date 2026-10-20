@@ -19,7 +19,7 @@
 
     $nav = [
         ['label' => 'Dashboard', 'route' => 'customer.dashboard', 'url' => route('customer.dashboard'), 'icon' => 'M3 12l9-9 9 9M5 10v10a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V10'],
-        ['label' => 'Book a court', 'route' => 'customer.availability.index', 'url' => $firstCourt ? route('customer.availability.index', ['court' => $firstCourt]) : null, 'icon' => 'M8 7V3m8 4V3M3 11h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z'],
+        ['label' => 'Book pickleball', 'route' => 'customer.availability.index', 'url' => $firstCourt ? route('customer.availability.index', ['court' => $firstCourt]) : null, 'icon' => 'M8 7V3m8 4V3M3 11h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z'],
         ['label' => 'My reservations', 'route' => 'customer.reservations.index', 'url' => route('customer.reservations.index'), 'icon' => 'M9 12h6m-6 4h6M9 8h6M5 4h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z'],
     ];
 @endphp
@@ -32,7 +32,7 @@
             <div class="flex items-center gap-6">
                 <a href="{{ route('customer.dashboard') }}" class="flex shrink-0 items-center gap-2">
                     <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-950 text-xs font-black text-teal-300 shadow-lg shadow-slate-300">SC</span>
-                    <span class="hidden text-sm font-black tracking-tight text-slate-950 md:block">San Jose Courts</span>
+                    <span class="hidden text-sm font-black tracking-tight text-slate-950 md:block">San Jose Pickleball</span>
                 </a>
 
                 <div class="hidden items-center gap-1 md:flex">

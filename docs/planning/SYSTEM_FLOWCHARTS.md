@@ -1,4 +1,4 @@
-# Private Sports Court Reservation System Flowcharts
+# Private Pickleball Court Reservation System Flowcharts
 
 Legend: solid line = main flow · dotted line = background process
 
@@ -23,7 +23,7 @@ flowchart TD
     H -- Oo --> J[Customer Dashboard]
 
     J --> K[Tingnan ang Availability Calendar]
-    K --> L[Pumili ng court, date, oras at duration]
+    K --> L[Pumili ng pickleball court, date, oras at duration]
     L --> M{Available ang schedule?}
 
     M -- Hindi --> N[Pumili ng ibang schedule]
@@ -93,11 +93,11 @@ flowchart TD
     C -- Oo --> E[Admin Dashboard]
     E --> F{Pumili ang module}
 
-    F --> G[Court Management]
-    G --> G1[Add, edit o delete court]
+    F --> G[Pickleball Court Management]
+    G --> G1[Add, edit o delete pickleball court]
     G1 --> G2[Set rate, location at availability]
     G2 --> G5{May kaugnayan na reservation?}
-    G5 -- Oo --> G6[Archive ang court]
+    G5 -- Oo --> G6[Archive ang pickleball court]
     G5 -- Hindi --> G7[Confirm deletion]
     G6 --> Z
     G7 --> Z

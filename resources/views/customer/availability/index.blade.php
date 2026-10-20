@@ -3,12 +3,12 @@
 @section('content')
 <div class="mb-6">
     <h1 class="text-2xl font-semibold text-slate-900">Availability calendar</h1>
-    <p class="mt-1 text-sm text-slate-600">Pick a court and date to see which slots are open.</p>
+    <p class="mt-1 text-sm text-slate-600">Pick a pickleball court and date to see which slots are open.</p>
 </div>
 
 <form method="GET" class="mb-6 flex flex-wrap items-end gap-3 rounded-lg bg-white p-4 shadow-sm">
     <div>
-        <label for="court_id" class="block text-sm font-medium text-slate-700">Court</label>
+        <label for="court_id" class="block text-sm font-medium text-slate-700">Pickleball court</label>
         <select id="court_id" name="court_id" onchange="this.form.submit()"
                 class="mt-1 rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-slate-500 focus:outline-none">
             @foreach ($courts as $option)

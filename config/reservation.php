@@ -17,13 +17,13 @@ return [
     'currency' => env('FACILITY_CURRENCY', 'PHP'),
 
     // Printed on receipts so a downloaded document identifies the facility.
-    'facility_name' => env('FACILITY_NAME', 'San Jose Private Sports Courts'),
+    'facility_name' => env('FACILITY_NAME', 'San Jose Private Pickleball Courts'),
 
     'facility_address' => env('FACILITY_ADDRESS', 'Barangay San Jose, Puerto Princesa City, Palawan'),
 
     'operating_hours' => [
-        'start' => env('FACILITY_OPENING_HOUR', 6),   // 06:00
-        'end' => env('FACILITY_CLOSING_HOUR', 22),    // 22:00
+        'start' => env('FACILITY_OPENING_HOUR', 9),   // 09:00
+        'end' => env('FACILITY_CLOSING_HOUR', 21),    // 21:00
     ],
 
     // Days the facility is closed, using PHP day indexes (0 = Sunday).

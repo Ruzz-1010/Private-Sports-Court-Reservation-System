@@ -1,6 +1,6 @@
 # Architecture and Use Case Diagrams
 
-Private Sports Court Reservation System — Barangay San Jose, Puerto Princesa City, Palawan
+Private Pickleball Court Reservation System — Barangay San Jose, Puerto Princesa City, Palawan
 
 Supports paper sections 2.3 (use cases), 3.2 (block diagram), and 3.3 (sequence
 diagrams). Render the Mermaid source at <https://mermaid.live>.

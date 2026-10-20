@@ -10,9 +10,9 @@
         {{ now(config('reservation.timezone'))->format('l, F j, Y') }}
     </p>
     <h1 class="mt-1 text-3xl font-black tracking-tight text-white">Facility overview</h1>
-    <p class="mt-2 text-sm text-slate-300">A clear view of today’s courts, bookings, and collections.</p>
+    <p class="mt-2 text-sm text-slate-300">A clear view of today’s pickleball courts, bookings, and collections.</p>
     </div>
-    <div class="relative z-10 flex gap-2"><a href="{{ route('admin.reservations.index') }}" class="rounded-xl border border-white/15 bg-white/10 px-4 py-2.5 text-sm font-bold text-white backdrop-blur hover:bg-white/15">Reservations</a><a href="{{ route('admin.courts.create') }}" class="rounded-xl bg-teal-300 px-4 py-2.5 text-sm font-bold text-slate-950 shadow-lg shadow-teal-500/20 hover:bg-teal-200">Add court</a></div>
+    <div class="relative z-10 flex gap-2"><a href="{{ route('admin.reservations.index') }}" class="rounded-xl border border-white/15 bg-white/10 px-4 py-2.5 text-sm font-bold text-white backdrop-blur hover:bg-white/15">Reservations</a><a href="{{ route('admin.courts.create') }}" class="rounded-xl bg-teal-300 px-4 py-2.5 text-sm font-bold text-slate-950 shadow-lg shadow-teal-500/20 hover:bg-teal-200">Add pickleball court</a></div>
 </div>
 
 {{-- Stat tiles --}}
@@ -50,7 +50,7 @@
     <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <div class="flex items-start justify-between">
             <div>
-                <p class="text-sm font-medium text-slate-600">Active courts</p>
+        <p class="text-sm font-medium text-slate-600">Active pickleball courts</p>
                 <p class="mt-1 text-3xl font-bold tracking-tight text-slate-900">{{ $activeCourts }}</p>
             </div>
             <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-50 text-violet-600">
@@ -60,7 +60,7 @@
             </span>
         </div>
         <a href="{{ route('admin.courts.index') }}" class="mt-3 inline-block text-xs font-medium text-slate-600 hover:text-slate-900">
-            Manage courts &rarr;
+            Manage pickleball courts &rarr;
         </a>
     </div>
 
@@ -76,7 +76,7 @@
                 </svg>
             </span>
         </div>
-        <p class="mt-3 text-xs text-slate-500">{{ $totalCourts }} courts total</p>
+        <p class="mt-3 text-xs text-slate-500">{{ $totalCourts }} pickleball courts total</p>
     </div>
 </div>
 
@@ -114,7 +114,7 @@
         {{-- Courts --}}
         <div class="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
             <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-                <h2 class="font-semibold text-slate-900">Courts</h2>
+                <h2 class="font-semibold text-slate-900">Pickleball courts</h2>
                 <a href="{{ route('admin.courts.index') }}" class="text-sm font-medium text-slate-600 hover:text-slate-900">Manage all</a>
             </div>
             <ul class="divide-y divide-slate-200">
@@ -134,7 +134,7 @@
                     </li>
                 @empty
                     <li class="px-5 py-10 text-center text-sm text-slate-600">
-                        No courts yet.
+                        No pickleball courts yet.
                         <a href="{{ route('admin.courts.create') }}" class="font-medium text-slate-900 underline">Add one</a>.
                     </li>
                 @endforelse

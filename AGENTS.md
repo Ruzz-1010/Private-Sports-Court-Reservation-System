@@ -1,10 +1,10 @@
-# Private Sports Court Reservation System
+# Private Pickleball Court Reservation System
 
 ## Read This First
 
 This file is the primary implementation guide for every AI agent and developer working in this repository. Read it completely before planning, editing, or generating code. Keep it updated whenever the project scope, business rules, architecture, or development commands change.
 
-The system is an academic final system integration project for a private sports facility located in Barangay San Jose, Puerto Princesa City, Palawan. It must demonstrate persistent CRUD operations, authentication and role authorization, secure payment integration with asynchronous webhooks, transactional email, reports, validation, and protection against conflicting reservations.
+The system is an academic final system integration project for a private pickleball facility located in Barangay San Jose, Puerto Princesa City, Palawan. It must demonstrate persistent CRUD operations, authentication and role authorization, secure payment integration with asynchronous webhooks, transactional email, reports, validation, and protection against conflicting reservations.
 
 The Laravel 13 application is scaffolded and Phases 1 through 4 of the
 implementation order are complete: PostgreSQL schema, the database-level overlap
@@ -575,7 +575,7 @@ which would wipe development data.
 
 Do not silently choose permanent business policy for these items. Reasonable configurable defaults may be used to unblock implementation, but record the assumption and make it easy to change:
 
-- Court names and sports supported
+- Pickleball court names and court count
 - Operating days and hours
 - Rental rates
 - Booking time increments

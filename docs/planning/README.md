@@ -1,4 +1,4 @@
-# Private Sports Court Reservation System Application
+# Private Pickleball Court Reservation System Application
 
 This directory is the Laravel-ready application workspace. PHP and Composer were not available when the structure was created, so the Laravel framework has not yet been installed.
 

@@ -17,9 +17,9 @@ class CourtFactory extends Factory
     {
         return [
             'name' => fake()->unique()->randomElement([
-                'Basketball Court A', 'Basketball Court B',
-                'Badminton Court 1', 'Badminton Court 2',
-                'Volleyball Court', 'Tennis Court 1',
+                'Pickleball Court 1', 'Pickleball Court 2',
+                'Pickleball Court 3', 'Pickleball Court 4',
+                'Pickleball Court 5', 'Pickleball Court 6',
             ]).' '.fake()->unique()->numberBetween(1, 9999),
             'location' => 'Main Facility, Barangay San Jose',
             'description' => fake()->sentence(),

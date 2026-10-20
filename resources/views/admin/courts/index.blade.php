@@ -3,12 +3,12 @@
 @section('content')
 <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
     <div>
-        <h1 class="text-2xl font-semibold text-slate-900">Courts</h1>
-        <p class="mt-1 text-sm text-slate-600">{{ $courts->total() }} {{ Str::plural('court', $courts->total()) }} in the facility.</p>
+        <h1 class="text-2xl font-semibold text-slate-900">Pickleball courts</h1>
+        <p class="mt-1 text-sm text-slate-600">{{ $courts->total() }} {{ Str::plural('pickleball court', $courts->total()) }} in the facility.</p>
     </div>
     <a href="{{ route('admin.courts.create') }}"
        class="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700">
-        Add court
+        Add pickleball court
     </a>
 </div>
 

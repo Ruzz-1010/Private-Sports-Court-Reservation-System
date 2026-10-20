@@ -12,7 +12,7 @@
         <h1 class="mt-1 text-3xl font-bold tracking-tight text-white">
             Welcome back, {{ \Illuminate\Support\Str::before(auth()->user()->name, ' ') }}
         </h1>
-        <p class="mt-2 text-slate-300">Find your time, choose a court, and reserve in a few steps.</p>
+        <p class="mt-2 text-slate-300">Find an open pickleball court, choose your time, and reserve in a few steps.</p>
     </div>
 
     @if ($courts->isNotEmpty())
@@ -21,7 +21,7 @@
             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
             </svg>
-            Book a court
+            Book a pickleball court
         </a>
     @endif
 </div>
@@ -154,7 +154,7 @@
                         </svg>
                     </span>
                     <p class="mt-3 font-medium text-slate-900">No upcoming bookings</p>
-                    <p class="mt-1 text-sm text-slate-600">Your reserved courts will show up here.</p>
+                    <p class="mt-1 text-sm text-slate-600">Your reserved pickleball courts will show up here.</p>
                 </div>
             @else
                 <ul class="divide-y divide-slate-200">
@@ -185,7 +185,7 @@
     <div>
         <div class="rounded-xl border border-slate-200 bg-white shadow-sm">
             <div class="border-b border-slate-200 px-6 py-4">
-                <h2 class="font-semibold text-slate-900">Book by court</h2>
+                <h2 class="font-semibold text-slate-900">Book a pickleball court</h2>
             </div>
             <ul class="divide-y divide-slate-200">
                 @forelse ($courts as $court)
@@ -203,7 +203,7 @@
                         </a>
                     </li>
                 @empty
-                    <li class="px-6 py-8 text-center text-sm text-slate-600">No courts available yet.</li>
+                    <li class="px-6 py-8 text-center text-sm text-slate-600">No pickleball courts available yet.</li>
                 @endforelse
             </ul>
         </div>

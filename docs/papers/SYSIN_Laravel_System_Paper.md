@@ -1,4 +1,4 @@
-# PRIVATE SPORTS COURT RESERVATION SYSTEM
+# PRIVATE PICKLEBALL COURT RESERVATION SYSTEM
 
 ## Located in San Jose, Puerto Princesa City, Palawan
 
@@ -8,7 +8,7 @@
 
 | | |
 |---|---|
-| **Project Title** | Private Sports Court Reservation System Located in San Jose, Puerto Princesa City, Palawan |
+| **Project Title** | Private Pickleball Court Reservation System Located in San Jose, Puerto Princesa City, Palawan |
 | **Course** | BSIT — System Integration |
 | **Academic Term** | 1st Semester 2026–2027 |
 | **Date** | October 2026 |
@@ -33,7 +33,9 @@
 
 ## 1.1 Project Overview
 
-The Private Sports Court Reservation System is a web application that allows customers to reserve a court at a privately operated sports facility in Barangay San Jose, Puerto Princesa City, Palawan. The system provides an availability calendar that reports the status of every court for a selected date and time, accepts a booking with a chosen court, start time, and duration, and completes the reservation through either online or on-site payment.
+The Private Pickleball Court Reservation System is a web application that allows customers to reserve a pickleball court at a privately operated pickleball facility in Barangay San Jose, Puerto Princesa City, Palawan. The system provides an availability calendar that reports the status of each pickleball court for a selected date and time, accepts a booking with a chosen court, start time, and duration, and completes the reservation through either online or on-site payment.
+
+**Scope.** This project is limited to reserving pickleball courts. Every use of "court" in the following requirements, workflows, database design, and reports refers to a pickleball court; the system does not manage bookings for multiple sports.
 
 The distinguishing requirement is integrity rather than convenience. A court cannot be rented twice in the same time window, a payment must not confirm a booking that overlaps another, and no customer may read another customer's record. These are not interface concerns; they are correctness concerns, and the design of this system is shaped by them.
 
@@ -41,24 +43,24 @@ The system was built as a monolithic Laravel application on a PostgreSQL databas
 
 ## 1.2 Problem Statement
 
-Manual reservation at a private facility depends on the customer visiting the site or contacting an administrator. This produces three recurring failures.
+Manual reservation at a private pickleball facility depends on the customer visiting the site or contacting an administrator. This produces three recurring failures.
 
 First, **double booking.** Availability is determined from memory or a paper list. Two customers requesting the same court and time can both be told the court is free. Neither party discovers the error until one arrives to find the court occupied, and the resolution depends on the administrator's discretion rather than a rule.
 
 Second, **delayed and unverifiable confirmation.** A customer who sends payment has no reliable proof that the booking was recorded. Records may exist only on paper, and the customer has no document to produce when arriving. This is especially costly for customers without mobile load, who cannot cheaply confirm a transaction or retrieve a receipt at the last minute.
 
-Third, **inconsistent records.** Reservations, cancellations, schedules, and payments are maintained separately or not at all. The facility cannot answer how much was collected in a period, which court is underused, or whether a payment was verified, because the underlying records are not consistently captured.
+Third, **inconsistent records.** Reservations, cancellations, schedules, and payments are maintained separately or not at all. The facility cannot answer how much was collected in a period, which pickleball court is underused, or whether a payment was verified, because the underlying records are not consistently captured.
 
 The system replaces these informal processes with a centralized database, a server-authoritative availability calculation, database-level protection against overlapping bookings, and a verifiable payment record attached to every confirmed reservation.
 
 ## 1.3 Project Objectives
 
-**General objective.** To develop a reliable Private Sports Court Reservation System that prevents conflicting reservations, verifies payments before confirming a booking, and produces durable proof of every transaction, while giving administrators a centralized view of courts, schedules, reservations, and payments.
+**General objective.** To develop a reliable Private Pickleball Court Reservation System that prevents conflicting reservations, verifies payments before confirming a booking, and produces durable proof of every transaction, while giving administrators a centralized view of pickleball courts, schedules, reservations, and payments.
 
 **Specific objectives.**
 
-1. Provide an availability calendar reporting each court as Available, Pending, or Reserved for a given date and time.
-2. Allow a customer to reserve a court by selecting date, start time, and duration, and **prevent double reservations at the database level**, not only in application code.
+1. Provide an availability calendar reporting each pickleball court as Available, Pending, or Reserved for a given date and time.
+2. Allow a customer to reserve a pickleball court by selecting date, start time, and duration, and **prevent double reservations at the database level**, not only in application code.
 3. Provide online and on-site payment options, confirming a reservation **only** after payment has been independently verified.
 4. Detect forged, replayed, and duplicated payment callbacks and refuse to change state on any of them.
 5. Send a confirmation email containing payment and receipt details through a background queue, so that email latency never blocks the booking flow.
@@ -77,22 +79,22 @@ The system replaces these informal processes with a centralized database, a serv
 | ID | Requirement |
 |---|---|
 | FR-1.1 | A visitor must be able to create an account and register. |
-| FR-1.2 | A registered user must authenticate before reserving a court. |
+| FR-1.2 | A registered user must authenticate before reserving a pickleball court. |
 | FR-1.3 | Newly registered accounts must always be created with the `customer` role. The administrator role must never be selectable during registration. |
 
 ### FR-2 Availability Calendar
 
 | ID | Requirement |
 |---|---|
-| FR-2.1 | The system must display, for a selected court and date, the status of every bookable slot as Available, Pending, or Reserved. |
+| FR-2.1 | The system must display, for a selected pickleball court and date, the status of every bookable slot as Available, Pending, or Reserved. |
 | FR-2.2 | Slot reporting must exclude holds whose payment deadline has already passed, even if the scheduled expiration task has not yet run. |
 
-### FR-3 Court and Schedule Selection
+### FR-3 Pickleball Court and Schedule Selection
 
 | ID | Requirement |
 |---|---|
-| FR-3.1 | A customer must be able to select a court, a date, a start time, and a duration. |
-| FR-3.2 | The system must reject any reservation that overlaps an existing Pending or Confirmed reservation on the same court. |
+| FR-3.1 | A customer must be able to select a pickleball court, a date, a start time, and a duration. |
+| FR-3.2 | The system must reject any reservation that overlaps an existing Pending or Confirmed reservation on the same pickleball court. |
 | FR-3.3 | Adjacent reservations must be accepted: a booking ending at 11:00 must not block a booking beginning at 11:00. |
 | FR-3.4 | The booked hourly rate and the computed total must be stored on the reservation so that later rate changes cannot alter an existing booking. |
 
@@ -125,14 +127,14 @@ The system replaces these informal processes with a centralized database, a serv
 | FR-6.1 | A customer must be able to view the status and history of their own reservations. |
 | FR-6.2 | A customer must be able to re-download the receipt of a paid reservation. |
 
-### FR-7 Court Management
+### FR-7 Pickleball Court Management
 
 | ID | Requirement |
 |---|---|
-| FR-7.1 | An administrator must be able to create, view, update, and archive courts, including name, location, rate, image, and active status. |
+| FR-7.1 | An administrator must be able to create, view, update, and archive pickleball courts, including court name or number, location, rate, image, and active status. |
 | FR-7.2 | A deletion must require an explicit confirmation step. |
-| FR-7.3 | A court that already has reservations must be archived (soft-deleted) rather than destroyed, so that historical records remain valid. An unused court may be deleted permanently. |
-| FR-7.4 | An administrator must be able to block a court interval for maintenance, repair, or a private event, and remove such a block. |
+| FR-7.3 | A pickleball court that already has reservations must be archived (soft-deleted) rather than destroyed, so that historical records remain valid. An unused pickleball court may be deleted permanently. |
+| FR-7.4 | An administrator must be able to block a pickleball court interval for maintenance, repair, or a private event, and remove such a block. |
 
 ### FR-8 Reservation and Payment Monitoring
 
@@ -146,7 +148,7 @@ The system replaces these informal processes with a centralized database, a serv
 
 | ID | Requirement |
 |---|---|
-| FR-9.1 | The system must generate reservation and collected-payment reports filterable by date range, court, and status. |
+| FR-9.1 | The system must generate reservation and collected-payment reports filterable by date range, pickleball court, and status. |
 | FR-9.2 | Collected-payment totals must count only verified paid payments. Pending, failed, cancelled, and duplicate attempts must not inflate revenue. |
 
 ## 2.2 Non-Functional Requirements
@@ -169,9 +171,9 @@ The system replaces these informal processes with a centralized database, a serv
 |---|---|---|---|
 | Register and log in | SUC-1 | SUC-1.1 | A customer creates an account, always with the customer role. |
 | | | SUC-1.2 | A registered user authenticates before reserving. |
-| View court availability | SUC-2 | SUC-2.1 | A customer views the availability calendar instead of visiting the facility. |
+| View pickleball court availability | SUC-2 | SUC-2.1 | A customer views the pickleball availability calendar instead of visiting the facility. |
 | | | SUC-2.2 | The system reports each slot as Available, Pending, or Reserved. |
-| Reserve court | SUC-3 | SUC-3.1 | A customer chooses court, date, start time, and duration. |
+| Reserve pickleball court | SUC-3 | SUC-3.1 | A customer chooses a pickleball court, date, start time, and duration. |
 | | | SUC-3.2 | The system rejects any reservation overlapping a blocking reservation, at the application layer and again at the database layer. |
 | Make payment | SUC-4 | SUC-4.1 | A customer selects online or on-site payment. |
 | | | SUC-4.2 | For online payment, PayMongo hosts the checkout and the reservation is confirmed only after verification. |
@@ -183,8 +185,8 @@ The system replaces these informal processes with a centralized database, a serv
 | | | SUC-6.2 | A customer re-downloads receipts of paid reservations. |
 | Verify online payment | SUC-7 | SUC-7.1 | PayMongo sends a signed callback. |
 | | | SUC-7.2 | The system verifies the signature and retrieves the transaction before confirming. |
-| Manage courts | SUC-8 | SUC-8.1 | An administrator creates, edits, and archives courts. |
-| | | SUC-8.2 | An administrator blocks court intervals for maintenance or private events. |
+| Manage pickleball courts | SUC-8 | SUC-8.1 | An administrator creates, edits, and archives pickleball courts. |
+| | | SUC-8.2 | An administrator blocks pickleball court intervals for maintenance or private events. |
 | Monitor reservations | SUC-9 | SUC-9.1 | An administrator filters and opens reservation records. |
 | Verify payments | SUC-10 | SUC-10.1 | An administrator verifies on-site payment, producing one receipt and one email. |
 | | | SUC-10.2 | Rejection requires a reason and is recorded in the audit log. |
@@ -248,7 +250,7 @@ The instructor's specification requires that the chosen technologies be **justif
 
 Reservation creation is the system's most consequential write, so it is implemented as a single named action, `CreateReservation`, rather than in a controller. The action executes inside a database transaction and, in order:
 
-1. Verifies the court exists, is active, and is not archived.
+1. Verifies the selected pickleball court exists, is active, and is not archived.
 2. Re-derives the total from the court rate and the requested duration on the server, ignoring any total submitted by the client.
 3. Copies the current hourly rate onto the reservation row so the booking is insulated from later price changes.
 4. Re-checks availability inside the transaction rather than trusting the earlier calendar query, which may be stale by the time the request arrives.
@@ -261,17 +263,17 @@ Reference numbers are generated as a prefix, a date, and random characters, and 
 
 Availability is computed by one class, `AvailabilityService`, which is the single authority for slot logic. Controllers and views do not reimplement its rules. It treats intervals as **half-open**, written `[starts_at, ends_at)`: two intervals overlap when and only when `existing.start < requested.end` **and** `existing.end > requested.start`. A reservation ending at 11:00 therefore does not conflict with one beginning at 11:00.
 
-A slot is blocked by an active Pending hold, a Confirmed reservation, a Completed reservation, or an administrative court block. Expired and Cancelled reservations do not block. Because the scheduled sweeper may be delayed, the service also treats a Pending hold whose deadline has passed as expired when computing availability, so a stale row never keeps a court falsely occupied.
+A slot is blocked by an active Pending hold, a Confirmed reservation, a Completed reservation, or an administrative pickleball court block. Expired and Cancelled reservations do not block. Because the scheduled sweeper may be delayed, the service also treats a Pending hold whose deadline has passed as expired when computing availability, so a stale row never keeps a court falsely occupied.
 
 The customer history page and reservation detail view eager-load their relations, so rendering twenty reservations performs a fixed number of queries rather than one per row.
 
 ### 4.1.3 Update
 
-Court editing uses a prepopulated form and a dedicated validation object. Uniqueness validation excludes the court's own identifier, so saving a court without renaming it does not fail against itself. Reservation transitions are not edited as arbitrary fields: only permitted transitions are exposed, and each records a reason where the change is consequential.
+Pickleball court editing uses a prepopulated form and a dedicated validation object. Uniqueness validation excludes the court's own identifier, so saving a pickleball court without renaming it does not fail against itself. Reservation transitions are not edited as arbitrary fields: only permitted transitions are exposed, and each records a reason where the change is consequential.
 
 ### 4.1.4 Delete
 
-Deletion requires an explicit confirmation step. A court that already has reservations is **archived** rather than destroyed, because historical reservations must continue to reference it and because destroying the record would invalidate issued receipts. An unused court may be deleted permanently. Archiving and restoring are both recorded in the audit log.
+Deletion requires an explicit confirmation step. A pickleball court that already has reservations is **archived** rather than destroyed, because historical reservations must continue to reference it and because destroying the record would invalidate issued receipts. An unused pickleball court may be deleted permanently. Archiving and restoring are both recorded in the audit log.
 
 ### 4.1.5 Business Rules
 
@@ -317,7 +319,7 @@ ALTER TABLE reservations
 
 Read piece by piece:
 
-- `court_id WITH =` — the constraint applies within a single court; two different courts may hold the same interval.
+- `court_id WITH =` — the constraint applies within a single pickleball court; two different pickleball courts may hold the same interval.
 - `tstzrange(starts_at, ends_at, '[)') WITH &&` — the two timestamp columns are combined into a range and tested for overlap. The `'[)'` bound is what encodes the half-open rule: the start is inclusive and the end exclusive, which is precisely why adjacent bookings are permitted.
 - `WHERE (status IN (...))` — the constraint is **partial**. Only blocking statuses participate, so a Cancelled or Expired reservation can sit on top of an interval without conflicting.
 
@@ -332,9 +334,9 @@ Nine domain tables plus Laravel's supporting tables (`sessions`, `jobs`, `failed
 | Table | Purpose |
 |---|---|
 | `users` | Accounts, with a `role` column constrained to `customer` or `admin`. |
-| `courts` | Name, location, description, hourly rate, active flag, image, soft-delete timestamps. |
-| `court_blocks` | Administrative closures with a start, end, and reason. |
-| `reservations` | Reference, user, court, interval, locked rate and total, status, payment method, payment deadline, cancellation/expiration reason. |
+| `courts` | Pickleball court name or number, location, description, hourly rate, active flag, image, soft-delete timestamps. |
+| `court_blocks` | Pickleball court closures with a start, end, and reason. |
+| `reservations` | Reference, user, pickleball court, interval, locked rate and total, status, payment method, payment deadline, cancellation/expiration reason. |
 | `payments` | One row per attempt, with provider identifiers, amount, currency, status, paid timestamp, and verifying administrator. |
 | `payment_events` | Provider event identifier, type, processing status, receipt timestamp, and notes. Enforces webhook idempotency. |
 | `receipts` | Immutable snapshot of everything printed on the document. |
@@ -377,7 +379,7 @@ A scheduled command runs every minute and marks overdue Pending reservations Exp
 
 ### 4.3.5 Email Dispatch
 
-`SendConfirmationEmail` is queued to the database driver, so mail-server latency never blocks the customer's request. The notification contains the court, schedule, amount paid, payment method, payment status, reference number, and receipt number, and its single action button links to the PDF receipt.
+`SendConfirmationEmail` is queued to the database driver, so mail-server latency never blocks the customer's request. The notification contains the pickleball court, schedule, amount paid, payment method, payment status, reference number, and receipt number, and its single action button links to the PDF receipt.
 
 `MailMessage::action()` overwrites rather than appends, so the notification issues exactly one button and falls back to the reservation page when no receipt exists — a detail that would otherwise silently drop the primary call to action.
 
@@ -402,7 +404,7 @@ The measures below follow the OWASP Application Security Verification Standard (
 | Forged payment callbacks | HMAC-SHA256 signature verified over the raw body, with a five-minute replay window. |
 | Unverified payment claims | The callback payload is never trusted; the transaction is independently retrieved and compared. |
 | Double booking | Database-level `EXCLUDE USING gist` constraint (§4.2.1). |
-| Amount tampering | The total is recomputed server-side from duration and the court rate; the client-supplied amount is ignored. |
+| Amount tampering | The total is recomputed server-side from duration and the pickleball court rate; the client-supplied amount is ignored. |
 | Price changes after booking | The rate and total are locked onto the reservation at booking time. |
 | Card data | This application never receives or stores card numbers, CVV, or wallet credentials. |
 | Secret storage | API keys and SMTP credentials live in environment variables; `.env` is not committed. |
@@ -427,32 +429,32 @@ Testing follows the functional suitability and security characteristics of the I
 | TC-01 | Register a valid account | Enter a name, a valid email, and a password of at least 8 characters | Account is saved with the Customer role and redirected to login | Account created with role `customer`; redirected to login | **Pass** |
 | TC-02 | Register with an invalid email | Enter `jen@` and complete the remaining fields correctly | The form is redisplayed with an error; nothing is saved | Form redisplayed with an email error; no user row created | **Pass** |
 | TC-03 | Register with a weak or mismatched password | Enter a 5-character password, then one that does not match the confirmation | Both attempts rejected; no account created | Rejected with validation errors; no user row created | **Pass** |
-| TC-04 | Create a valid reservation | Authenticated customer selects an available court, a future date, a start time, 2 hours, and Online payment | Reservation saved as Pending with a unique reference; the schedule is blocked for others; total computed from the rate | Saved as Pending with unique reference `RSRV-…`; total = rate × duration; slot blocked | **Pass** |
+| TC-04 | Create a valid reservation | Authenticated customer selects an available pickleball court, a future date, a start time, 2 hours, and Online payment | Reservation saved as Pending with a unique reference; the schedule is blocked for others; total computed from the rate | Saved as Pending with unique reference `RSRV-…`; total = rate × duration; slot blocked | **Pass** |
 | TC-05 | Reservation in the past | Select a date or time that has already passed | Rejected with an error; nothing saved | Rejected; no reservation created | **Pass** |
-| TC-06 | Reservation overlapping another | Choose a court and time overlapping an existing Pending or Confirmed reservation | Rejected with a message that the schedule is unavailable; nothing saved | Rejected; reservation count unchanged | **Pass** |
+| TC-06 | Reservation overlapping another | Choose a pickleball court and time overlapping an existing Pending or Confirmed reservation | Rejected with a message that the schedule is unavailable; nothing saved | Rejected; reservation count unchanged | **Pass** |
 | TC-07 | Reservation with an invalid duration | Submit an empty duration, then 0 and 1.5 hours | Each rejected; nothing saved | All rejected by validation; nothing saved | **Pass** |
 | TC-08 | Reserve with On-site payment | Customer submits a valid reservation and selects On-site payment | Saved as Pending with a hold; **no receipt issued** | Saved as Pending with a 24-hour hold; zero receipts | **Pass** |
-| TC-09 | Administrator adds a court | Enter a court name, location, and hourly rate | The court is saved and appears in the court list and availability calendar | Court created and listed | **Pass** |
-| TC-10 | Add a court with invalid data | Leave the name empty, then enter a rate of 0 and of −100 | Each rejected; no court saved | All rejected; no court created | **Pass** |
-| TC-11 | Update a court | Open the edit form, change the rate, save | Form is prepopulated; the new rate is stored | Form prepopulated; change persisted | **Pass** |
-| TC-12 | Court name uniqueness | Create a second court with an existing name | Rejected | Rejected by validation | **Pass** |
-| TC-13 | Delete an unused court | Delete a court with no reservations, confirming the prompt | The court is removed permanently | Removed | **Pass** |
-| TC-14 | Delete a court that has reservations | Attempt to delete a court referenced by a reservation | The court is archived, not destroyed; history remains valid | Soft-deleted; existing reservation intact | **Pass** |
-| TC-15 | Block a court interval | Administrator adds a maintenance block | No reservation may overlap that interval | Booking rejected | **Pass** |
+| TC-09 | Administrator adds a pickleball court | Enter a pickleball court name or number, location, and hourly rate | The pickleball court is saved and appears in the court list and availability calendar | Court created and listed | **Pass** |
+| TC-10 | Add a pickleball court with invalid data | Leave the name empty, then enter a rate of 0 and of −100 | Each rejected; no pickleball court saved | All rejected; no pickleball court created | **Pass** |
+| TC-11 | Update a pickleball court | Open the edit form, change the rate, save | Form is prepopulated; the new rate is stored | Form prepopulated; change persisted | **Pass** |
+| TC-12 | Pickleball court name uniqueness | Create a second court with an existing name | Rejected | Rejected by validation | **Pass** |
+| TC-13 | Delete an unused pickleball court | Delete a court with no reservations, confirming the prompt | The court is removed permanently | Removed | **Pass** |
+| TC-14 | Delete a pickleball court that has reservations | Attempt to delete a court referenced by a reservation | The court is archived, not destroyed; history remains valid | Soft-deleted; existing reservation intact | **Pass** |
+| TC-15 | Block a pickleball court interval | Administrator adds a maintenance block | No reservation may overlap that interval | Booking rejected | **Pass** |
 | TC-16 | Court image validation | Upload a non-image, then an oversized file | Both rejected | Rejected by validation | **Pass** |
 
 ### 5.1.2 Availability and Scheduling Rules
 
 | ID | Test case | Expected outcome | Actual result | Status |
 |---|---|---|---|---|
-| TC-17 | An empty court is available | All slots Available | All slots reported Available | **Pass** |
+| TC-17 | An empty pickleball court is available | All slots Available | All slots reported Available | **Pass** |
 | TC-18 | A confirmed reservation blocks its slot | Slot Reserved | Slot reported Reserved | **Pass** |
 | TC-19 | An active pending hold blocks its slot | Slot Pending | Slot reported Pending | **Pass** |
 | TC-20 | An expired pending hold does not block | Slot Available even before the sweeper runs | Slot Available | **Pass** |
 | TC-21 | Adjacent reservations are allowed | 09:00–11:00 and 11:00–13:00 both accepted | Both accepted | **Pass** |
 | TC-22 | A partially overlapping reservation is rejected | 10:00–12:00 against 11:00–13:00 is rejected | Rejected | **Pass** |
-| TC-23 | A court block prevents booking | Booking inside a blocked interval is rejected | Rejected | **Pass** |
-| TC-24 | An inactive court cannot be booked | Rejected | Rejected | **Pass** |
+| TC-23 | A pickleball court block prevents booking | Booking inside a blocked interval is rejected | Rejected | **Pass** |
+| TC-24 | An inactive pickleball court cannot be booked | Rejected | Rejected | **Pass** |
 | TC-25 | A start time in the past is rejected | Rejected | Rejected | **Pass** |
 | TC-26 | A duration below the minimum is rejected | Rejected | Rejected | **Pass** |
 | TC-27 | A duration above the maximum is rejected | Rejected | Rejected | **Pass** |
@@ -507,7 +509,7 @@ Testing follows the functional suitability and security characteristics of the I
 | TC-66 | A guest cannot download a receipt | Redirected to login | Redirected | **Pass** |
 | TC-67 | The receipt stays downloadable from history | History page links to the PDF | Link present | **Pass** |
 | TC-68 | A pending reservation shows no receipt offer | No download offered | Absent | **Pass** |
-| TC-69 | The receipt is an immutable snapshot | Rename the court after issue | Receipt retains the original court name | Original retained | **Pass** |
+| TC-69 | The receipt is an immutable snapshot | Rename the pickleball court after issue | Receipt retains the original pickleball court name | Original retained | **Pass** |
 | TC-70 | Reports count only verified payments | Unpaid attempts excluded from revenue | Excluded | **Pass** |
 | TC-71 | A customer cannot reach admin pages or reports | 403 | 403 | **Pass** |
 | TC-72 | Audit details never contain secrets | No credential material in audit rows | Verified | **Pass** |
@@ -570,7 +572,7 @@ The system passes 129 automated tests against a real PostgreSQL instance.
 
 ## 6.4 Conclusion
 
-The Private Sports Court Reservation System achieves its central objective: a customer can complete a booking end to end, a verified payment confirms it, a receipt is produced, and an email is delivered — while overlapping bookings, forged callbacks, and unauthorized access are prevented and demonstrated by tests rather than assumed.
+The Private Pickleball Court Reservation System achieves its central objective: a customer can complete a booking end to end, a verified payment confirms it, a receipt is produced, and an email is delivered — while overlapping bookings, forged callbacks, and unauthorized access are prevented and demonstrated by tests rather than assumed.
 
 The strongest engineering decision in the system is that correctness does not depend on application code behaving correctly. Double booking is prevented by a database constraint that every write path, present or future, must satisfy. Payment confirmation depends on an independent retrieval from the provider rather than on any claim made by the client or by a callback payload. Authorization is resolved per object rather than per page. In each case, a mistake elsewhere in the application degrades into a refused request rather than a corrupted record.
 
@@ -579,7 +581,7 @@ The strongest engineering decision in the system is that correctness does not de
 - Email verification before a first booking, to reduce abandoned holds and fraudulent accounts.
 - A customer-initiated rescheduling flow with a defined refund and no-show policy.
 - QR-code check-in at the facility, allowing staff to confirm arrival and close a reservation as completed.
-- Court utilization reporting to support pricing and scheduling decisions.
+- Pickleball court utilization reporting to support pricing and scheduling decisions.
 - Publication of a public, rate-limited availability feed for third-party booking channels.
 
 ---
