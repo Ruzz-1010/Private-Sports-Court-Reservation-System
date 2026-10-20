@@ -2,7 +2,7 @@
 
 @section('content')
 
-{{-- Header --}}
+<div class="admin-dashboard">{{-- Header --}}
 <div class="motion-reveal relative mb-8 flex flex-wrap items-end justify-between gap-4 overflow-hidden rounded-xl bg-[#172033] px-7 py-9 text-white shadow-2xl shadow-indigo-200/30 sm:px-9">
     <div class="absolute inset-0 -z-0 bg-[radial-gradient(circle_at_top_right,_rgba(20,184,166,0.3),transparent_28%),radial-gradient(circle_at_10%_100%,_rgba(79,70,229,0.4),transparent_34%)]"></div>
     <div class="relative z-10">
@@ -208,5 +208,6 @@
             @endif
         </div>
     </div>
+</div>
 </div>
 @endsection

@@ -126,3 +126,19 @@
 .auth-shell button[type="submit"]:hover { background: #1e293b !important; }
 .auth-shell .h-12.w-12 { height: 2.25rem; width: 2.25rem; }
 @media (min-width: 640px) { .auth-shell { padding: 1.75rem !important; } }
+/* Dashboard system: the same dark court-club language as the home page. */
+.customer-dashboard .text-slate-950, .admin-dashboard .text-slate-950 { color: #f8fafc !important; }
+.customer-dashboard .text-slate-900, .admin-dashboard .text-slate-900 { color: #f1f5f9 !important; }
+.customer-dashboard .text-slate-700, .admin-dashboard .text-slate-700 { color: #cbd5e1 !important; }
+.customer-dashboard .text-slate-600, .admin-dashboard .text-slate-600 { color: #94a3b8 !important; }
+.customer-dashboard .text-slate-500, .admin-dashboard .text-slate-500 { color: #94a3b8 !important; }
+.customer-dashboard .bg-white, .admin-dashboard .bg-white { background: #111827 !important; border-color: rgba(255,255,255,.12) !important; }
+.customer-dashboard .border-slate-200, .admin-dashboard .border-slate-200 { border-color: rgba(255,255,255,.12) !important; }
+.customer-dashboard .border-slate-100, .admin-dashboard .border-slate-100 { border-color: rgba(255,255,255,.08) !important; }
+.customer-dashboard .hover\:bg-slate-50:hover, .admin-dashboard .hover\:bg-slate-50:hover { background: #1f2937 !important; }
+.customer-dashboard .bg-teal-50 { background: rgba(20,184,166,.13) !important; border-color: rgba(45,212,191,.35) !important; }
+.customer-dashboard .text-teal-700, .customer-dashboard .text-teal-800 { color: #bef264 !important; }
+.customer-dashboard .bg-slate-100 { background: #1f2937 !important; }
+.customer-dashboard .bg-slate-950, .admin-dashboard .bg-slate-950 { background: #0b1222 !important; }
+.customer-dashboard button, .customer-dashboard a.bg-slate-950 { border-radius: .375rem; }
+.admin-dashboard .rounded-2xl, .customer-dashboard .rounded-xl { border-radius: .5rem; }
