@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\Reservation;
+use App\Services\Receipts\GenerateReceiptPdf;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -46,7 +47,21 @@ class ReservationConfirmed extends Notification
         // second time silently discards the first. The button therefore points
         // at the receipt when one exists and falls back to the reservation page.
         if ($receipt !== null) {
-            $mail->action('Download receipt (PDF)', route('customer.receipts.show', $receipt));
+            $mail->action('View receipt online', route('customer.receipts.show', $receipt));
+
+            // The PDF is also attached. A link alone forces the customer to
+            // open a browser, sign in, and keep the deployment URL stable;
+            // the attachment carries the receipt wherever the email is read.
+            // toMail() runs when the queued job is processed, so the document
+            // is rendered from committed data at send time rather than being
+            // frozen into the queued payload.
+            $generator = app(GenerateReceiptPdf::class);
+
+            $mail->attachData(
+                $generator->render($receipt)->output(),
+                $generator->filename($receipt),
+                ['mime' => 'application/pdf'],
+            );
         } else {
             $mail->action('View reservation', route('customer.reservations.show', $reservation));
         }

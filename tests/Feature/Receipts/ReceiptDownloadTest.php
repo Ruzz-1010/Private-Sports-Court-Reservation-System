@@ -66,7 +66,7 @@ class ReceiptDownloadTest extends TestCase
 
         $response->assertOk();
         $response->assertHeader('content-type', 'application/pdf');
-        $response->assertDownload('receipt-'.$receipt->receipt_number.'.pdf');
+        $response->assertDownload('receipt-'.ltrim($receipt->receipt_number, '-').'.pdf');
 
         $this->assertStringStartsWith('%PDF', $response->getContent());
     }
@@ -171,8 +171,45 @@ class ReceiptDownloadTest extends TestCase
         $mail = (new ReservationConfirmed($reservation))->toMail($reservation->user);
 
         // MailMessage exposes a single action button, not a list.
-        $this->assertSame('Download receipt (PDF)', $mail->actionText);
+        $this->assertSame('View receipt online', $mail->actionText);
         $this->assertSame(route('customer.receipts.show', $receipt), $mail->actionUrl);
+    }
+
+    public function test_the_confirmation_email_attaches_the_receipt_pdf(): void
+    {
+        [$reservation, , $receipt] = $this->paidReservation();
+
+        $mail = (new ReservationConfirmed($reservation))->toMail($reservation->user);
+
+        // attachData() writes to rawAttachments, so the receipt must travel
+        // with the email rather than depending on a link that needs a login
+        // and a stable deployment URL.
+        $this->assertCount(1, $mail->rawAttachments);
+
+        $attachment = $mail->rawAttachments[0];
+
+        $this->assertSame('receipt-'.ltrim($receipt->receipt_number, '-').'.pdf', $attachment['name']);
+        $this->assertSame('application/pdf', $attachment['options']['mime'] ?? null);
+        $this->assertStringStartsWith('%PDF', $attachment['data']);
+    }
+
+    public function test_a_pending_reservation_attaches_no_receipt(): void
+    {
+        $court = Court::factory()->create();
+        $customer = User::factory()->create(['role' => Role::Customer]);
+        $start = CarbonImmutable::now(config('reservation.timezone'))->addDays(3)->setTime(10, 0);
+
+        $reservation = Reservation::factory()->create([
+            'user_id' => $customer->id,
+            'court_id' => $court->id,
+            'starts_at' => $start,
+            'ends_at' => $start->addHour(),
+            'status' => ReservationStatus::Pending,
+        ]);
+
+        $mail = (new ReservationConfirmed($reservation))->toMail($customer);
+
+        $this->assertCount(0, $mail->rawAttachments);
     }
 
     public function test_a_pending_reservation_shows_no_receipt_offer(): void

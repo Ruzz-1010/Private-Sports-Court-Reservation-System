@@ -310,9 +310,20 @@ the policy still resolves ownership from the reservation, so one customer can
 never open another customer's receipt. `config('reservation.facility_name')`
 and `facility_address` are printed on the document.
 
-The confirmation email has a single action button pointing at the receipt PDF.
-`MailMessage::action()` overwrites rather than appending, so calling it twice
-silently drops the first button.
+The confirmation email has a single action button pointing at the online
+receipt, and it also attaches the rendered PDF through
+`MailMessage::attachData()`. `attachData()` writes to `rawAttachments`, not
+`attachments`. `MailMessage::action()` overwrites rather than appending, so
+calling it twice silently drops the first button.
+
+`GenerateReceiptPdf::render()` returns the PDF object and `handle()` streams
+the download response, so the email attachment and the download route serve
+the identical document. The notification is sent from `SendConfirmationEmail`,
+which runs after the payment transaction commits, so `toMail()` renders the
+PDF at send time from committed data instead of freezing bytes into the queued
+payload. Attaching matters here: a link alone requires a login and a stable
+`APP_URL`, and during development `APP_URL` points at a tunnel whose hostname
+changes whenever cloudflared restarts.
 
 After verified payment:
 

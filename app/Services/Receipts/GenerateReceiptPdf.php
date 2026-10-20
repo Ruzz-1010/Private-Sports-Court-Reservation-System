@@ -3,7 +3,8 @@
 namespace App\Services\Receipts;
 
 use App\Models\Receipt;
-use Barryvdh\DomPDF\Facade\Pdf;
+use Barryvdh\DomPDF\Facade\Pdf as DomPdf;
+use Barryvdh\DomPDF\PDF;
 use Illuminate\Http\Response;
 
 /**
@@ -17,25 +18,37 @@ class GenerateReceiptPdf
 {
     public function handle(Receipt $receipt): Response
     {
+        return $this->render($receipt)->download($this->filename($receipt));
+    }
+
+    /**
+     * Build the PDF without streaming a response, so callers that need the
+     * bytes (the confirmation email attachment) render the exact same document
+     * the download route serves.
+     */
+    public function render(Receipt $receipt): PDF
+    {
         $receipt->loadMissing('reservation');
 
-        $pdf = Pdf::loadView('receipts.pdf', [
+        $pdf = DomPdf::loadView('receipts.pdf', [
             'receipt' => $receipt,
             'timezone' => config('reservation.timezone'),
             'facilityName' => config('reservation.facility_name'),
             'facilityAddress' => config('reservation.facility_address'),
         ]);
 
-        // A4 portrait, millimetres. Filenames are derived from the receipt
-        // number only, never from customer input, so no header value can carry
-        // untrusted characters into the response.
+        // A4 portrait, millimetres.
         $pdf->setPaper('a4', 'portrait');
 
-        return $pdf->download($this->filename($receipt));
+        return $pdf;
     }
 
-    private function filename(Receipt $receipt): string
+    public function filename(Receipt $receipt): string
     {
-        return 'receipt-'.$receipt->receipt_number.'.pdf';
+        // Receipt numbers open with the issue-date dash, which would otherwise
+        // double up into "receipt--261020-...". Derived from the stored number
+        // only, never from customer input, so no untrusted characters reach
+        // the Content-Disposition header.
+        return 'receipt-'.ltrim($receipt->receipt_number, '-').'.pdf';
     }
 }
