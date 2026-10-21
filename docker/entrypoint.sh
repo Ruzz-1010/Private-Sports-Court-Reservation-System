@@ -14,6 +14,14 @@ mkdir -p \
     storage/logs
 
 chown -R www-data:www-data storage bootstrap/cache
+# SQLite is only a container smoke-test fallback. When it is used, Laravel
+# must be able to update sessions, cache, jobs, and migrations at runtime.
+# The database file is copied into the image as root, so grant the app user
+# ownership before migrations and Apache start.
+if [ "${DB_CONNECTION:-sqlite}" = "sqlite" ]; then
+    mkdir -p database
+    chown -R www-data:www-data database
+fi
 
 php artisan storage:link --force >/dev/null 2>&1 || true
 php artisan config:cache
