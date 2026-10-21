@@ -1,4 +1,6 @@
-<x-app-layout>
+@extends('layouts.app')
+
+@section('content')
     <div class="mx-auto max-w-2xl px-6 py-12">
         <div class="surface rounded-3xl border border-slate-700 p-8 text-center shadow-xl">
             <p class="text-xs font-bold uppercase tracking-[0.25em] text-lime-300">PayMongo sandbox demo</p>
@@ -22,4 +24,4 @@
             <p class="mt-3 text-xs text-slate-500">Demo mode only · PayMongo QRPh integration remains available when enabled.</p>
         </div>
     </div>
-</x-app-layout>
+@endsection
