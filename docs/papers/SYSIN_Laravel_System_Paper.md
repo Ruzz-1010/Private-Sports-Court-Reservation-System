@@ -243,6 +243,16 @@ The callback is verified twice. The signature proves the message came from PayMo
 
 ---
 
+### 3.3.4 Simplified Presentation Flows
+
+The following compact flows are included for presentation readability. The detailed validation, database constraints, webhook verification, and retry behavior are described in Chapter 4.
+
+| Customer flow | Admin flow | System flow |
+|---|---|---|
+| Open website → Register/Login → View availability → Choose court and schedule → Review reservation → Choose online or on-site payment → Payment verified → Reservation confirmed → Receipt and email | Admin login → Dashboard → Choose courts, blocks, reservations, payments, or reports → Save action and audit → Return to dashboard → Logout | Authenticate → Validate → Check availability → Create pending hold → PayMongo checkout or admin verification → Confirm payment → Create one receipt → Queue email; unpaid holds expire automatically |
+
+These flows intentionally show the main decisions only. They prevent the presentation diagram from becoming a second implementation specification while preserving the complete technical sequence in the preceding sections.
+
 # Chapter 4 — Implementation Details
 
 ## 4.1 CRUD and Business Logic Module
