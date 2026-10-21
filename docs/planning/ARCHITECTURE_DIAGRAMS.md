@@ -93,7 +93,7 @@ flowchart TB
 
     BROWSER(["Customer / Administrator"])
 
-    FE["Frontend<br/>Blade Templates · Tailwind CSS<br/>Alpine.js · FullCalendar"]
+    FE["Frontend<br/>Blade Templates · Tailwind CSS<br/>Alpine.js · Availability JSON feed"]
     BE["Backend<br/>Laravel Application<br/>Routes · Middleware · Controllers<br/>Services · Policies"]
     DB[("Database Engine<br/>PostgreSQL<br/>users · courts · reservations<br/>payments · receipts")]
     PAY["Payment Processor<br/>PayMongo Hosted Checkout"]

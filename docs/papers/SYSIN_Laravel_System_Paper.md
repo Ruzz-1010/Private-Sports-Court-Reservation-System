@@ -284,7 +284,7 @@ All booking rules are declared in `config/reservation.php` rather than scattered
 |---|---|
 | Facility timezone | `Asia/Manila` |
 | Currency | `PHP` |
-| Operating hours | 06:00 – 22:00 |
+| Operating hours | 09:00 – 21:00 |
 | Closed days | Sunday |
 | Booking increment | 30 minutes |
 | Minimum duration | 60 minutes |
@@ -425,7 +425,7 @@ The measures below follow the OWASP Application Security Verification Standard (
 
 Testing follows the functional suitability and security characteristics of the ISO/IEC 25010 product quality model (ISO/IEC, 2023). The suite was executed against a real PostgreSQL instance using an isolated `testing` schema rather than SQLite, because the exclusion constraint that provides double-booking protection is PostgreSQL-specific and an in-memory SQLite database would silently skip the concurrency tests, producing a misleading pass.
 
-**Result: 129 automated tests, 129 passed, 0 failed.**
+**Result: 131 automated tests, 131 passed, 0 failed.**
 
 ## 5.1 Functional Test Cases
 
@@ -556,7 +556,7 @@ All eight specific objectives in §1.3 were achieved and are backed by executabl
 7. **Role-based authorization** with ownership policies (TC-61, TC-62, TC-65, TC-71).
 8. **Filtered reports** counting only verified payments (TC-70).
 
-The system passes 129 automated tests against a real PostgreSQL instance.
+The system passes 131 automated tests against a real PostgreSQL instance.
 
 ## 6.2 Challenges in Subsystem Integration
 
