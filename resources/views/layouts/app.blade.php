@@ -1,3 +1,6 @@
+@if (request()->routeIs('customer.*'))
+    @include('layouts.workspace', ['isAdminWorkspace' => false])
+@else
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
 <head>
@@ -119,3 +122,5 @@
 @stack('scripts')
 </body>
 </html>
+
+@endif

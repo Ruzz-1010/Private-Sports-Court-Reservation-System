@@ -20,7 +20,7 @@
                 <p class="mt-3 max-w-xl text-sm leading-6 text-slate-400 sm:text-base">
                     Monitor today’s schedule, verify payments, and keep every court ready for play.
                 </p>
-                <p class="mt-5 flex items-center gap-2 text-sm text-slate-500">
+                <p class="mt-5 flex items-center gap-2 text-sm text-slate-400">
                     <svg class="h-4 w-4 text-lime-300" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3M3 11h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2Z"/></svg>
                     {{ now(config('reservation.timezone'))->format('l, F j, Y') }}
                 </p>
@@ -31,7 +31,7 @@
                     <svg class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 4h14a2 2 0 012 2v14H5a2 2 0 01-2-2V6a2 2 0 012-2Zm4 4h6m-6 4h6m-6 4h4"/></svg>
                     Reservations
                 </a>
-                <a href="{{ route('admin.courts.create') }}" class="inline-flex items-center gap-2 rounded-xl bg-lime-300 px-4 py-3 text-sm font-bold text-slate-950 shadow-lg shadow-lime-300/10 transition hover:-translate-y-0.5 hover:bg-lime-200">
+                <a href="{{ route('admin.courts.create') }}" class="inline-flex items-center gap-2 rounded-xl bg-lime-300 px-4 py-3 text-sm font-bold text-[#15200c] shadow-lg shadow-lime-300/10 transition hover:-translate-y-0.5 hover:bg-lime-200">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m-7-7h14"/></svg>
                     Add court
                 </a>
@@ -69,7 +69,7 @@
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $metric['icon'] }}"/></svg>
                     </span>
                 </div>
-                <p class="mt-4 text-xs text-slate-500">{{ $metric['note'] }}</p>
+                <p class="mt-4 text-xs text-slate-400">{{ $metric['note'] }}</p>
             </article>
         @endforeach
     </section>
@@ -82,7 +82,7 @@
                     <div>
                         <p class="text-xs font-bold uppercase tracking-[.16em] text-lime-300">Live operations</p>
                         <h2 class="mt-1 text-lg font-bold text-white">Today’s schedule</h2>
-                        <p class="mt-1 text-xs text-slate-500">Pending and confirmed court activity</p>
+                        <p class="mt-1 text-xs text-slate-400">Pending and confirmed court activity</p>
                     </div>
                     <a href="{{ route('admin.reservations.index', ['date' => now(config('reservation.timezone'))->toDateString()]) }}" class="text-sm font-semibold text-slate-300 transition hover:text-lime-300">Full schedule →</a>
                 </header>
@@ -91,15 +91,15 @@
                     <a href="{{ route('admin.reservations.show', $reservation) }}" class="group flex items-center gap-4 border-b border-white/10 px-5 py-4 transition last:border-0 hover:bg-white/[.035] sm:px-6">
                         <div class="w-20 shrink-0">
                             <p class="font-bold text-white">{{ $reservation->starts_at->format('g:i A') }}</p>
-                            <p class="mt-1 text-xs text-slate-500">to {{ $reservation->ends_at->format('g:i A') }}</p>
+                            <p class="mt-1 text-xs text-slate-400">to {{ $reservation->ends_at->format('g:i A') }}</p>
                         </div>
                         <span class="h-10 w-1 rounded-full {{ $reservation->status->value === 'confirmed' ? 'bg-lime-300' : 'bg-amber-300' }}"></span>
                         <div class="min-w-0 flex-1">
                             <p class="truncate text-sm font-semibold text-white group-hover:text-lime-300">{{ $reservation->court?->name ?? 'Court unavailable' }}</p>
-                            <p class="mt-1 truncate text-xs text-slate-500">{{ $reservation->user?->name ?? 'Customer unavailable' }} · {{ $reservation->reference_number }}</p>
+                            <p class="mt-1 truncate text-xs text-slate-400">{{ $reservation->user?->name ?? 'Customer unavailable' }} · {{ $reservation->reference_number }}</p>
                         </div>
                         <x-reservation-status :status="$reservation->status->value"/>
-                        <svg class="hidden h-4 w-4 text-slate-600 transition group-hover:translate-x-1 group-hover:text-lime-300 sm:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6"/></svg>
+                        <svg class="hidden h-4 w-4 text-slate-400 transition group-hover:translate-x-1 group-hover:text-lime-300 sm:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6"/></svg>
                     </a>
                 @empty
                     <div class="px-6 py-14 text-center">
@@ -107,7 +107,7 @@
                             <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3M3 11h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2Z"/></svg>
                         </span>
                         <h3 class="mt-4 font-semibold text-white">No bookings today</h3>
-                        <p class="mt-1 text-sm text-slate-500">The facility schedule is currently clear.</p>
+                        <p class="mt-1 text-sm text-slate-400">The facility schedule is currently clear.</p>
                     </div>
                 @endforelse
             </section>
@@ -118,7 +118,7 @@
                     <div>
                         <p class="text-xs font-bold uppercase tracking-[.16em] text-lime-300">Inventory</p>
                         <h2 class="mt-1 text-lg font-bold text-white">Court readiness</h2>
-                        <p class="mt-1 text-xs text-slate-500">{{ $activeCourts }} of {{ $totalCourts }} courts currently active</p>
+                        <p class="mt-1 text-xs text-slate-400">{{ $activeCourts }} of {{ $totalCourts }} courts currently active</p>
                     </div>
                     <a href="{{ route('admin.courts.index') }}" class="text-sm font-semibold text-slate-300 transition hover:text-lime-300">Manage courts →</a>
                 </header>
@@ -128,7 +128,7 @@
                             <x-court-photo :court="$court" class="h-12 w-14 shrink-0 rounded-lg"/>
                             <span class="min-w-0 flex-1">
                                 <span class="block truncate text-sm font-semibold text-white group-hover:text-lime-300">{{ $court->name }}</span>
-                                <span class="mt-1 block text-xs text-slate-500">₱{{ number_format((float) $court->hourly_rate, 2) }} / hour</span>
+                                <span class="mt-1 block text-xs text-slate-400">₱{{ number_format((float) $court->hourly_rate, 2) }} / hour</span>
                             </span>
                             @if($court->is_active)
                                 <span class="inline-flex items-center gap-1.5 rounded-full bg-lime-300/10 px-2.5 py-1 text-[11px] font-bold text-lime-300 ring-1 ring-lime-300/20">
@@ -139,7 +139,7 @@
                             @endif
                         </a>
                     @empty
-                        <p class="bg-[#111827] p-8 text-sm text-slate-500">No courts have been added.</p>
+                        <p class="bg-[#111827] p-8 text-sm text-slate-400">No courts have been added.</p>
                     @endforelse
                 </div>
             </section>
@@ -154,7 +154,7 @@
                         <h2 class="mt-1 text-lg font-bold text-white">Needs attention</h2>
                     </div>
                     @if($onSitePending->isNotEmpty())
-                        <span class="grid h-8 min-w-8 place-items-center rounded-full bg-amber-300 px-2 text-xs font-bold text-slate-950">{{ $onSitePending->count() }}</span>
+                        <span class="grid h-8 min-w-8 place-items-center rounded-full bg-amber-300 px-2 text-xs font-bold text-slate-100">{{ $onSitePending->count() }}</span>
                     @endif
                 </header>
 
@@ -164,7 +164,7 @@
                             <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/></svg>
                         </span>
                         <p class="mt-4 font-semibold text-white">You’re all caught up</p>
-                        <p class="mt-1 text-sm text-slate-500">No on-site payments require verification.</p>
+                        <p class="mt-1 text-sm text-slate-400">No on-site payments require verification.</p>
                     </div>
                 @else
                     <ul class="divide-y divide-white/10">
@@ -173,18 +173,18 @@
                                 <div class="flex items-start justify-between gap-3">
                                     <div class="min-w-0">
                                         <p class="truncate text-sm font-semibold text-white">{{ $payment->reservation?->court?->name ?? 'Court unavailable' }}</p>
-                                        <p class="mt-1 truncate text-xs text-slate-500">{{ $payment->reservation?->user?->name ?? 'Customer unavailable' }}</p>
+                                        <p class="mt-1 truncate text-xs text-slate-400">{{ $payment->reservation?->user?->name ?? 'Customer unavailable' }}</p>
                                     </div>
                                     <p class="shrink-0 text-sm font-bold text-amber-300">₱{{ number_format((float) $payment->amount, 2) }}</p>
                                 </div>
                                 @if($payment->reservation?->payment_deadline)
-                                    <p class="mt-2 text-[11px] text-slate-500">Due {{ $payment->reservation->payment_deadline->diffForHumans() }}</p>
+                                    <p class="mt-2 text-[11px] text-slate-400">Due {{ $payment->reservation->payment_deadline->diffForHumans() }}</p>
                                 @endif
                             </li>
                         @endforeach
                     </ul>
                     <div class="border-t border-white/10 p-3">
-                        <a href="{{ route('admin.payments.index') }}" class="flex items-center justify-center rounded-xl bg-amber-300 px-4 py-2.5 text-sm font-bold text-slate-950 transition hover:bg-amber-200">Review payments</a>
+                        <a href="{{ route('admin.payments.index') }}" class="flex items-center justify-center rounded-xl bg-amber-300 px-4 py-2.5 text-sm font-bold text-slate-100 transition hover:bg-amber-200">Review payments</a>
                     </div>
                 @endif
             </section>
@@ -200,11 +200,11 @@
                         <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-lime-300 ring-4 ring-lime-300/10"></span>
                         <div class="min-w-0">
                             <p class="truncate text-sm font-medium text-white">{{ ucfirst(str_replace('_', ' ', last(explode('.', $log->action)))) }}</p>
-                            <p class="mt-1 text-xs text-slate-500">{{ $log->user?->name ?? 'System' }} · {{ $log->created_at->diffForHumans() }}</p>
+                            <p class="mt-1 text-xs text-slate-400">{{ $log->user?->name ?? 'System' }} · {{ $log->created_at->diffForHumans() }}</p>
                         </div>
                     </div>
                 @empty
-                    <p class="px-5 py-10 text-center text-sm text-slate-500">No recent activity to display.</p>
+                    <p class="px-5 py-10 text-center text-sm text-slate-400">No recent activity to display.</p>
                 @endforelse
             </section>
 

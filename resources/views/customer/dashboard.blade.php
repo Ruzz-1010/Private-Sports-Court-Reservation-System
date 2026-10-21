@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="customer-dashboard -mx-4 -my-8 min-h-[calc(100vh-4.5rem)] bg-[#070a0f] px-4 py-8 text-slate-100 sm:-mx-6 sm:px-6 lg:-my-10 lg:px-8 lg:py-10">
+<div class="customer-dashboard">
     <div class="mx-auto max-w-7xl space-y-6">
         {{-- Welcome and primary action --}}
         <section class="relative overflow-hidden rounded-3xl border border-white/10 bg-[#111827] shadow-2xl shadow-black/20">
@@ -21,14 +21,14 @@
                     <p class="mt-3 max-w-xl text-sm leading-6 text-slate-400 sm:text-base">
                         Plan your next game, track every reservation, and keep your receipts in one place.
                     </p>
-                    <p class="mt-5 flex items-center gap-2 text-sm text-slate-500">
+                    <p class="mt-5 flex items-center gap-2 text-sm text-slate-400">
                         <svg class="h-4 w-4 text-lime-300" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3M3 11h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2Z"/></svg>
                         {{ now(config('reservation.timezone'))->format('l, F j, Y') }}
                     </p>
                 </div>
 
                 @if($courts->isNotEmpty())
-                    <a href="{{ route('customer.availability.index', ['court' => $courts->first()]) }}" class="inline-flex items-center justify-center gap-2 rounded-xl bg-lime-300 px-5 py-3 text-sm font-bold text-slate-950 shadow-lg shadow-lime-300/10 transition hover:-translate-y-0.5 hover:bg-lime-200 focus:outline-none focus:ring-2 focus:ring-lime-300 focus:ring-offset-2 focus:ring-offset-slate-900">
+                    <a href="{{ route('customer.availability.index', ['court' => $courts->first()]) }}" class="inline-flex items-center justify-center gap-2 rounded-xl bg-lime-300 px-5 py-3 text-sm font-bold text-[#15200c] shadow-lg shadow-lime-300/10 transition hover:-translate-y-0.5 hover:bg-lime-200 focus:outline-none focus:ring-2 focus:ring-lime-300 focus:ring-offset-2 focus:ring-offset-slate-900">
                         Book a court
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m-7-7h14"/></svg>
                     </a>
@@ -66,7 +66,7 @@
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $metric['icon'] }}"/></svg>
                         </span>
                     </div>
-                    <p class="mt-4 text-xs text-slate-500">{{ $metric['note'] }}</p>
+                    <p class="mt-4 text-xs text-slate-400">{{ $metric['note'] }}</p>
                 </article>
             @endforeach
         </section>
@@ -76,7 +76,7 @@
             <section class="overflow-hidden rounded-2xl border border-lime-300/20 bg-[linear-gradient(135deg,rgba(190,242,100,.12),rgba(17,24,39,.96)_45%)] shadow-xl shadow-black/10">
                 <div class="flex flex-col gap-6 p-5 sm:p-6 lg:flex-row lg:items-center">
                     <div class="flex min-w-0 flex-1 items-center gap-4">
-                        <div class="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-lime-300 text-slate-950 shadow-lg shadow-lime-300/10">
+                        <div class="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-lime-300 text-[#15200c] shadow-lg shadow-lime-300/10">
                             <span class="text-2xl font-bold leading-none">{{ $nextBooking->starts_at->format('j') }}</span>
                             <span class="-mt-2 text-[10px] font-bold uppercase tracking-widest">{{ $nextBooking->starts_at->format('M') }}</span>
                         </div>
@@ -122,9 +122,9 @@
                             <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3M3 11h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2Z"/></svg>
                         </span>
                         <h3 class="mt-4 font-semibold text-white">Your schedule is clear</h3>
-                        <p class="mt-1 text-sm text-slate-500">Book a court and your next session will appear here.</p>
+                        <p class="mt-1 text-sm text-slate-400">Book a court and your next session will appear here.</p>
                         @if($courts->isNotEmpty())
-                            <a href="{{ route('customer.availability.index', ['court' => $courts->first()]) }}" class="mt-5 inline-flex rounded-xl bg-lime-300 px-4 py-2.5 text-sm font-bold text-slate-950 hover:bg-lime-200">Find a time</a>
+                            <a href="{{ route('customer.availability.index', ['court' => $courts->first()]) }}" class="mt-5 inline-flex rounded-xl bg-lime-300 px-4 py-2.5 text-sm font-bold text-[#15200c] hover:bg-lime-200">Find a time</a>
                         @endif
                     </div>
                 @else
@@ -134,15 +134,15 @@
                                 <a href="{{ route('customer.reservations.show', $booking) }}" class="group flex items-center gap-4 px-5 py-4 transition hover:bg-white/[.035] sm:px-6">
                                     <div class="w-12 shrink-0 text-center">
                                         <p class="text-2xl font-bold leading-none text-white">{{ $booking->starts_at->format('j') }}</p>
-                                        <p class="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">{{ $booking->starts_at->format('M') }}</p>
+                                        <p class="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">{{ $booking->starts_at->format('M') }}</p>
                                     </div>
                                     <div class="h-10 w-px bg-white/10"></div>
                                     <div class="min-w-0 flex-1">
                                         <p class="truncate text-sm font-semibold text-white group-hover:text-lime-300">{{ $booking->court?->name ?? 'Court unavailable' }}</p>
-                                        <p class="mt-1 text-xs text-slate-500">{{ $booking->starts_at->format('D, g:i A') }} – {{ $booking->ends_at->format('g:i A') }}</p>
+                                        <p class="mt-1 text-xs text-slate-400">{{ $booking->starts_at->format('D, g:i A') }} – {{ $booking->ends_at->format('g:i A') }}</p>
                                     </div>
                                     <x-reservation-status :status="$booking->status->value"/>
-                                    <svg class="hidden h-4 w-4 text-slate-600 transition group-hover:translate-x-1 group-hover:text-lime-300 sm:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6"/></svg>
+                                    <svg class="hidden h-4 w-4 text-slate-400 transition group-hover:translate-x-1 group-hover:text-lime-300 sm:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6"/></svg>
                                 </a>
                             </li>
                         @endforeach
@@ -155,7 +155,7 @@
                 <header class="border-b border-white/10 px-5 py-5">
                     <p class="text-xs font-bold uppercase tracking-[.16em] text-lime-300">Quick booking</p>
                     <h2 class="mt-1 text-lg font-bold text-white">Choose a court</h2>
-                    <p class="mt-1 text-xs text-slate-500">Check open times and current rates.</p>
+                    <p class="mt-1 text-xs text-slate-400">Check open times and current rates.</p>
                 </header>
                 <div class="space-y-2 p-3">
                     @forelse($courts as $court)
@@ -163,12 +163,12 @@
                             <x-court-photo :court="$court" class="h-12 w-14 shrink-0 rounded-lg"/>
                             <span class="min-w-0 flex-1">
                                 <span class="block truncate text-sm font-semibold text-white group-hover:text-lime-300">{{ $court->name }}</span>
-                                <span class="mt-1 block text-xs text-slate-500">₱{{ number_format((float) $court->hourly_rate, 2) }} / hour</span>
+                                <span class="mt-1 block text-xs text-slate-400">₱{{ number_format((float) $court->hourly_rate, 2) }} / hour</span>
                             </span>
-                            <span class="grid h-8 w-8 place-items-center rounded-lg bg-white/5 text-slate-500 transition group-hover:bg-lime-300 group-hover:text-slate-950">→</span>
+                            <span class="grid h-8 w-8 place-items-center rounded-lg bg-white/5 text-slate-400 transition group-hover:bg-lime-300 group-hover:text-[#15200c]">→</span>
                         </a>
                     @empty
-                        <p class="px-3 py-10 text-center text-sm text-slate-500">No active courts are available.</p>
+                        <p class="px-3 py-10 text-center text-sm text-slate-400">No active courts are available.</p>
                     @endforelse
                 </div>
             </aside>
