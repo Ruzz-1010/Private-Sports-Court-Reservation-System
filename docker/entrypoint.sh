@@ -22,7 +22,7 @@ php artisan view:cache
 case "$SERVICE_MODE" in
     web)
         php artisan migrate --force
-        if [ "\${SEED_DATABASE_ON_BOOT:-false}" = "true" ]; then
+        if [ "${SEED_DATABASE_ON_BOOT:-false}" = "true" ]; then
             php artisan db:seed --force
         fi
         sed -i "s/^Listen .*/Listen $APP_PORT/" /etc/apache2/ports.conf
