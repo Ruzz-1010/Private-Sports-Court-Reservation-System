@@ -223,6 +223,14 @@ The instructor's specification requires that the chosen technologies be **justif
 - **The gateway is an interface.** `PaymentGateway` defines the contract, and `PayMongoGateway` implements it. Business logic depends on the interface, so the provider is replaceable without touching reservation, receipt, or reporting logic.
 - **Controllers are thin.** They authorize, validate, delegate, and redirect. Multi-record state transitions live in actions wrapped in database transactions.
 
+**Simplified architecture view.** A customer or administrator uses the Blade web pages. Laravel validates the request and applies the business rules. PostgreSQL stores the accounts, courts, reservations, payments, and receipts. PayMongo handles the hosted payment page, while the queue sends confirmation email after a successful transaction.
+
+`User → Blade pages → Laravel application → PostgreSQL`
+
+`Laravel application ↔ PayMongo`
+
+`Laravel application → Queue → Email service`
+
 ## 3.3 Sequence Diagrams
 
 ### 3.3.1 Payment Checkout
@@ -231,11 +239,19 @@ The instructor's specification requires that the chosen technologies be **justif
 
 The browser redirect in the middle of this flow changes nothing about the reservation's state. It moves the customer to PayMongo so that wallet credentials never touch this application, but the booking is held Pending until the webhook in the following section confirms the money.
 
+**Simplified checkout flow.**
+
+`Customer selects online payment → Laravel creates Pending reservation → Laravel creates PayMongo checkout → Customer pays on PayMongo → PayMongo returns the customer to the site → Reservation is still Pending until the webhook confirms payment`
+
 ### 3.3.2 Webhook Processing
 
 ![Webhook processing sequence](../diagrams/sequence-payment-webhook.png)
 
 The callback is verified twice. The signature proves the message came from PayMongo and was not replayed; the independent retrieval of the checkout session proves that the transaction genuinely settled at the expected amount and currency. Neither check trusts the payload, and a correctly signed callback that reports an unsettled transaction confirms nothing.
+
+**Simplified webhook flow.**
+
+`PayMongo sends webhook → Verify signature → Retrieve checkout from PayMongo → Compare payment, amount, currency, and reference → If valid: confirm reservation, create one receipt, queue email → If invalid: flag for review and keep reservation unconfirmed`
 
 ### 3.3.3 On-Site Payment Verification
 
