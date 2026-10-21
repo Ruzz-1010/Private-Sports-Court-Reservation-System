@@ -119,7 +119,7 @@ flowchart TB
 
 ## 3.3 Sequence Diagrams
 
-### Online Payment and Webhook Processing
+### Payment Checkout
 
 ```mermaid
 %%{init: {"theme":"base","themeVariables":{"background":"#FFFFFF","primaryColor":"#DBEAFE","primaryTextColor":"#172554","primaryBorderColor":"#2563EB","lineColor":"#475569","fontFamily":"Arial"}}}%%
@@ -143,39 +143,53 @@ sequenceDiagram
         A->>P: Create checkout session (POST /v2/checkout_sessions)
         P-->>A: Checkout URL
         A-->>C: Redirect to PayMongo
-        Note over C,P: Wallet credentials go to PayMongo only.
+        Note over C,P: Wallet credentials go to PayMongo only.<br/>The success and cancel redirects are display<br/>signals and never change a status.
+    end
+```
 
-        P->>A: Webhook POST with Paymongo-Signature
-        A->>A: Verify HMAC-SHA256 over timestamp.raw_body
-        alt Invalid signature
-            A-->>P: 400, nothing recorded
-        else Valid signature
-            A->>A: Reject timestamp outside five-minute replay window
-            A->>D: Look up provider event id
-            alt Event already processed
-                A-->>P: 200, no duplicate work
-            else New event
-                A->>A: Keep only checkout_session.payment.paid
-                A->>D: Find payment by checkout session id
-                Note over A,P: The callback payload is never trusted.<br/>The session is re-read from PayMongo over /v1.
-                A->>P: GET /v1/checkout_sessions/{id}
-                P-->>A: Authoritative status, amount, currency, reference
-                A->>A: Compare retrieved values against local attempt
-                alt Disagreement or not paid
-                    A->>D: payment = requires_review
-                    A-->>P: 200, nothing confirmed
-                else Agreement and paid
-                    A->>D: BEGIN
-                    A->>D: UPDATE payment to paid
-                    A->>D: UPDATE reservation to confirmed
-                    A->>D: INSERT receipt (exactly one)
-                    A->>D: INSERT payment event (processed)
-                    A->>D: COMMIT
-                    A-->>P: 200
-                    Note over A,C: Dispatch only after commit.<br/>PDF rendered at send time and attached.
-                    A->>A: Queue SendConfirmationEmail
-                    A-->>C: Confirmation email with receipt PDF
-                end
+### Webhook Processing
+
+```mermaid
+%%{init: {"theme":"base","themeVariables":{"background":"#FFFFFF","primaryColor":"#DBEAFE","primaryTextColor":"#172554","primaryBorderColor":"#2563EB","lineColor":"#475569","fontFamily":"Arial"}}}%%
+sequenceDiagram
+    autonumber
+    actor C as Customer
+    participant A as Laravel Application
+    participant D as PostgreSQL
+    participant P as PayMongo
+
+    Note over P,A: The customer has already paid on PayMongo's hosted page.
+
+    P->>A: Webhook POST with Paymongo-Signature
+    A->>A: Verify HMAC-SHA256 over timestamp.raw_body
+    alt Invalid signature
+        A-->>P: 400, nothing recorded
+    else Valid signature
+        A->>A: Reject timestamp outside five-minute replay window
+        A->>D: Look up provider event id
+        alt Event already processed
+            A-->>P: 200, no duplicate work
+        else New event
+            A->>A: Keep only checkout_session.payment.paid
+            A->>D: Find payment by checkout session id
+            Note over A,P: The callback payload is never trusted.<br/>The session is re-read from PayMongo over /v1.
+            A->>P: GET /v1/checkout_sessions/{id}
+            P-->>A: Authoritative status, amount, currency, reference
+            A->>A: Compare retrieved values against local attempt
+            alt Disagreement or not paid
+                A->>D: payment = requires_review
+                A-->>P: 200, nothing confirmed
+            else Agreement and paid
+                A->>D: BEGIN
+                A->>D: UPDATE payment to paid
+                A->>D: UPDATE reservation to confirmed
+                A->>D: INSERT receipt (exactly one)
+                A->>D: INSERT payment event (processed)
+                A->>D: COMMIT
+                A-->>P: 200
+                Note over A,C: Dispatch only after commit.<br/>PDF rendered at send time and attached.
+                A->>A: Queue SendConfirmationEmail
+                A-->>C: Confirmation email with receipt PDF
             end
         end
     end

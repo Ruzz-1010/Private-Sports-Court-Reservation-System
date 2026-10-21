@@ -225,13 +225,19 @@ The instructor's specification requires that the chosen technologies be **justif
 
 ## 3.3 Sequence Diagrams
 
-### 3.3.1 Online Payment and Webhook Verification
+### 3.3.1 Payment Checkout
 
-![Online payment and webhook verification sequence](../diagrams/sequence-payment-webhook.png)
+![Payment checkout sequence](../diagrams/sequence-checkout.png)
 
-**The two principles this diagram encodes.** First, step 6 — the browser redirect in the middle of the flow changes nothing. Second, the callback is verified twice: the signature proves the message came from PayMongo and was not replayed, and the independent retrieval proves the transaction genuinely settled at the expected amount.
+The browser redirect in the middle of this flow changes nothing about the reservation's state. It moves the customer to PayMongo so that wallet credentials never touch this application, but the booking is held Pending until the webhook in the following section confirms the money.
 
-### 3.3.2 On-Site Payment Verification
+### 3.3.2 Webhook Processing
+
+![Webhook processing sequence](../diagrams/sequence-payment-webhook.png)
+
+The callback is verified twice. The signature proves the message came from PayMongo and was not replayed; the independent retrieval of the checkout session proves that the transaction genuinely settled at the expected amount and currency. Neither check trusts the payload, and a correctly signed callback that reports an unsettled transaction confirms nothing.
+
+### 3.3.3 On-Site Payment Verification
 
 ![On-site payment verification sequence](../diagrams/sequence-onsite-payment.png)
 
