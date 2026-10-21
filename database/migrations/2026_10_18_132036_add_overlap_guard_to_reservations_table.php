@@ -25,6 +25,15 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // The exclusion constraint is PostgreSQL-specific. SQLite is useful
+        // for a lightweight local/container smoke run, but cannot express
+        // this constraint; the reservation action still performs its
+        // application-level conflict check there. Production should use
+        // PostgreSQL so the database guard is enabled.
+        if (DB::getDriverName() !== 'pgsql') {
+            return;
+        }
+
         DB::statement(<<<'SQL'
             ALTER TABLE reservations
                 ADD CONSTRAINT reservations_no_overlapping_holds
@@ -45,6 +54,10 @@ return new class extends Migration
 
     public function down(): void
     {
+        if (DB::getDriverName() !== 'pgsql') {
+            return;
+        }
+
         DB::statement('ALTER TABLE reservations DROP CONSTRAINT IF EXISTS reservations_no_overlapping_holds');
     }
 
