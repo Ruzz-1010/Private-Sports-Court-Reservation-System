@@ -211,3 +211,40 @@
 .admin-dashboard section {
     box-shadow: 0 20px 48px -34px rgba(0,0,0,.95);
 }
+
+
+/* Dashboard refresh: final geometry and accessible interaction states. */
+.admin-shell .admin-dashboard {
+    margin: 0 !important;
+    min-height: auto !important;
+    padding: 0 !important;
+    background: transparent !important;
+}
+
+.admin-dashboard .rounded-2xl,
+.customer-dashboard .rounded-2xl {
+    border-radius: 1rem;
+}
+
+.admin-dashboard .rounded-3xl,
+.customer-dashboard .rounded-3xl {
+    border-radius: 1.5rem;
+}
+
+.admin-dashboard a:focus-visible,
+.customer-dashboard a:focus-visible {
+    outline: 2px solid #bef264;
+    outline-offset: 3px;
+}
+
+.admin-dashboard section,
+.customer-dashboard section {
+    isolation: isolate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .admin-dashboard *,
+    .customer-dashboard * {
+        transform: none !important;
+    }
+}
