@@ -34,6 +34,11 @@ return new class extends Migration
             return;
         }
 
+        // PostgreSQL ships the GiST operator class for scalar bigint values
+        // in btree_gist. The exclusion constraint combines court_id equality
+        // with timestamp-range overlap, so the extension must exist first.
+        DB::statement('CREATE EXTENSION IF NOT EXISTS btree_gist');
+
         DB::statement(<<<'SQL'
             ALTER TABLE reservations
                 ADD CONSTRAINT reservations_no_overlapping_holds
