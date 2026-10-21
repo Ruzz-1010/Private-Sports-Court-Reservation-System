@@ -15,6 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Railway terminates HTTPS at its proxy. Trust forwarded headers so
+        // Laravel generates secure URLs and cookies for the original request.
+        $middleware->trustProxies(at: '*');
+
         $middleware->alias([
             'role' => EnsureUserHasRole::class,
             'guest' => RedirectIfAuthenticated::class,
