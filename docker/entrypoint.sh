@@ -22,6 +22,9 @@ php artisan view:cache
 case "$SERVICE_MODE" in
     web)
         php artisan migrate --force
+        if [ "\${SEED_DATABASE_ON_BOOT:-false}" = "true" ]; then
+            php artisan db:seed --force
+        fi
         sed -i "s/^Listen .*/Listen $APP_PORT/" /etc/apache2/ports.conf
         sed -i "s/<VirtualHost \*:[0-9]*>/<VirtualHost *:$APP_PORT>/" /etc/apache2/sites-available/000-default.conf
         exec apache2-foreground
