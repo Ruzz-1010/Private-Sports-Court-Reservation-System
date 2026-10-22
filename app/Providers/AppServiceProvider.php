@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Contracts\PaymentGateway;
+use App\Mail\Transport\ResendApiTransport;
+use Illuminate\Support\Facades\Mail;
 use App\Services\Payments\PayMongoGateway;
 use App\Services\Payments\DemoGateway;
 use Illuminate\Support\ServiceProvider;
@@ -28,6 +30,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Use Laravel's existing HTTP client so Render does not need SMTP or an extra SDK.
+        Mail::extend('resend', fn (array $config = []) => new ResendApiTransport(
+            (string) config('services.resend.key', ''),
+        ));
     }
 }
