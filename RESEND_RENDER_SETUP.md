@@ -1,4 +1,8 @@
-# Resend email on Render
+# Resend email on Render (optional, not the final project setup)
+
+The final project setup uses Gmail SMTP so confirmation emails can be delivered
+to any valid customer email address. Use this Resend configuration only if the
+team intentionally chooses a verified Resend sender/domain later.
 
 The `resend` Laravel mailer is registered by AppServiceProvider using
 App/Mail/Transport/ResendApiTransport. It uses Laravel's already installed HTTP

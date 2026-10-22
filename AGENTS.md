@@ -629,11 +629,10 @@ The project is ready for final presentation only when a customer can complete an
 
 ## Render email adapter
 
-Render deployments may use MAIL_MAILER=resend. AppServiceProvider registers
-App/Mail/Transport/ResendApiTransport, which uses Laravel HTTP over HTTPS and
-preserves PDF attachments without an extra Resend SDK. Credentials come from
-services.resend.key / RESEND_API_KEY. See RESEND_RENDER_SETUP.md for sender
-verification, queue requirements, and the live-delivery checklist. Transport
-regression tests use Http::fake; they were added but not run in the editing
-workspace because PHP/Composer are unavailable. Do not claim live delivery
-until verified in Resend and the recipient inbox.
+The final Render presentation setup uses Gmail SMTP so confirmation emails can
+be delivered to any valid customer email address. Configure `MAIL_MAILER=smtp`,
+`MAIL_HOST=smtp.gmail.com`, port `587`, the host Gmail address, and a Google App
+Password. Keep the SMTP app password only in Render Environment Variables.
+Use `QUEUE_CONNECTION=sync` for a single free web service, or run a queue worker
+when the database queue is selected. The optional Resend adapter remains in the
+repository for future use, but it is not the final project mail provider.
