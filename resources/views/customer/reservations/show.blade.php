@@ -25,10 +25,14 @@
                     @if (config('payments.simulation_enabled'))
                         <a href="{{ route('customer.payments.demo', $reservation) }}" class="button button-primary">Open PayMongo test payment</a>
                     @else
-                        <form method="POST" action="{{ route('customer.payments.checkout', $reservation) }}">
+                <form method="POST" action="{{ route('customer.payments.checkout', $reservation) }}">
                             @csrf
                             <button type="submit" class="button button-primary">Pay online</button>
-                        </form>
+                </form>
+                <form method="POST" action="{{ route('customer.payments.refresh', $reservation) }}" class="mt-3">
+                    @csrf
+                    <button type="submit" class="text-sm font-semibold text-emerald-300 underline underline-offset-4">Refresh payment status</button>
+                </form>
                     @endif
                 @else
                     <p class="surface px-4 py-2 text-sm font-medium text-slate-300">

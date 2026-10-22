@@ -10,8 +10,8 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Customer\AvailabilityController as CustomerAvailabilityController;
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
-use App\Http\Controllers\Customer\PaymentController as CustomerPaymentController;
 use App\Http\Controllers\Customer\DemoPaymentController;
+use App\Http\Controllers\Customer\PaymentController as CustomerPaymentController;
 use App\Http\Controllers\Customer\ReceiptController as CustomerReceiptController;
 use App\Http\Controllers\Customer\ReservationController as CustomerReservationController;
 use App\Http\Controllers\Webhooks\PayMongoWebhookController;
@@ -78,6 +78,7 @@ Route::middleware(['auth'])->group(function (): void {
         Route::delete('reservations/{reservation}', [CustomerReservationController::class, 'destroy'])->name('reservations.destroy');
 
         Route::post('reservations/{reservation}/checkout', [CustomerPaymentController::class, 'checkout'])->name('payments.checkout');
+        Route::post('reservations/{reservation}/payment-status', [CustomerPaymentController::class, 'refresh'])->name('payments.refresh');
         Route::get('reservations/{reservation}/demo-payment', [DemoPaymentController::class, 'show'])->name('payments.demo');
         Route::post('reservations/{reservation}/demo-payment/simulate', [DemoPaymentController::class, 'simulate'])->name('payments.demo.simulate');
     });
