@@ -29,10 +29,11 @@
                             @csrf
                             <button type="submit" class="button button-primary">Pay online</button>
                 </form>
-                <form method="POST" action="{{ route('customer.payments.refresh', $reservation) }}" class="mt-3">
+                <form id="payment-status-refresh" method="POST" action="{{ route('customer.payments.refresh', $reservation) }}" class="mt-3">
                     @csrf
                     <button type="submit" class="text-sm font-semibold text-emerald-300 underline underline-offset-4">Refresh payment status</button>
                 </form>
+                <p id="payment-status-wait" class="mt-2 text-xs text-slate-400">Checking PayMongo payment status automatically…</p>
                     @endif
                 @else
                     <p class="surface px-4 py-2 text-sm font-medium text-slate-300">
@@ -130,3 +131,28 @@
     @endcan
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    (() => {
+        const form = document.getElementById('payment-status-refresh');
+        const wait = document.getElementById('payment-status-wait');
+        if (!form || !wait) return;
+        let attempts = 0;
+        const check = async () => {
+            if (++attempts > 12) {
+                wait.textContent = 'Payment is still processing. You can check again shortly.';
+                return;
+            }
+            const response = await fetch(form.action, {
+                method: 'POST',
+                headers: {'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value, 'Accept': 'text/html'},
+                credentials: 'same-origin',
+            });
+            if (response.redirected) window.location.assign(response.url);
+        };
+        setTimeout(check, 3000);
+        setInterval(check, 10000);
+    })();
+</script>
+@endpush
