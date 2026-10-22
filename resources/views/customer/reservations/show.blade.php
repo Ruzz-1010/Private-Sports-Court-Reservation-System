@@ -22,12 +22,14 @@
             @endif
             <div class="mt-4 flex flex-wrap gap-3">
                 @if ($reservation->payment_method->value === 'online')
-                    <form method="POST" action="{{ route('customer.payments.checkout', $reservation) }}">
-                        @csrf
-                        <button type="submit" class="button button-primary">
-                            Pay online
-                        </button>
-                    </form>
+                    @if (config('payments.simulation_enabled'))
+                        <a href="{{ route('customer.payments.demo', $reservation) }}" class="button button-primary">Open PayMongo test payment</a>
+                    @else
+                        <form method="POST" action="{{ route('customer.payments.checkout', $reservation) }}">
+                            @csrf
+                            <button type="submit" class="button button-primary">Pay online</button>
+                        </form>
+                    @endif
                 @else
                     <p class="surface px-4 py-2 text-sm font-medium text-slate-300">
                         Pay at the facility, then an administrator verifies it.

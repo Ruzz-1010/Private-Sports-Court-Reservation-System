@@ -2,6 +2,8 @@
 
 return [
     'gateway' => env('PAYMENT_GATEWAY', 'paymongo'),
+    // Presentation-only confirmation helper. Keep false for real payment runs.
+    'simulation_enabled' => filter_var(env('PAYMENT_SIMULATION_ENABLED', false), FILTER_VALIDATE_BOOL),
 
     'paymongo' => [
         'secret_key' => env('PAYMONGO_SECRET_KEY'),

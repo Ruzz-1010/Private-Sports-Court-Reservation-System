@@ -17,7 +17,7 @@ class DemoPaymentController extends Controller
 {
     public function show(Reservation $reservation): View|RedirectResponse
     {
-        abort_unless(config('payments.gateway') === 'demo', 404);
+        abort_unless(config('payments.simulation_enabled') === true, 404);
         $this->authorize('view', $reservation);
         abort_unless($reservation->payment_method === PaymentMethod::Online, 404);
 
@@ -28,7 +28,7 @@ class DemoPaymentController extends Controller
 
         $payment = $reservation->payments()
             ->where('method', PaymentMethod::Online->value)
-            ->where('provider', 'paymongo_demo')
+            ->whereIn('provider', ['paymongo', 'paymongo_demo'])
             ->where('status', PaymentStatus::Pending->value)
             ->latest('id')
             ->firstOrFail();
@@ -38,7 +38,7 @@ class DemoPaymentController extends Controller
 
     public function simulate(Reservation $reservation, ConfirmPayment $confirmPayment): RedirectResponse
     {
-        abort_unless(config('payments.gateway') === 'demo', 404);
+        abort_unless(config('payments.simulation_enabled') === true, 404);
         $this->authorize('view', $reservation);
         abort_unless($reservation->payment_method === PaymentMethod::Online, 404);
 
@@ -53,7 +53,7 @@ class DemoPaymentController extends Controller
 
             $payment = $locked->payments()
                 ->where('method', PaymentMethod::Online->value)
-                ->where('provider', 'paymongo_demo')
+                ->whereIn('provider', ['paymongo', 'paymongo_demo'])
                 ->where('status', PaymentStatus::Pending->value)
                 ->latest('id')
                 ->lockForUpdate()
