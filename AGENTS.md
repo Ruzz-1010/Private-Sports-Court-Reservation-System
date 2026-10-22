@@ -626,3 +626,14 @@ A feature is done only when:
 7. Documentation reflects the implemented behavior.
 
 The project is ready for final presentation only when a customer can complete an end-to-end booking, a verified webhook or authorized on-site action confirms it, a receipt is downloadable, an email is queued and delivered, overlapping bookings are rejected, expired holds release their slots, and administrators can manage and report on the resulting records.
+
+## Render email adapter
+
+Render deployments may use MAIL_MAILER=resend. AppServiceProvider registers
+App/Mail/Transport/ResendApiTransport, which uses Laravel HTTP over HTTPS and
+preserves PDF attachments without an extra Resend SDK. Credentials come from
+services.resend.key / RESEND_API_KEY. See RESEND_RENDER_SETUP.md for sender
+verification, queue requirements, and the live-delivery checklist. Transport
+regression tests use Http::fake; they were added but not run in the editing
+workspace because PHP/Composer are unavailable. Do not claim live delivery
+until verified in Resend and the recipient inbox.
