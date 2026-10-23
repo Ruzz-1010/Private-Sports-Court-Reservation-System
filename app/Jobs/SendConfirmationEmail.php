@@ -43,6 +43,15 @@ class SendConfirmationEmail implements ShouldQueue
         }
 
         $reservation->user->notify(new ReservationConfirmed($reservation));
+
+        // Written to the stderr channel so the message is printed straight into
+        // the queue worker terminal instead of only reaching the log file.
+        Log::channel('stderr')->info(sprintf(
+            'CONFIRMATION EMAIL SENT | %s | to %s | receipt %s',
+            $reservation->reference_number,
+            $reservation->user->email,
+            $reservation->receipt?->receipt_number ?? 'none',
+        ));
     }
 
     /**
@@ -54,5 +63,11 @@ class SendConfirmationEmail implements ShouldQueue
             'reservation_id' => $this->reservationId,
             'error' => $exception->getMessage(),
         ]);
+
+        Log::channel('stderr')->error(sprintf(
+            'CONFIRMATION EMAIL FAILED | reservation #%d | %s',
+            $this->reservationId,
+            $exception->getMessage(),
+        ));
     }
 }

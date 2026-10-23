@@ -634,6 +634,21 @@ composer audit
 `composer run dev` starts the server, queue worker, log viewer, and Vite dev server
 together. Run the individual processes above when debugging one in isolation.
 
+### Email delivery is visible in the worker terminal
+
+`SendConfirmationEmail` writes a line to the `stderr` log channel on success and
+on permanent failure, so the queue worker terminal shows:
+
+```
+CONFIRMATION EMAIL SENT | RSRV-261023-ABC123 | to user@example.com | receipt RCPT-0001
+```
+
+This only appears when the queue is **not** `sync`. The development machine uses
+`QUEUE_CONNECTION=database` in `.env` for that reason; `QUEUE_CONNECTION=sync`
+in `.env.example` stays the default because a groupmate laptop has no worker
+running, and a queued-only email would be silently never delivered there. With
+`sync` the message is written to `laravel.log` instead of a terminal.
+
 ### Asset builds and Node version
 
 Vite 7 (with rolldown) needs Node 20.19+ or 22+. Node 18 fails with
