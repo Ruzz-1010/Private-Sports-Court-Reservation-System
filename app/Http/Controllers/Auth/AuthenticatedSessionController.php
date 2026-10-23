@@ -22,6 +22,12 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // A customer who never finished the code step is taken straight back to
+        // it instead of landing on a dashboard every route would bounce.
+        if (! $request->user()->hasVerifiedEmail()) {
+            return redirect()->route('verification.notice');
+        }
+
         return redirect()->intended(route('dashboard'));
     }
 

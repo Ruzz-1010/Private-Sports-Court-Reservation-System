@@ -99,6 +99,45 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Reservation reminders
+    |--------------------------------------------------------------------------
+    |
+    | The scheduler emails a reminder this many minutes before a confirmed
+    | reservation starts. Set it to 0 to switch reminders off entirely.
+    |
+    */
+
+    'reminder' => [
+        'minutes_before' => (int) env('RESERVATION_REMINDER_MINUTES', 10),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Email verification
+    |--------------------------------------------------------------------------
+    |
+    | A new account must confirm its email address with a six-digit code before
+    | any customer screen opens. Codes are kept in the cache, never in the
+    | database, so they expire on their own.
+    |
+    */
+
+    'email_verification' => [
+        // How long a code stays usable.
+        'expires_minutes' => (int) env('EMAIL_VERIFICATION_EXPIRES', 15),
+
+        // Wrong tries allowed before the code is burned.
+        'max_attempts' => (int) env('EMAIL_VERIFICATION_ATTEMPTS', 5),
+
+        // Seconds before "Send a new code" works again.
+        'resend_seconds' => (int) env('EMAIL_VERIFICATION_RESEND_SECONDS', 60),
+
+        // Digits in the code. Six is what the screen and the email assume.
+        'code_length' => (int) env('EMAIL_VERIFICATION_CODE_LENGTH', 6),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Reference numbers
     |--------------------------------------------------------------------------
     */

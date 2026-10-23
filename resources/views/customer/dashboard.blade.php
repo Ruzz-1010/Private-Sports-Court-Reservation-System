@@ -46,7 +46,7 @@
             ];
         @endphp
 
-        <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Reservation summary">
+        <section class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4" aria-label="Reservation summary">
             @foreach($metrics as $metric)
                 @php
                     $tone = match($metric['tone']) {
@@ -56,17 +56,17 @@
                         default => 'bg-lime-300/10 text-lime-300 ring-lime-300/20',
                     };
                 @endphp
-                <article class="group rounded-2xl border border-white/10 bg-[#111827] p-5 shadow-xl shadow-black/10 transition hover:-translate-y-0.5 hover:border-white/20">
-                    <div class="flex items-start justify-between gap-4">
-                        <div>
-                            <p class="text-sm font-medium text-slate-400">{{ $metric['label'] }}</p>
-                            <p class="mt-3 text-3xl font-bold tracking-tight text-white">{{ $metric['value'] }}</p>
+                <article class="group rounded-2xl border border-white/10 bg-[#111827] p-4 shadow-xl shadow-black/10 transition hover:-translate-y-0.5 hover:border-white/20 sm:p-5">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="min-w-0">
+                            <p class="truncate text-xs font-medium text-slate-400 sm:text-sm">{{ $metric['label'] }}</p>
+                            <p class="mt-2 text-2xl font-bold tracking-tight text-white sm:mt-3 sm:text-3xl">{{ $metric['value'] }}</p>
                         </div>
-                        <span class="grid h-10 w-10 place-items-center rounded-xl ring-1 {{ $tone }}">
+                        <span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl ring-1 sm:h-10 sm:w-10 {{ $tone }}">
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $metric['icon'] }}"/></svg>
                         </span>
                     </div>
-                    <p class="mt-4 text-xs text-slate-400">{{ $metric['note'] }}</p>
+                    <p class="mt-3 truncate text-[11px] text-slate-400 sm:mt-4 sm:text-xs">{{ $metric['note'] }}</p>
                 </article>
             @endforeach
         </section>
@@ -74,19 +74,74 @@
         {{-- Next session --}}
         @if($nextBooking)
             <section class="overflow-hidden rounded-2xl border border-lime-300/20 bg-[linear-gradient(135deg,rgba(190,242,100,.12),rgba(17,24,39,.96)_45%)] shadow-xl shadow-black/10">
-                <div class="flex flex-col gap-6 p-5 sm:p-6 lg:flex-row lg:items-center">
-                    <div class="flex min-w-0 flex-1 items-center gap-4">
-                        <div class="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-lime-300 text-[#15200c] shadow-lg shadow-lime-300/10">
-                            <span class="text-2xl font-bold leading-none">{{ $nextBooking->starts_at->format('j') }}</span>
+                <div class="flex flex-col gap-5 p-4 sm:gap-6 sm:p-6 lg:flex-row lg:items-center">
+                    <div class="flex min-w-0 flex-1 items-start gap-3 sm:items-center sm:gap-4">
+                        <div class="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-lime-300 text-[#15200c] shadow-lg shadow-lime-300/10 sm:h-16 sm:w-16">
+                            <span class="text-xl font-bold leading-none sm:text-2xl">{{ $nextBooking->starts_at->format('j') }}</span>
                             <span class="-mt-2 text-[10px] font-bold uppercase tracking-widest">{{ $nextBooking->starts_at->format('M') }}</span>
                         </div>
-                        <div class="min-w-0">
-                            <p class="text-xs font-bold uppercase tracking-[.16em] text-lime-300">Your next session</p>
-                            <h2 class="mt-1 truncate text-xl font-bold text-white">{{ $nextBooking->court?->name ?? 'Court unavailable' }}</h2>
-                            <p class="mt-1 text-sm text-slate-400">
+                        <div class="min-w-0 flex-1">
+                            <p class="text-[11px] font-bold uppercase tracking-[.14em] text-lime-300 sm:text-xs sm:tracking-[.16em]">Your next session</p>
+                            <h2 class="mt-1 truncate text-lg font-bold text-white sm:text-xl">{{ $nextBooking->court?->name ?? 'Court unavailable' }}</h2>
+                            <p class="mt-1 text-xs leading-5 text-slate-400 sm:text-sm">
                                 {{ $nextBooking->starts_at->format('D, M j, Y') }} ·
                                 {{ $nextBooking->starts_at->format('g:i A') }}–{{ $nextBooking->ends_at->format('g:i A') }}
                             </p>
+
+                            {{-- Live countdown + reminder --}}
+                            <div class="mt-3 flex flex-wrap items-center gap-2">
+                                <div x-data="sessionCountdown"
+                                     data-starts-at="{{ $nextBooking->starts_at->toIso8601String() }}"
+                                     x-init="start()"
+                                     class="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-white/10 bg-black/25 px-2.5 py-1.5 sm:gap-2 sm:px-3">
+                                    <svg class="h-3.5 w-3.5 shrink-0 text-lime-300" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0Z"/></svg>
+                                    <span class="whitespace-nowrap text-[10px] font-bold uppercase tracking-[.14em] text-slate-400">Starts in</span>
+                                    <span class="font-mono text-xs font-bold tabular-nums text-lime-300 sm:text-sm" x-text="label">—</span>
+                                </div>
+
+                                <div x-data="bookingReminder"
+                                     data-booking-id="{{ $nextBooking->id }}"
+                                     data-starts-at="{{ $nextBooking->starts_at->toIso8601String() }}"
+                                     data-court="{{ $nextBooking->court?->name }}"
+                                     x-init="start()"
+                                     class="relative">
+                                    <button type="button" x-on:click="open = ! open"
+                                            class="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold text-white transition hover:border-lime-300/40 hover:text-lime-300">
+                                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5m6 0a3 3 0 1 1-6 0"/></svg>
+                                        <span x-text="setLabel">Set reminder</span>
+                                    </button>
+
+                                    <div x-show="open" x-cloak x-on:click.outside="open = false"
+                                         class="absolute left-0 z-30 mt-2 w-52 max-w-[calc(100vw-2.5rem)] overflow-hidden rounded-xl border border-white/10 bg-[#0d1319] shadow-2xl shadow-black/50">
+                                        <p class="border-b border-white/10 px-3 py-2 text-[10px] font-bold uppercase tracking-[.16em] text-slate-400">Remind me before</p>
+                                        <template x-for="option in options" :key="option.minutes">
+                                            <button type="button" x-on:click="set(option)"
+                                                    class="flex w-full items-center justify-between px-3 py-2 text-left text-xs font-semibold text-slate-300 transition hover:bg-white/5 hover:text-white">
+                                                <span x-text="option.label"></span>
+                                                <svg x-show="lead === option.minutes" class="h-3.5 w-3.5 text-lime-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                            </button>
+                                        </template>
+                                        <button type="button" x-show="lead !== null" x-on:click="remove()"
+                                                class="w-full border-t border-white/10 px-3 py-2 text-left text-xs font-semibold text-rose-300 transition hover:bg-rose-500/10">
+                                            Turn reminder off
+                                        </button>
+                                    </div>
+
+                                    <div x-show="toast" x-cloak x-transition.opacity.duration.300ms
+                                         class="fixed inset-x-4 bottom-4 z-50 flex items-start gap-3 rounded-2xl border border-lime-300/30 bg-[#0d1319] p-4 shadow-2xl shadow-black/60 sm:inset-x-auto sm:right-4 sm:bottom-4 sm:max-w-sm" role="status">
+                                        <span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-lime-300/10 text-lime-300 ring-1 ring-lime-300/25">
+                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5m6 0a3 3 0 1 1-6 0"/></svg>
+                                        </span>
+                                        <div class="min-w-0 flex-1">
+                                            <p class="text-[10px] font-bold uppercase tracking-[.16em] text-lime-300">Reminder</p>
+                                            <p class="mt-1 text-xs leading-5 text-slate-300" x-text="toast"></p>
+                                        </div>
+                                        <button type="button" x-on:click="toast = ''" class="shrink-0 rounded-lg p-1 text-slate-500 transition hover:text-white" aria-label="Dismiss reminder">
+                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6 6 18"/></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="flex flex-wrap items-center gap-3">
@@ -131,18 +186,22 @@
                     <ul class="divide-y divide-white/10">
                         @foreach($upcomingBookings as $booking)
                             <li>
-                                <a href="{{ route('customer.reservations.show', $booking) }}" class="group flex items-center gap-4 px-5 py-4 transition hover:bg-white/[.035] sm:px-6">
-                                    <div class="w-12 shrink-0 text-center">
-                                        <p class="text-2xl font-bold leading-none text-white">{{ $booking->starts_at->format('j') }}</p>
+                                <a href="{{ route('customer.reservations.show', $booking) }}" class="group flex items-center gap-3 px-4 py-3.5 transition hover:bg-white/[.035] sm:gap-4 sm:px-6 sm:py-4">
+                                    <div class="w-10 shrink-0 text-center sm:w-12">
+                                        <p class="text-xl font-bold leading-none text-white sm:text-2xl">{{ $booking->starts_at->format('j') }}</p>
                                         <p class="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">{{ $booking->starts_at->format('M') }}</p>
                                     </div>
-                                    <div class="h-10 w-px bg-white/10"></div>
+                                    <div class="hidden h-10 w-px shrink-0 bg-white/10 sm:block"></div>
                                     <div class="min-w-0 flex-1">
                                         <p class="truncate text-sm font-semibold text-white group-hover:text-lime-300">{{ $booking->court?->name ?? 'Court unavailable' }}</p>
-                                        <p class="mt-1 text-xs text-slate-400">{{ $booking->starts_at->format('D, g:i A') }} – {{ $booking->ends_at->format('g:i A') }}</p>
+                                        <p class="mt-1 truncate text-[11px] text-slate-400 sm:text-xs">{{ $booking->starts_at->format('D, g:i A') }} – {{ $booking->ends_at->format('g:i A') }}</p>
+                                        <div class="mt-1.5 flex flex-wrap items-center gap-2">
+                                            <p class="text-[11px] font-semibold text-lime-300/80">{{ $booking->starts_at->diffForHumans(['parts' => 2, 'short' => true]) }}</p>
+                                            <span class="sm:hidden"><x-reservation-status :status="$booking->status->value"/></span>
+                                        </div>
                                     </div>
-                                    <x-reservation-status :status="$booking->status->value"/>
-                                    <svg class="hidden h-4 w-4 text-slate-400 transition group-hover:translate-x-1 group-hover:text-lime-300 sm:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6"/></svg>
+                                    <span class="hidden sm:inline-flex"><x-reservation-status :status="$booking->status->value"/></span>
+                                    <svg class="hidden h-4 w-4 shrink-0 text-slate-400 transition group-hover:translate-x-1 group-hover:text-lime-300 sm:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6"/></svg>
                                 </a>
                             </li>
                         @endforeach
@@ -210,6 +269,7 @@
                         'Online payment holds the slot for '.config('reservation.hold_minutes.online').' minutes.',
                         'On-site payment holds it until the day of play, but never past the start time.',
                         'A booking is confirmed only after the payment is verified.',
+                        'We email you a reminder '.config('reservation.reminder.minutes_before').' minutes before your slot starts.',
                         'Present your reference number or email receipt at court management.',
                     ],
                 ],
@@ -217,14 +277,14 @@
         @endphp
 
         <section aria-label="Policies and rules" class="overflow-hidden rounded-2xl border border-white/10 bg-[#0d1319] shadow-xl shadow-black/20">
-            <header class="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 bg-gradient-to-r from-lime-300/[.07] to-transparent px-5 py-4 sm:px-6">
+            <header class="flex flex-col gap-2 border-b border-white/10 bg-gradient-to-r from-lime-300/[.07] to-transparent px-4 py-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-4 sm:px-6">
                 <div>
                     <p class="text-[10px] font-bold uppercase tracking-[.22em] text-lime-300">Policies and rules</p>
                     <h2 class="mt-1 text-base font-bold text-white">Know before you book</h2>
                 </div>
-                <a href="{{ route('terms') }}" class="rounded-lg border border-white/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[.1em] text-slate-300 transition hover:border-lime-300/40 hover:text-lime-300">Read full terms &rarr;</a>
+                <a href="{{ route('terms') }}" class="self-start rounded-lg border border-white/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[.1em] text-slate-300 transition hover:border-lime-300/40 hover:text-lime-300 sm:self-auto">Read full terms &rarr;</a>
             </header>
-            <div class="grid gap-3 p-4 sm:p-5 lg:grid-cols-3">
+            <div class="grid grid-cols-1 gap-3 p-3 sm:p-5 md:grid-cols-2 lg:grid-cols-3">
                 @foreach($policies as $policy)
                     @php
                         $tone = match($policy['tone']) {
@@ -252,3 +312,149 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    (function () {
+        const STORE = 'pickleball-reminders';
+
+        const readAll = () => {
+            try { return JSON.parse(localStorage.getItem(STORE) || '{}'); } catch (e) { return {}; }
+        };
+
+        const writeAll = (all) => {
+            try { localStorage.setItem(STORE, JSON.stringify(all)); } catch (e) { /* storage blocked */ }
+        };
+
+        const fireReminder = (record) => {
+            const when = new Date(record.startsAt).toLocaleString([], {
+                weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
+            });
+            const body = 'You booked ' + record.court + ' for ' + when + '. See you at the court!';
+
+            if (window.Notification && Notification.permission === 'granted') {
+                try { new Notification('Pickleball reminder', { body: body, tag: 'booking-' + record.id }); } catch (e) { /* ignore */ }
+            }
+
+            window.dispatchEvent(new CustomEvent('booking-reminder-fired', { detail: { message: body } }));
+        };
+
+        const checkReminders = () => {
+            const all = readAll();
+            const now = Date.now();
+            let changed = false;
+
+            Object.keys(all).forEach((id) => {
+                const record = all[id];
+                if (! record || record.fired) { return; }
+
+                const dueAt = new Date(record.startsAt).getTime() - record.lead * 60000;
+                const endsAt = new Date(record.startsAt).getTime() + 3600000; // stop nagging an hour after the slot started
+
+                if (now >= dueAt && now <= endsAt) {
+                    record.fired = true;
+                    changed = true;
+                    fireReminder(record);
+                }
+            });
+
+            if (changed) { writeAll(all); }
+        };
+
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('sessionCountdown', () => ({
+                remaining: 0,
+                timer: null,
+
+                start() {
+                    const target = new Date(this.$el.dataset.startsAt).getTime();
+                    const tick = () => { this.remaining = Math.max(0, target - Date.now()); };
+                    tick();
+                    this.timer = setInterval(tick, 1000);
+                },
+
+                get label() {
+                    const total = Math.floor(this.remaining / 1000);
+                    if (total <= 0) { return 'Starting now'; }
+
+                    const days = Math.floor(total / 86400);
+                    const hours = Math.floor((total % 86400) / 3600);
+                    const minutes = Math.floor((total % 3600) / 60);
+                    const seconds = total % 60;
+                    const pad = (value) => String(value).padStart(2, '0');
+
+                    if (days > 0) { return days + 'd ' + pad(hours) + 'h ' + pad(minutes) + 'm'; }
+                    if (hours > 0) { return hours + 'h ' + pad(minutes) + 'm ' + pad(seconds) + 's'; }
+                    return minutes + 'm ' + pad(seconds) + 's';
+                },
+            }));
+
+            Alpine.data('bookingReminder', () => ({
+                open: false,
+                lead: null,
+                id: null,
+                court: '',
+                startsAt: '',
+                toast: '',
+                options: [
+                    { label: '1 hour before', minutes: 60 },
+                    { label: '3 hours before', minutes: 180 },
+                    { label: '1 day before', minutes: 1440 },
+                ],
+
+                start() {
+                    this.id = this.$el.dataset.bookingId;
+                    this.court = this.$el.dataset.court || 'your court';
+                    this.startsAt = this.$el.dataset.startsAt;
+
+                    const record = readAll()[this.id];
+                    this.lead = record ? record.lead : null;
+
+                    window.addEventListener('booking-reminder-fired', (event) => {
+                        this.toast = event.detail.message;
+                        setTimeout(() => { this.toast = ''; }, 12000);
+                    });
+                },
+
+                get setLabel() {
+                    if (this.lead === null) { return 'Set reminder'; }
+                    const option = this.options.find((item) => item.minutes === this.lead);
+                    return option ? 'Reminder: ' + option.label : 'Reminder set';
+                },
+
+                set(option) {
+                    const all = readAll();
+                    all[this.id] = {
+                        id: this.id,
+                        court: this.court,
+                        startsAt: this.startsAt,
+                        lead: option.minutes,
+                        fired: false,
+                    };
+                    writeAll(all);
+                    this.lead = option.minutes;
+                    this.open = false;
+
+                    if (window.Notification && Notification.permission === 'default') {
+                        Notification.requestPermission();
+                    }
+
+                    this.toast = 'Reminder set: ' + option.label + '. Keep this page open to get the alert.';
+                    setTimeout(() => { this.toast = ''; }, 9000);
+                },
+
+                remove() {
+                    const all = readAll();
+                    delete all[this.id];
+                    writeAll(all);
+                    this.lead = null;
+                    this.open = false;
+                },
+            }));
+        });
+
+        checkReminders();
+        setInterval(checkReminders, 30000);
+    })();
+</script>
+@endpush

@@ -1,2 +1,3 @@
 - Email is sent with QUEUE_CONNECTION=sync (no queue worker needed); booking sends ReservationReceived, verified payment sends ReservationConfirmed with PDF.
 - Refund admin fee (15%) and no-show suspension (3 strikes) policies live in config/reservation.php under 'refund' and 'no_show'; no-show is not stored in DB yet.
+- CSS/JS build needs Node 22: export PATH="$HOME/.nvm/versions/node/v22.23.2/bin:$PATH" before npm run build (default node 18 fails with rolldown styleText error); after editing Blade, rebuild so new Tailwind classes reach public/build.

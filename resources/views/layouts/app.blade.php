@@ -10,11 +10,15 @@
     <title>{{ isset($title) ? $title.' · ' : '' }}{{ config('app.name') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="h-full {{ request()->routeIs('home', 'login', 'register') ? 'bg-[#050505]' : 'bg-[radial-gradient(circle_at_0%_0%,_#eefdf9_0,_transparent_32%),radial-gradient(circle_at_100%_20%,_#eef2ff_0,_transparent_30%),#f7f8fc]' }} font-sans text-slate-900 antialiased">
+<body class="h-full {{ request()->routeIs('home', 'login', 'register', 'verification.*') ? 'bg-[#050505]' : 'bg-[radial-gradient(circle_at_0%_0%,_#eefdf9_0,_transparent_32%),radial-gradient(circle_at_100%_20%,_#eef2ff_0,_transparent_30%),#f7f8fc]' }} font-sans text-slate-900 antialiased">
 
 @php
     // Guest pages have no session, so skip the nav and its database lookup.
-    $showNav = auth()->check() && ! auth()->user()->isAdmin();
+    // The email verification screen is a pre-dashboard step, so it keeps the
+    // dark guest look instead of the customer workspace header.
+    $isVerificationScreen = request()->routeIs('verification.*');
+
+    $showNav = auth()->check() && ! auth()->user()->isAdmin() && ! $isVerificationScreen;
 
     $firstCourt = $showNav
         ? \App\Models\Court::query()->active()->orderBy('name')->value('id')
@@ -64,10 +68,10 @@
 
             <div class="flex shrink-0 items-center gap-3">
                 @auth
-                    <span class="hidden text-sm text-slate-600 xl:block">{{ auth()->user()->name }}</span>
+                    <span class="hidden text-sm {{ $showNav ? 'text-slate-600' : 'text-slate-400' }} xl:block">{{ auth()->user()->name }}</span>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="rounded-xl border border-slate-200 px-3.5 py-2 text-sm font-bold text-slate-700 hover:bg-slate-100">
+                        <button type="submit" class="rounded-xl border px-3.5 py-2 text-sm font-bold {{ $showNav ? 'border-slate-200 text-slate-700 hover:bg-slate-100' : 'border-white/15 text-slate-200 hover:border-lime-300/40 hover:text-lime-300' }}">
                             Log out
                         </button>
                     </form>
@@ -97,25 +101,31 @@
     </header>
 
     <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:py-10">
-        @if (session('status'))
-            <div role="status" class="mb-6 rounded-md bg-green-50 px-4 py-3 text-sm text-green-800">
-                {{ session('status') }}
+        @if ($isVerificationScreen)
+            <div class="flex min-h-[calc(100vh-12rem)] items-center justify-center py-4">
+                @yield('content')
             </div>
-        @endif
+        @else
+            @if (session('status'))
+                <div role="status" class="mb-6 rounded-md bg-green-50 px-4 py-3 text-sm text-green-800">
+                    {{ session('status') }}
+                </div>
+            @endif
 
-        @if ($errors->any())
-            <div role="alert" class="mb-6 rounded-md bg-red-50 px-4 py-3 text-sm text-red-800">
-                <p class="font-medium">Please fix the following:</p>
-                <ul class="mt-2 list-disc pl-5 space-y-1">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
+            @if ($errors->any())
+                <div role="alert" class="mb-6 rounded-md bg-red-50 px-4 py-3 text-sm text-red-800">
+                    <p class="font-medium">Please fix the following:</p>
+                    <ul class="mt-2 list-disc pl-5 space-y-1">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
-        {{-- Only @yield is used here; $slot is reserved for Blade components. --}}
-        @yield('content')
+            {{-- Only @yield is used here; $slot is reserved for Blade components. --}}
+            @yield('content')
+        @endif
     </main>
 </div>
 

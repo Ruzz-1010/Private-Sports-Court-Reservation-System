@@ -325,12 +325,24 @@ payload. Attaching matters here: a link alone requires a login and a stable
 `APP_URL`, and during development `APP_URL` points at a tunnel whose hostname
 changes whenever cloudflared restarts.
 
-Two emails are sent, and both must arrive for the demo to be believable:
+Three emails exist, and the first two must both arrive for the demo to be
+believable:
 
 | When | Notification | Sent how |
 | --- | --- | --- |
 | Reservation created | `ReservationReceived` (reservation slip PDF attached, stamped `PENDING PAYMENT`) | Synchronously inside `Customer\ReservationController@store` |
 | Payment verified | `ReservationConfirmed` (PDF receipt attached, stamped `PAID`) | `SendConfirmationEmail` job, `QUEUE_CONNECTION=sync` |
+| About 10 minutes before a confirmed slot starts | `ReservationReminder` (reference number, court, exact time) | `reservations:remind` command, run every minute by the scheduler |
+
+The reminder command sends at most one email per reservation: each send is
+recorded in `audit_logs` with action `reservation.reminder_sent`, and the
+command skips any booking that already has that row. It only looks at
+`confirmed` bookings that have not started yet, so cancelled, expired, and
+finished slots never trigger a reminder. The lead time comes from
+`config('reservation.reminder.minutes_before')` (default 10, `0` switches
+reminders off). Like the other emails it needs a running scheduler
+(`php artisan schedule:work`) on the facility's computer, because nothing is
+delivered while the scheduler is stopped.
 
 Both emails carry the same document, rendered by
 `GenerateReceiptPdf` from the same `receipts/pdf` Blade template, so the booking
@@ -376,6 +388,33 @@ Never put it inside a `auth` or `role:` group.
 - `RegisteredUserController@store` validates `terms` with the `accepted` rule,
   and the register form has a required checkbox pointing at the page. Agreeing
   is enforced on the server, not only by the checkbox.
+
+### Email verification
+
+A new self-registered account is not usable until the customer enters a code
+sent to their email address. Nothing is stored in the database for this: no
+migration, no extra column.
+
+- `App\Services\Auth\EmailVerificationCodes` issues the code and stores only its
+  SHA-256 hash, plus the number of wrong tries, in the cache. Codes expire with
+  the cache entry, so a stale code disappears on its own.
+- `App\Notifications\EmailVerificationCode` delivers it through
+  `resources/views/emails/verification-code.blade.php`.
+- `EmailVerificationController` serves three routes that sit **outside** the
+  verified group: `verification.notice` (the code screen), `verification.verify`,
+  and `verification.resend`. Putting them inside the group would make the screen
+  redirect to itself.
+- `App\Http\Middleware\EnsureEmailIsVerified` (alias `verified.email`) wraps every
+  real route, so an unverified account cannot open the dashboard, book a court,
+  or reach the admin area.
+- `RegisteredUserController@store` sends the first code, and
+  `AuthenticatedSessionController@store` sends an unverified customer back to the
+  code screen after login instead of the dashboard.
+- All limits are in `config/reservation.php` under `email_verification`:
+  `expires_minutes`, `max_attempts`, `resend_seconds`, `code_length`. Never
+  hardcode them in a view.
+- The administrator account is created by `AdminUserSeeder` with
+  `email_verified_at` already set, so the gate never locks staff out.
 
 ### Refund and no-show policy
 
@@ -594,6 +633,22 @@ composer audit
 
 `composer run dev` starts the server, queue worker, log viewer, and Vite dev server
 together. Run the individual processes above when debugging one in isolation.
+
+### Asset builds and Node version
+
+Vite 7 (with rolldown) needs Node 20.19+ or 22+. Node 18 fails with
+`node:util does not provide an export named 'styleText'`. This machine has
+Node 22 under nvm, so build with:
+
+```bash
+export PATH="$HOME/.nvm/versions/node/v22.23.2/bin:$PATH"
+npm run build
+```
+
+Blade edits that add new Tailwind classes do nothing on screen until `npm run build`
+runs again, because `public/build/assets/app-*.css` is what the browser loads. If a
+new utility class (for example `h-3.5` or `sm:gap-6`) looks unstyled or an icon
+renders oversized, the built CSS is stale: rebuild, then `php artisan view:clear`.
 
 ```bash
 php artisan serve

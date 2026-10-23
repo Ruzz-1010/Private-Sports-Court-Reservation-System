@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Enums\Role;
+use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
@@ -49,6 +50,10 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect()->intended(route('dashboard'));
+        // The account exists but stays closed until the emailed code is entered.
+        // A mail problem must not leave the customer on a dead screen, so the
+        // verification page offers a resend button, and the status message tells
+        // them what to do next.
+        return app(EmailVerificationController::class)->send($user, $request);
     }
 }

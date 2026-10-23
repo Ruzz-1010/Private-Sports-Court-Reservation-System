@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\PaymentVerificationController as AdminPaymentVeri
 use App\Http\Controllers\Admin\ReportController as AdminReportController;
 use App\Http\Controllers\Admin\ReservationController as AdminReservationController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Customer\AvailabilityController as CustomerAvailabilityController;
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
@@ -63,50 +64,69 @@ Route::middleware('guest')->group(function (): void {
 Route::middleware(['auth'])->group(function (): void {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
-    Route::get('dashboard', function () {
-        return auth()->user()->isAdmin()
-            ? redirect()->route('admin.dashboard')
-            : redirect()->route('customer.dashboard');
-    })->name('dashboard');
+    /*
+    |----------------------------------------------------------------------
+    | Email verification
+    |----------------------------------------------------------------------
+    |
+    | A customer signs in right after registering, but every real route below
+    | stays closed until the six-digit code is entered. These three routes sit
+    | outside the verified group, otherwise the code screen would redirect to
+    | itself.
+    |
+    */
 
-    Route::middleware('role:customer')->prefix('customer')->name('customer.')->group(function (): void {
-        Route::get('dashboard', CustomerDashboardController::class)->name('dashboard');
+    Route::get('email/verify', [EmailVerificationController::class, 'show'])->name('verification.notice');
+    Route::post('email/verify', [EmailVerificationController::class, 'verify'])->name('verification.verify');
+    Route::post('email/verification-code', [EmailVerificationController::class, 'resend'])->name('verification.resend');
+    Route::post('email/verify/logout', [EmailVerificationController::class, 'logout'])->name('verification.logout');
 
-        Route::get('courts/{court}/availability', [CustomerAvailabilityController::class, 'index'])->name('availability.index');
-        Route::get('courts/{court}/slots', [CustomerAvailabilityController::class, 'slots'])->name('availability.slots');
+    Route::middleware('verified.email')->group(function (): void {
+        Route::get('dashboard', function () {
+            return auth()->user()->isAdmin()
+                ? redirect()->route('admin.dashboard')
+                : redirect()->route('customer.dashboard');
+        })->name('dashboard');
 
-        Route::get('reservations', [CustomerReservationController::class, 'index'])->name('reservations.index');
-        Route::get('reservations/create/{court}', [CustomerReservationController::class, 'create'])->name('reservations.create');
-        Route::post('reservations', [CustomerReservationController::class, 'store'])->name('reservations.store');
-        Route::get('reservations/{reservation}', [CustomerReservationController::class, 'show'])->name('reservations.show');
-        Route::delete('reservations/{reservation}', [CustomerReservationController::class, 'destroy'])->name('reservations.destroy');
+        Route::middleware('role:customer')->prefix('customer')->name('customer.')->group(function (): void {
+            Route::get('dashboard', CustomerDashboardController::class)->name('dashboard');
 
-        Route::post('reservations/{reservation}/checkout', [CustomerPaymentController::class, 'checkout'])->name('payments.checkout');
-        Route::post('reservations/{reservation}/payment-status', [CustomerPaymentController::class, 'refresh'])->name('payments.refresh');
-        Route::get('reservations/{reservation}/demo-payment', [DemoPaymentController::class, 'show'])->name('payments.demo');
-        Route::post('reservations/{reservation}/demo-payment/simulate', [DemoPaymentController::class, 'simulate'])->name('payments.demo.simulate');
-    });
+            Route::get('courts/{court}/availability', [CustomerAvailabilityController::class, 'index'])->name('availability.index');
+            Route::get('courts/{court}/slots', [CustomerAvailabilityController::class, 'slots'])->name('availability.slots');
 
-    // Reachable by customers for their own receipts and by administrators for
-    // reconciliation. It sits outside the role groups because ReceiptPolicy, not
-    // the route, decides ownership: one customer still cannot open another
-    // customer's receipt.
-    Route::get('receipts/{receipt}', [CustomerReceiptController::class, 'show'])->name('customer.receipts.show');
+            Route::get('reservations', [CustomerReservationController::class, 'index'])->name('reservations.index');
+            Route::get('reservations/create/{court}', [CustomerReservationController::class, 'create'])->name('reservations.create');
+            Route::post('reservations', [CustomerReservationController::class, 'store'])->name('reservations.store');
+            Route::get('reservations/{reservation}', [CustomerReservationController::class, 'show'])->name('reservations.show');
+            Route::delete('reservations/{reservation}', [CustomerReservationController::class, 'destroy'])->name('reservations.destroy');
 
-    Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function (): void {
-        Route::get('dashboard', AdminDashboardController::class)->name('dashboard');
+            Route::post('reservations/{reservation}/checkout', [CustomerPaymentController::class, 'checkout'])->name('payments.checkout');
+            Route::post('reservations/{reservation}/payment-status', [CustomerPaymentController::class, 'refresh'])->name('payments.refresh');
+            Route::get('reservations/{reservation}/demo-payment', [DemoPaymentController::class, 'show'])->name('payments.demo');
+            Route::post('reservations/{reservation}/demo-payment/simulate', [DemoPaymentController::class, 'simulate'])->name('payments.demo.simulate');
+        });
 
-        Route::resource('courts', AdminCourtController::class);
-        Route::post('courts/{court}/restore', [AdminCourtController::class, 'restore'])->name('courts.restore');
+        // Reachable by customers for their own receipts and by administrators for
+        // reconciliation. It sits outside the role groups because ReceiptPolicy, not
+        // the route, decides ownership: one customer still cannot open another
+        // customer's receipt.
+        Route::get('receipts/{receipt}', [CustomerReceiptController::class, 'show'])->name('customer.receipts.show');
 
-        Route::resource('court-blocks', AdminCourtBlockController::class)->only(['index', 'store', 'destroy']);
+        Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function (): void {
+            Route::get('dashboard', AdminDashboardController::class)->name('dashboard');
 
-        Route::resource('reservations', AdminReservationController::class)->only(['index', 'show']);
-        Route::post('reservations/{reservation}/resend-confirmation', [AdminReservationController::class, 'resendConfirmation'])->name('reservations.resend-confirmation');
-        Route::get('reports', [AdminReportController::class, 'index'])->name('reports.index');
+            Route::resource('courts', AdminCourtController::class);
+            Route::post('courts/{court}/restore', [AdminCourtController::class, 'restore'])->name('courts.restore');
 
-        Route::get('payments', [AdminPaymentVerificationController::class, 'index'])->name('payments.index');
-        Route::post('payments/{payment}/verify', [AdminPaymentVerificationController::class, 'verify'])->name('payments.verify');
-        Route::post('payments/{payment}/reject', [AdminPaymentVerificationController::class, 'reject'])->name('payments.reject');
+            Route::resource('court-blocks', AdminCourtBlockController::class)->only(['index', 'store', 'destroy']);
+
+            Route::resource('reservations', AdminReservationController::class)->only(['index', 'show']);
+            Route::post('reservations/{reservation}/resend-confirmation', [AdminReservationController::class, 'resendConfirmation'])->name('reservations.resend-confirmation');
+            Route::get('reports', [AdminReportController::class, 'index'])->name('reports.index');
+
+            Route::get('payments', [AdminPaymentVerificationController::class, 'index'])->name('payments.index');
+            Route::post('payments/{payment}/verify', [AdminPaymentVerificationController::class, 'verify'])->name('payments.verify');
+            Route::post('payments/{payment}/reject', [AdminPaymentVerificationController::class, 'reject'])->name('payments.reject');
+        });
     });
 });

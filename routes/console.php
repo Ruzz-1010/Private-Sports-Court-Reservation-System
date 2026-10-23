@@ -16,3 +16,10 @@ use Illuminate\Support\Facades\Schedule;
 Schedule::command('reservations:expire')
     ->everyMinute()
     ->withoutOverlapping();
+
+// Emails a reminder a few minutes before a confirmed booking starts.
+// The window is small (10 minutes by default), so this must run every minute
+// to guarantee each booking is caught exactly once.
+Schedule::command('reservations:remind')
+    ->everyMinute()
+    ->withoutOverlapping();
