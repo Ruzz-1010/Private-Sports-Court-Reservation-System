@@ -30,21 +30,37 @@ class ReservationConfirmed extends Notification
         $paymentMethod = ucfirst(str_replace('_', ' ', $receipt?->payment_method ?? 'online'));
         $paidOnSite = ($receipt?->payment_method ?? '') === 'on_site';
 
+        $timezone = config('reservation.timezone');
+        $starts = $reservation->starts_at->setTimezone($timezone);
+        $ends = $reservation->ends_at->setTimezone($timezone);
+
+        // The subject, the single action button and the attached PDF are set on
+        // the MailMessage itself; the body is a hand-built HTML view so the
+        // receipt reads as a card instead of one more gray line in a list.
         $mail = (new MailMessage)
             ->subject("Reservation confirmed — {$reservation->reference_number}")
-            ->greeting("Hi {$notifiable->name},")
-            ->line($paidOnSite
-                ? 'Your on-site payment was received and your court reservation is confirmed. Show this email, or the attached receipt, at the court when you arrive.'
-                : 'Your payment was verified and your court reservation is confirmed.')
-            ->line('Court: '.($reservation->court?->name ?? 'Court')." ({$reservation->court?->location})")
-            ->line('Date: '.$reservation->starts_at->setTimezone(config('reservation.timezone'))->format('l, F j, Y'))
-            ->line('Time: '.$reservation->starts_at->setTimezone(config('reservation.timezone'))->format('g:i A')
-                .' – '.$reservation->ends_at->setTimezone(config('reservation.timezone'))->format('g:i A'))
-            ->line("Amount paid: PHP {$total}")
-            ->line("Payment method: {$paymentMethod}")
-            ->line('Payment status: Paid')
-            ->line('Reference: '.$reservation->reference_number)
-            ->line('Receipt number: '.($receipt?->receipt_number ?? 'Processing'));
+            ->view('emails.confirmed', [
+                'subject' => "Reservation confirmed — {$reservation->reference_number}",
+                'facilityName' => config('reservation.facility_name'),
+                'facilityAddress' => config('reservation.facility_address'),
+                'customerName' => $notifiable->name,
+                'reference' => $reservation->reference_number,
+                'receiptNumber' => $receipt?->receipt_number,
+                'amount' => $total,
+                'paymentMethod' => $paymentMethod,
+                'hasPdf' => $receipt !== null,
+                'details' => [
+                    ['label' => 'Court', 'value' => $reservation->court?->name ?? 'Court'],
+                    ['label' => 'Location', 'value' => $reservation->court?->location ?? '—'],
+                    ['label' => 'Date', 'value' => $starts->format('l, F j, Y')],
+                    ['label' => 'Time', 'value' => $starts->format('g:i A').' – '.$ends->format('g:i A')],
+                    ['label' => 'Duration', 'value' => $this->durationLabel($starts, $ends)],
+                    ['label' => 'Payment method', 'value' => $paidOnSite ? 'On-site (paid at the court)' : 'Online (PayMongo)'],
+                ],
+            ])
+            ->action('View receipt online', $receipt !== null
+                ? route('customer.receipts.show', $receipt)
+                : route('customer.reservations.show', $reservation));
 
         if ($receipt !== null) {
             // Attach the actual PDF so the customer can keep the receipt
@@ -61,13 +77,23 @@ class ReservationConfirmed extends Notification
             );
         }
 
-        return $mail
-            ->line($receipt !== null
-                ? 'Your PDF receipt is attached to this email.'.($paidOnSite ? ' Present it at the court on your booking day.' : '')
-                : 'Your receipt is being prepared and will be available from your reservation history.')
-            ->action('View receipt online', $receipt !== null
-                ? route('customer.receipts.show', $receipt)
-                : route('customer.reservations.show', $reservation))
-            ->line('Keep this email as proof of your confirmed reservation.');
+        return $mail;
+    }
+
+    /**
+     * "1 hr", "1 hr 30 min", "2 hr" — friendlier than "90 minutes" for a court booking.
+     */
+    private function durationLabel(\DateTimeInterface $starts, \DateTimeInterface $ends): string
+    {
+        $minutes = (int) $starts->diff($ends)->i + ((int) $starts->diff($ends)->h * 60);
+
+        if ($minutes < 60) {
+            return $minutes.' min';
+        }
+
+        $hours = intdiv($minutes, 60);
+        $rest = $minutes % 60;
+
+        return $hours.' hr'.($rest > 0 ? ' '.$rest.' min' : '');
     }
 }

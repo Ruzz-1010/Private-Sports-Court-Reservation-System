@@ -36,28 +36,45 @@ class ReservationReceived extends Notification
         $onSite = $reservation->payment_method === PaymentMethod::OnSite;
         $deadline = $reservation->payment_deadline?->setTimezone($timezone)->format('l, F j, Y g:i A');
 
+        $starts = $reservation->starts_at->setTimezone($timezone);
+        $ends = $reservation->ends_at->setTimezone($timezone);
+
+        // The body is a hand-built HTML view so the reference number and the
+        // amount read as a card instead of one more gray line in a list. The
+        // subject, the single action button and the attached slip are still set
+        // on the MailMessage itself.
+        $instruction = $onSite
+            ? 'Keep this email. Show your reference number, or the attached slip, at the court management desk when you arrive.'
+            : ($deadline !== null
+                ? "Finish your online payment before {$deadline}. After that the slot is released for other customers."
+                : 'Finish your online payment to keep this slot.');
+
         $mail = (new MailMessage)
             ->subject("We received your reservation — {$reservation->reference_number}")
-            ->greeting("Hi {$notifiable->name},")
-            ->line($onSite
-                ? 'Your court reservation has been received. Your slot is held for you — just pay at the court on your booking day.'
-                : 'Your court reservation has been received and your slot is being held while your payment is completed.')
-            ->line('Court: '.($reservation->court?->name ?? 'Court')." ({$reservation->court?->location})")
-            ->line('Date: '.$reservation->starts_at->setTimezone($timezone)->format('l, F j, Y'))
-            ->line('Time: '.$reservation->starts_at->setTimezone($timezone)->format('g:i A')
-                .' – '.$reservation->ends_at->setTimezone($timezone)->format('g:i A'))
-            ->line("Amount to pay: PHP {$total}")
-            ->line('Payment method: '.($onSite ? 'On-site (pay at the court)' : 'Online (PayMongo)'))
-            ->line('Status: Awaiting payment')
-            ->line("Reference number: {$reservation->reference_number}");
-
-        if ($onSite) {
-            $mail->line('Please keep this email. Show your reference number, or this email, at the court management desk when you arrive so your reservation can be checked.');
-        } else {
-            $mail->line($deadline !== null
-                ? "Please finish your online payment before {$deadline}. After that, the slot is released for other customers."
-                : 'Please finish your online payment to keep this slot.');
-        }
+            ->view('emails.received', [
+                'subject' => "We received your reservation — {$reservation->reference_number}",
+                'facilityName' => config('reservation.facility_name'),
+                'facilityAddress' => config('reservation.facility_address'),
+                'customerName' => $notifiable->name,
+                'reference' => $reservation->reference_number,
+                'amount' => $total,
+                'onSite' => $onSite,
+                'hasPdf' => false,
+                'statusLine' => $onSite
+                    ? 'Your slot is held. Pay at the court on your booking day.'
+                    : 'Your slot is held while your payment is completed.',
+                'deadlineLine' => $onSite ? null : ($deadline !== null ? "Pay before {$deadline} to keep this slot." : null),
+                'instruction' => $instruction,
+                'details' => [
+                    ['label' => 'Court', 'value' => $reservation->court?->name ?? 'Court'],
+                    ['label' => 'Location', 'value' => $reservation->court?->location ?? '—'],
+                    ['label' => 'Date', 'value' => $starts->format('l, F j, Y')],
+                    ['label' => 'Time', 'value' => $starts->format('g:i A').' – '.$ends->format('g:i A')],
+                    ['label' => 'Payment method', 'value' => $onSite ? 'On-site (pay at the court)' : 'Online (PayMongo)'],
+                    ['label' => 'Status', 'value' => 'Awaiting payment'],
+                ],
+            ])
+            ->action('View my reservation', route('customer.reservations.show', $reservation));
 
         // Attach the same document the verified-payment email carries, marked
         // PENDING PAYMENT, so the customer has one printable slip at the court
@@ -70,14 +87,14 @@ class ReservationReceived extends Notification
                 $generator->pendingFilename($reservation),
                 ['mime' => 'application/pdf'],
             );
+
+            // Re-render the view flag so the card can say the slip is attached.
+            $mail->viewData['hasPdf'] = true;
         } catch (\Throwable $exception) {
             // A PDF problem must never stop the email that proves the booking.
             report($exception);
         }
 
-        return $mail
-            ->action('View my reservation', route('customer.reservations.show', $reservation))
-            ->line('Your reservation slip is attached to this email as a PDF. Present it at the court management desk on your booking day.')
-            ->line('A separate confirmation email with your official PDF receipt is sent once your payment is verified.');
+        return $mail;
     }
 }

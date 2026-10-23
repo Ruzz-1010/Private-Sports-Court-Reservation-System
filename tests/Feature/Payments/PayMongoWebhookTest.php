@@ -490,12 +490,19 @@ class PayMongoWebhookTest extends TestCase
             ReservationConfirmed::class,
             function (ReservationConfirmed $notification) use ($reservation, $receipt): bool {
                 $mail = $notification->toMail($reservation->user);
+                $data = $mail->viewData;
 
+                // The body is now a hand-built HTML view rather than a list of
+                // intro lines, so the same facts are asserted where the view
+                // actually receives them.
                 return $mail->subject === "Reservation confirmed — {$reservation->reference_number}"
-                    && in_array('Amount paid: PHP 1,000.00', $mail->introLines, true)
-                    && in_array('Payment method: Online', $mail->introLines, true)
-                    && in_array('Payment status: Paid', $mail->introLines, true)
-                    && in_array('Receipt number: '.$receipt->receipt_number, $mail->introLines, true)
+                    && $data['amount'] === '1,000.00'
+                    && $data['paymentMethod'] === 'Online'
+                    && $data['receiptNumber'] === $receipt->receipt_number
+                    && $data['reference'] === $reservation->reference_number
+                    && $data['hasPdf'] === true
+                    && count($mail->rawAttachments) === 1
+                    && str_starts_with($mail->rawAttachments[0]['data'], '%PDF')
                     && $mail->actionUrl === route('customer.receipts.show', $receipt);
             },
         );
