@@ -173,6 +173,82 @@
                 </div>
             </aside>
         </div>
+
+        {{-- Policies and rules --}}
+        @php
+            $adminFee = (float) config('reservation.refund.admin_fee_percent');
+            $policies = [
+                [
+                    'title' => 'Refund of an online payment',
+                    'icon' => 'M16 15v-1a4 4 0 00-4-4H8m0 0 3-3m-3 3 3 3M3 12a9 9 0 1018 0 9 9 0 00-18 0Z',
+                    'tone' => 'sky',
+                    'points' => [
+                        'Ask for a refund at least '.config('reservation.refund.request_deadline_hours').' hours before your slot.',
+                        'A '.rtrim(rtrim(number_format($adminFee, 2), '0'), '.').'% administration fee is deducted from what you paid.',
+                        'Example: paid ₱1,000.00, then ₱'.number_format(1000 * $adminFee / 100, 2).' is kept and ₱'.number_format(1000 - (1000 * $adminFee / 100), 2).' comes back to you.',
+                        'No refund once your slot has started, or if you did not show up.',
+                        'A court closed by management is fully refunded, with no fee.',
+                    ],
+                ],
+                [
+                    'title' => 'No-show and account suspension',
+                    'icon' => 'M12 9v4m0 4h.01M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z',
+                    'tone' => 'amber',
+                    'points' => [
+                        'A no-show means you booked and did not arrive without cancelling.',
+                        'Staff record no-shows at the court management desk.',
+                        'Each no-show counts for '.config('reservation.no_show.counting_window_days').' days.',
+                        'After '.config('reservation.no_show.limit_before_suspension').' no-shows, management may suspend your account.',
+                        'Cancel early if you cannot come — a cancelled booking is not a no-show.',
+                    ],
+                ],
+                [
+                    'title' => 'Payment and arrival',
+                    'icon' => 'M4 7h16v10H4V7Zm0 4h16',
+                    'tone' => 'lime',
+                    'points' => [
+                        'Online payment holds the slot for '.config('reservation.hold_minutes.online').' minutes.',
+                        'On-site payment holds it until the day of play, but never past the start time.',
+                        'A booking is confirmed only after the payment is verified.',
+                        'Present your reference number or email receipt at court management.',
+                    ],
+                ],
+            ];
+        @endphp
+
+        <section aria-label="Policies and rules" class="overflow-hidden rounded-2xl border border-white/10 bg-[#0d1319] shadow-xl shadow-black/20">
+            <header class="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 bg-gradient-to-r from-lime-300/[.07] to-transparent px-5 py-4 sm:px-6">
+                <div>
+                    <p class="text-[10px] font-bold uppercase tracking-[.22em] text-lime-300">Policies and rules</p>
+                    <h2 class="mt-1 text-base font-bold text-white">Know before you book</h2>
+                </div>
+                <a href="{{ route('terms') }}" class="rounded-lg border border-white/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[.1em] text-slate-300 transition hover:border-lime-300/40 hover:text-lime-300">Read full terms &rarr;</a>
+            </header>
+            <div class="grid gap-3 p-4 sm:p-5 lg:grid-cols-3">
+                @foreach($policies as $policy)
+                    @php
+                        $tone = match($policy['tone']) {
+                            'amber' => 'bg-amber-400/10 text-amber-300 ring-amber-400/25',
+                            'sky' => 'bg-sky-400/10 text-sky-300 ring-sky-400/25',
+                            default => 'bg-lime-300/10 text-lime-300 ring-lime-300/25',
+                        };
+                    @endphp
+                    <article class="flex flex-col rounded-xl border border-white/[.07] bg-white/[.015] p-4 transition hover:border-white/15 hover:bg-white/[.03]">
+                        <div class="flex items-center gap-2.5">
+                            <span class="grid h-8 w-8 shrink-0 place-items-center rounded-lg ring-1 {{ $tone }}">
+                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $policy['icon'] }}"/></svg>
+                            </span>
+                            <h3 class="text-[13px] font-bold leading-snug text-white">{{ $policy['title'] }}</h3>
+                        </div>
+                        <ul class="mt-3 space-y-1.5 border-t border-white/[.06] pt-3 text-[11px] leading-5 text-slate-400">
+                            @foreach($policy['points'] as $point)
+                                <li class="flex gap-2"><span class="mt-[6px] h-1 w-1 shrink-0 rounded-full bg-slate-600"></span><span>{{ $point }}</span></li>
+                            @endforeach
+                        </ul>
+                    </article>
+                @endforeach
+            </div>
+        </section>
     </div>
 </div>
 @endsection

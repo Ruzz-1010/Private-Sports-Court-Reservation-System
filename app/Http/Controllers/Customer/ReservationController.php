@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Reservations\StoreReservationRequest;
 use App\Models\Court;
 use App\Models\Reservation;
+use App\Notifications\ReservationReceived;
 use App\Services\Availability\AvailabilityService;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
@@ -106,9 +107,24 @@ class ReservationController extends Controller
             return back()->withInput()->withErrors(['slot' => $e->getMessage()]);
         }
 
+        // The reservation is already saved, so a mail problem must never turn a
+        // successful booking into an error page. The email is sent inside the
+        // request (not queued) so the customer gets it even when no queue
+        // worker is running on the facility's computer.
+        $emailFailed = false;
+
+        try {
+            $request->user()->notify(new ReservationReceived($reservation));
+        } catch (\Throwable $exception) {
+            $emailFailed = true;
+            report($exception);
+        }
+
         return redirect()
             ->route('customer.reservations.show', $reservation)
-            ->with('status', 'Slot held. Complete payment to confirm your reservation.');
+            ->with('status', $emailFailed
+                ? 'Slot held. Your reservation was saved, but we could not send the email to '.$request->user()->email.'. Please keep your reference number.'
+                : 'Slot held. We sent your reservation details and reference number to '.$request->user()->email.'.');
     }
 
     /**

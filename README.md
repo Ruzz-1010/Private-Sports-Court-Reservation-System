@@ -89,11 +89,18 @@ sudo pg_ctlcluster 16 main start
 
 The payment confirmation job sends the verified amount, payment method, payment
 status, reservation reference, and receipt number to the customer's registered
-email address. Start the queue worker during the demo:
+email address.
 
-```bash
-php artisan queue:work
-```
+Email is sent inside the request (`QUEUE_CONNECTION=sync`), so no queue worker is
+needed during the demo or on the facility's own computer. Two emails are sent:
+
+| When | Email | What it contains |
+| --- | --- | --- |
+| Right after booking | Reservation received | Reference number, schedule, amount to pay, and for on-site bookings the "show this at the court" instruction |
+| After payment is verified | Reservation confirmed | Paid amount, method, receipt number, and the PDF receipt attached |
+
+If you prefer background delivery later, set `QUEUE_CONNECTION=database` and run
+`php artisan queue:work`.
 
 For delivery to real inboxes without purchasing a domain, configure Gmail SMTP
 in the local `.env` using a Google App Password. Never use a normal Gmail

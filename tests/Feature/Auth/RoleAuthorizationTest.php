@@ -21,6 +21,25 @@ class RoleAuthorizationTest extends TestCase
         $this->get('/login')->assertOk();
     }
 
+    public function test_registration_requires_agreeing_to_the_terms(): void
+    {
+        $this->post('/register', [
+            'name' => 'Juan Dela Cruz',
+            'email' => 'juan@example.com',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ])->assertSessionHasErrors('terms');
+
+        $this->assertDatabaseCount('users', 0);
+    }
+
+    public function test_terms_and_conditions_page_is_publicly_accessible(): void
+    {
+        $this->get('/terms-and-conditions')
+            ->assertOk()
+            ->assertSee('Terms and Conditions');
+    }
+
     public function test_new_users_are_always_created_as_customers(): void
     {
         $this->post('/register', [
@@ -28,6 +47,7 @@ class RoleAuthorizationTest extends TestCase
             'email' => 'juan@example.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
+            'terms' => '1',
             'role' => 'admin',
         ]);
 

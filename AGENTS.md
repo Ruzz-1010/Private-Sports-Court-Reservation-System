@@ -325,6 +325,28 @@ payload. Attaching matters here: a link alone requires a login and a stable
 `APP_URL`, and during development `APP_URL` points at a tunnel whose hostname
 changes whenever cloudflared restarts.
 
+Two emails are sent, and both must arrive for the demo to be believable:
+
+| When | Notification | Sent how |
+| --- | --- | --- |
+| Reservation created | `ReservationReceived` (reservation slip PDF attached, stamped `PENDING PAYMENT`) | Synchronously inside `Customer\ReservationController@store` |
+| Payment verified | `ReservationConfirmed` (PDF receipt attached, stamped `PAID`) | `SendConfirmationEmail` job, `QUEUE_CONNECTION=sync` |
+
+Both emails carry the same document, rendered by
+`GenerateReceiptPdf` from the same `receipts/pdf` Blade template, so the booking
+email and the confirmation email look alike. The only differences are the
+document title (`RESERVATION` vs `RECEIPT`), the stamp (`PENDING PAYMENT` vs
+`PAID`), and the amount label (`Amount to pay` vs `Amount paid`).
+`renderPending()` never saves a `Receipt` row: a receipt number is issued only
+when a payment is verified, so the pending slip stays a reservation document.
+
+`ReservationReceived` is the customer's proof at the court: it repeats the
+reference number and, for on-site bookings, tells them to present the email at
+the court management desk. It is sent inside the request because the facility's
+own computer has no queue worker; a queued-only email is silently never
+delivered there. Both send paths catch mail failures and report them, so a mail
+problem never loses a committed reservation or payment.
+
 After verified payment:
 
 - Generate exactly one logical receipt for the successful payment.
@@ -334,6 +356,53 @@ After verified payment:
 - Send a confirmation email in a queued job after transaction commit.
 - Email failure must not reverse a successful payment or confirmed reservation.
 - Retry temporary delivery failures without creating duplicate receipts or duplicate payments.
+- A verified on-site payment sends the same confirmation email and attached
+  receipt as an online payment, so the customer can present it at the court.
+- An administrator can resend that confirmation email from the reservation
+  record when delivery failed or the address was corrected.
+
+## Terms and Conditions
+
+The instructor requires a terms and conditions page. It is public, so a guest
+can read it before signing up: `Route::view('terms-and-conditions', 'public.terms')`
+under the name `terms`, rendered by `resources/views/public/terms.blade.php`.
+Never put it inside a `auth` or `role:` group.
+
+- The wording repeats the real rules from `config/reservation.php` (operating
+  hours, Sunday closure, increment, min/max duration, advance window, lead
+  time, online and on-site hold) instead of hardcoding numbers, so a config
+  change cannot make the page lie.
+- It links from the home page footer and the customer workspace footer.
+- `RegisteredUserController@store` validates `terms` with the `accepted` rule,
+  and the register form has a required checkbox pointing at the page. Agreeing
+  is enforced on the server, not only by the checkbox.
+
+### Refund and no-show policy
+
+Two facility policies are stated in the terms and shown again on the customer
+dashboard. Their numbers live in `config/reservation.php` under `refund` and
+`no_show`, never hardcoded in a view:
+
+- `refund.admin_fee_percent` (default 15): the administration fee kept from a
+  refunded online payment. The customer gets the paid amount minus this cut.
+- `refund.request_deadline_hours` (default 24): how late before the slot a
+  refund may still be requested.
+- `no_show.limit_before_suspension` (default 3): recorded no-shows allowed
+  before management may suspend the account.
+- `no_show.counting_window_days` (default 180): how long a no-show counts.
+
+`resources/views/customer/dashboard.blade.php` renders a **Policies and rules**
+card with three panels (refund, no-show/suspension, payment and arrival) built
+from those config values. The admin reservation page also shows the exact
+refund breakdown for the receipt, so staff do not compute the cut by hand.
+
+A no-show is not yet stored in the database: there is no no-show column or
+status. Staff apply the policy manually. Adding automatic counting needs a
+migration and a staff action to record a no-show — do not claim it exists until
+both do.
+
+Refunds are released outside the system; the payment is then marked `refunded`
+through `PaymentStatus::Refunded`.
 
 ## CRUD Requirements
 
@@ -416,6 +485,7 @@ Tests must cover meaningful business behavior, especially:
 15. Email dispatch after commit and independent retry behavior.
 16. Customer receipt ownership checks.
 17. Correct report totals and exclusion of unpaid attempts.
+18. Administrator resend of the confirmation email for a confirmed booking.
 
 Do not fabricate actual test results in the paper. Record results only after running the implemented tests or a documented manual procedure.
 

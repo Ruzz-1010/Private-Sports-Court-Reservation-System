@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Receipt {{ $receipt->receipt_number }}</title>
+    <title>{{ ($pending ?? false) ? 'Reservation '.$receipt->reservation_reference : 'Receipt '.$receipt->receipt_number }}</title>
     <style>
         @page { margin: 28px 32px; }
 
@@ -36,6 +36,17 @@
             border-radius: 4px;
             border: 2px solid #15803d;
             color: #15803d;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 5px 10px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .pending-stamp {
+            border-radius: 4px;
+            border: 2px solid #b45309;
+            color: #b45309;
             font-size: 11px;
             font-weight: bold;
             padding: 5px 10px;
@@ -90,10 +101,17 @@
                 <div class="address">{{ $facilityAddress }}</div></span>
             </td>
             <td class="title-row" style="border: none;">
-                <div class="doc-title">RECEIPT</div>
-                <div class="doc-number">{{ $receipt->receipt_number }}</div>
-                <div class="issued">Issued {{ $receipt->transaction_date->setTimezone($timezone)->format('M j, Y g:i A') }}</div>
-                <div class="paid-stamp">PAID</div>
+                @if ($pending ?? false)
+                    <div class="doc-title">RESERVATION</div>
+                    <div class="doc-number">{{ $receipt->reservation_reference }}</div>
+                    <div class="issued">Booked {{ $receipt->transaction_date->setTimezone($timezone)->format('M j, Y g:i A') }}</div>
+                    <div class="pending-stamp">PENDING PAYMENT</div>
+                @else
+                    <div class="doc-title">RECEIPT</div>
+                    <div class="doc-number">{{ $receipt->receipt_number }}</div>
+                    <div class="issued">Issued {{ $receipt->transaction_date->setTimezone($timezone)->format('M j, Y g:i A') }}</div>
+                    <div class="paid-stamp">PAID</div>
+                @endif
             </td>
         </tr>
     </table>
@@ -147,24 +165,32 @@
         </tr>
         <tr>
             <td class="label">Payment status</td>
-            <td class="value">{{ ucfirst($receipt->payment_status) }}</td>
+            <td class="value">{{ ($pending ?? false) ? 'Pending payment' : ucfirst($receipt->payment_status) }}</td>
         </tr>
         <tr>
-            <td class="label">Transaction date</td>
+            <td class="label">{{ ($pending ?? false) ? 'Booked on' : 'Transaction date' }}</td>
             <td class="value">{{ $receipt->transaction_date->setTimezone($timezone)->format('M j, Y g:i A') }}</td>
         </tr>
         <tr class="amount-row">
-            <td style="font-size: 13px; font-weight: bold;">Amount paid</td>
+            <td style="font-size: 13px; font-weight: bold;">{{ ($pending ?? false) ? 'Amount to pay' : 'Amount paid' }}</td>
             <td style="text-align: right; font-size: 14px;">
                 {{ $receipt->currency }} {{ number_format((float) $receipt->amount_paid, 2) }}
             </td>
         </tr>
     </table>
 
-    <div class="footer">
-        This receipt was generated from a verified payment and is valid as proof of booking.<br>
-        Amounts are already inclusive of all charges. No card or wallet credentials are stored by this facility.
-    </div>
+    @if ($pending ?? false)
+        <div class="footer">
+            This reservation is not yet paid. Present this slip at the court management desk, together with
+            reference {{ $receipt->reservation_reference }}, so staff can check your booking.<br>
+            A separate confirmation email with your official PDF receipt is sent once your payment is verified.
+        </div>
+    @else
+        <div class="footer">
+            This receipt was generated from a verified payment and is valid as proof of booking.<br>
+            Amounts are already inclusive of all charges. No card or wallet credentials are stored by this facility.
+        </div>
+    @endif
 
 </body>
 </html>

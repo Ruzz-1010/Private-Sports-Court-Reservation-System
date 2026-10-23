@@ -69,6 +69,36 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Refunds and no-show policy
+    |--------------------------------------------------------------------------
+    |
+    | A customer who paid online and then asks for a refund gets the amount
+    | back minus the administration fee (a percentage of what was paid). The
+    | fee covers the payment provider charge and the slot that was held.
+    |
+    | A no-show is a booking the customer never showed up for. Staff record
+    | these; once the limit below is reached, management may suspend the
+    | account. The value is display-only: the system states the policy and
+    | staff apply it, it does not ban anyone automatically.
+    |
+    */
+
+    'refund' => [
+        // Percentage of the paid amount kept by the facility.
+        'admin_fee_percent' => (float) env('REFUND_ADMIN_FEE_PERCENT', 15),
+        // Cut-off for asking for a refund before the slot starts.
+        'request_deadline_hours' => (int) env('REFUND_REQUEST_DEADLINE_HOURS', 24),
+    ],
+
+    'no_show' => [
+        // No-shows allowed before the account may be suspended.
+        'limit_before_suspension' => (int) env('NO_SHOW_LIMIT_BEFORE_SUSPENSION', 3),
+        // How long a recorded no-show stays counted against the customer.
+        'counting_window_days' => (int) env('NO_SHOW_COUNTING_WINDOW_DAYS', 180),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Reference numbers
     |--------------------------------------------------------------------------
     */

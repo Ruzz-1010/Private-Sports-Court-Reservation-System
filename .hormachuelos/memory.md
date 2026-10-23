@@ -1,0 +1,2 @@
+- Email is sent with QUEUE_CONNECTION=sync (no queue worker needed); booking sends ReservationReceived, verified payment sends ReservationConfirmed with PDF.
+- Refund admin fee (15%) and no-show suspension (3 strikes) policies live in config/reservation.php under 'refund' and 'no_show'; no-show is not stored in DB yet.

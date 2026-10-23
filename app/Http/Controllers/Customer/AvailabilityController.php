@@ -19,6 +19,7 @@ class AvailabilityController extends Controller
      */
     public function index(Request $request, Court $court): View
     {
+        $court = $this->resolveCourt($request, $court);
         $date = $this->resolveDate($request->string('date')->toString());
         $slots = $this->availability->slotsFor($court, $date);
 
@@ -43,6 +44,7 @@ class AvailabilityController extends Controller
      */
     public function slots(Request $request, Court $court): JsonResponse
     {
+        $court = $this->resolveCourt($request, $court);
         $date = $this->resolveDate($request->string('date')->toString());
 
         return response()->json([
@@ -63,5 +65,16 @@ class AvailabilityController extends Controller
         }
 
         return $parsed->startOfDay();
+    }
+
+    private function resolveCourt(Request $request, Court $routeCourt): Court
+    {
+        $courtId = $request->integer('court_id');
+
+        if ($courtId > 0 && $courtId !== $routeCourt->getKey()) {
+            return Court::query()->active()->findOrFail($courtId);
+        }
+
+        return $routeCourt;
     }
 }

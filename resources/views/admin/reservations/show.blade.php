@@ -22,6 +22,52 @@
                 Download receipt (PDF)
             </a>
         </div>
+
+        <div class="mt-4 rounded-xl border border-white/10 bg-black/20 p-4">
+            @php
+                $paid = (float) $reservation->receipt->amount_paid;
+                $feePercent = (float) config('reservation.refund.admin_fee_percent');
+                $fee = round($paid * $feePercent / 100, 2);
+                $back = round($paid - $fee, 2);
+            @endphp
+            <p class="text-xs font-bold uppercase tracking-wide text-slate-400">If this customer asks for a refund</p>
+            <dl class="mt-2 grid gap-3 text-sm sm:grid-cols-3">
+                <div>
+                    <dt class="text-xs text-slate-400">Amount paid</dt>
+                    <dd class="font-semibold text-slate-100">&#8369;{{ number_format($paid, 2) }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs text-slate-400">Administration fee ({{ rtrim(rtrim(number_format($feePercent, 2), '0'), '.') }}%)</dt>
+                    <dd class="font-semibold text-amber-300">&#8369;{{ number_format($fee, 2) }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs text-slate-400">Return to customer</dt>
+                    <dd class="font-semibold text-emerald-300">&#8369;{{ number_format($back, 2) }}</dd>
+                </div>
+            </dl>
+            <p class="mt-2 text-xs text-slate-400">
+                Requests are accepted until {{ config('reservation.refund.request_deadline_hours') }} hours before the slot.
+                Refunds are released outside the system, then the payment is marked refunded.
+            </p>
+        </div>
+
+        <div class="mt-4 border-t border-emerald-400/25 pt-4">
+            <p class="text-sm text-emerald-300">
+                The same receipt and confirmation was emailed to
+                <span class="font-semibold">{{ $reservation->user?->email }}</span>.
+                Use this button if the customer did not receive it.
+            </p>
+            <form method="POST" action="{{ route('admin.reservations.resend-confirmation', $reservation) }}" class="mt-3"
+                  onsubmit="return confirm('Send the confirmation email and receipt again to {{ $reservation->user?->email }}?');">
+                @csrf
+                <button type="submit" class="rounded-lg border border-emerald-400/40 px-4 py-2 text-sm font-semibold text-emerald-200 hover:bg-emerald-400/10">
+                    Resend confirmation email
+                </button>
+            </form>
+            @error('email')
+                <p class="mt-2 text-sm text-rose-300">{{ $message }}</p>
+            @enderror
+        </div>
     </section>
 @endif
 

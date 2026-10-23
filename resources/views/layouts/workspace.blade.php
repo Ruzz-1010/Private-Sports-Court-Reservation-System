@@ -77,7 +77,7 @@
             @endif
             @yield('content')
         </main>
-        <footer class="workspace-footer"><span>San Jose Pickleball Club</span><span>Puerto Princesa, Palawan</span></footer>
+        <footer class="workspace-footer"><span>San Jose Pickleball Club</span><a href="{{ route('terms') }}" class="hover:underline">Terms and Conditions</a><span>Puerto Princesa, Palawan</span></footer>
     </div>
     @stack('scripts')
 </body>

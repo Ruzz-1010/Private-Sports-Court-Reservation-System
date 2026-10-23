@@ -112,6 +112,15 @@
                     Download receipt (PDF)
                 </a>
             </div>
+
+            <div class="mt-4 rounded-lg border border-dashed border-emerald-400/40 p-4">
+                <p class="text-sm font-semibold text-emerald-200">Show this at the court</p>
+                <p class="mt-1 text-sm text-emerald-300">
+                    Present your reference number
+                    <span class="font-mono font-bold">{{ $reservation->reference_number }}</span>
+                    or your receipt number when you arrive. Court staff will check it against this booking.
+                </p>
+            </div>
         </div>
     @endif
 

@@ -21,6 +21,10 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
+// Public legal page. Reachable while logged out, and its link is shown on the
+// home page, the register form, and the footer of the customer workspace.
+Route::view('terms-and-conditions', 'public.terms')->name('terms');
+
 /*
 |--------------------------------------------------------------------------
 | Payment provider callback
@@ -98,6 +102,7 @@ Route::middleware(['auth'])->group(function (): void {
         Route::resource('court-blocks', AdminCourtBlockController::class)->only(['index', 'store', 'destroy']);
 
         Route::resource('reservations', AdminReservationController::class)->only(['index', 'show']);
+        Route::post('reservations/{reservation}/resend-confirmation', [AdminReservationController::class, 'resendConfirmation'])->name('reservations.resend-confirmation');
         Route::get('reports', [AdminReportController::class, 'index'])->name('reports.index');
 
         Route::get('payments', [AdminPaymentVerificationController::class, 'index'])->name('payments.index');

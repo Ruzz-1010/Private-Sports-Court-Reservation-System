@@ -8,10 +8,12 @@ use App\Enums\PaymentStatus;
 use App\Enums\ReservationStatus;
 use App\Http\Controllers\Controller;
 use App\Jobs\SendConfirmationEmail;
+use App\Models\AuditLog;
 use App\Models\Payment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Throwable;
 
 class PaymentVerificationController extends Controller
 {
@@ -66,13 +68,40 @@ class PaymentVerificationController extends Controller
 
         $result = $this->confirmPayment->handle($payment, $request->user());
 
-        if ($result['receipt'] !== null) {
-            SendConfirmationEmail::dispatch($result['reservation']->id);
+        $emailFailed = false;
+
+        if ($result['duplicate']) {
+            return back()->with('status', 'That payment was already verified.');
         }
 
-        return back()->with('status', $result['duplicate']
-            ? 'That payment was already verified.'
-            : "Payment verified. Receipt {$result['receipt']?->receipt_number} issued.");
+        if ($result['receipt'] !== null) {
+            // The payment is already committed above. A synchronous mail failure
+            // (wrong SMTP password, no queue worker) must never undo it or turn
+            // the click into an error page: the receipt stays downloadable and
+            // the email can be resent from the reservation record.
+            try {
+                SendConfirmationEmail::dispatch($result['reservation']->id);
+
+                AuditLog::create([
+                    'user_id' => $request->user()?->id,
+                    'action' => 'reservation.confirmation_email_queued',
+                    'entity_type' => $result['reservation']->getMorphClass(),
+                    'entity_id' => $result['reservation']->id,
+                    'details' => [
+                        'reservation' => $result['reservation']->reference_number,
+                        'email' => $result['reservation']->user?->email,
+                        'trigger' => 'on_site_verification',
+                    ],
+                ]);
+            } catch (Throwable $exception) {
+                $emailFailed = true;
+                report($exception);
+            }
+        }
+
+        return back()->with('status', $emailFailed
+            ? "Payment verified. Receipt {$result['receipt']?->receipt_number} issued, but the confirmation email could not be sent. Use the reservation page to resend it."
+            : "Payment verified. Receipt {$result['receipt']?->receipt_number} issued and the confirmation email was sent to {$result['reservation']->user?->email}.");
     }
 
     /**

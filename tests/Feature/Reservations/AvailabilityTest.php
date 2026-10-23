@@ -80,6 +80,22 @@ class AvailabilityTest extends TestCase
         $this->assertStringContainsString('already reserved', $result['reason']);
     }
 
+    public function test_a_reservation_only_blocks_the_court_that_was_booked(): void
+    {
+        [$start, $end] = $this->slot();
+        $bookedCourt = $this->court();
+        $otherCourt = $this->court();
+
+        Reservation::factory()->confirmed()->create([
+            'court_id' => $bookedCourt->id,
+            'starts_at' => $start,
+            'ends_at' => $end,
+        ]);
+
+        $this->assertFalse($this->service()->checkInterval($bookedCourt, $start, $end)['available']);
+        $this->assertTrue($this->service()->checkInterval($otherCourt, $start, $end)['available']);
+    }
+
     public function test_an_active_pending_hold_blocks_the_slot(): void
     {
         [$start, $end] = $this->slot();
