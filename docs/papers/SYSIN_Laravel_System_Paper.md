@@ -58,10 +58,12 @@ The system replaces these informal processes with a centralized database, a serv
 2. Allow a customer to reserve a pickleball court by selecting date, start time, and duration, and **prevent double reservations at the database level**, not only in application code.
 3. Provide online and on-site payment options, confirming a reservation **only** after payment has been independently verified.
 4. Detect forged, replayed, and duplicated payment callbacks and refuse to change state on any of them.
-5. Send a confirmation email containing payment and receipt details through a background queue, so that email latency never blocks the booking flow.
+5. Send reservation and payment-confirmation emails to the customer address stored on the account, attach the appropriate PDF document, and retry payment-confirmation delivery without changing a successful payment.
 6. Provide a downloadable PDF receipt immediately after payment and re-downloadable from reservation history.
 7. Enforce role-based authorization so that customers see only their own records and only administrators reach administrative pages.
 8. Provide administrators with filtered reservation and collected-payment reports.
+9. Verify customer email addresses before allowing access to booking screens.
+10. Send a pending reservation slip immediately, a paid receipt after verification, and one reminder shortly before a confirmed booking.
 
 ---
 
@@ -76,6 +78,8 @@ The system replaces these informal processes with a centralized database, a serv
 | FR-1.1 | A visitor must be able to create an account and register. |
 | FR-1.2 | A registered user must authenticate before reserving a pickleball court. |
 | FR-1.3 | Newly registered accounts must always be created with the `customer` role. The administrator role must never be selectable during registration. |
+| FR-1.4 | A new customer must verify a one-time code sent to the registered email before accessing the customer workspace or booking flow. |
+| FR-1.5 | Registration must require acceptance of the public Terms and Conditions. |
 
 ### FR-2 Availability Calendar
 
@@ -83,6 +87,7 @@ The system replaces these informal processes with a centralized database, a serv
 |---|---|
 | FR-2.1 | The system must display, for a selected pickleball court and date, the status of every bookable slot as Available, Pending, or Reserved. |
 | FR-2.2 | Slot reporting must exclude holds whose payment deadline has already passed, even if the scheduled expiration task has not yet run. |
+| FR-2.3 | When a customer changes the court selector, the availability query must use that selected court; a reservation on one court must not hide the same time on another court. |
 
 ### FR-3 Pickleball Court and Schedule Selection
 
@@ -114,6 +119,9 @@ The system replaces these informal processes with a centralized database, a serv
 | FR-5.5 | No receipt may be generated for a Pending, Cancelled, or Expired reservation. |
 | FR-5.6 | A customer must not be able to download another customer's receipt. |
 | FR-5.7 | The receipt must be an immutable snapshot; later edits to a court or rate must not rewrite an issued receipt. |
+| FR-5.8 | A reservation-created email must include a pending-payment reservation slip. A verified payment must send a confirmation email with the paid PDF receipt attached. |
+| FR-5.9 | An administrator must be able to resend the paid confirmation email and receipt for a confirmed reservation, with the action recorded in the audit log. |
+| FR-5.10 | The scheduler must send at most one reminder email for a confirmed reservation shortly before its start time. |
 
 ### FR-6 Reservation Status and History
 
@@ -145,6 +153,7 @@ The system replaces these informal processes with a centralized database, a serv
 |---|---|
 | FR-9.1 | The system must generate reservation and collected-payment reports filterable by date range, pickleball court, and status. |
 | FR-9.2 | Collected-payment totals must count only verified paid payments. Pending, failed, cancelled, and duplicate attempts must not inflate revenue. |
+| FR-9.3 | Report calculations must state their timezone, operating-hours, and court-utilization assumptions. |
 
 ## 2.2 Non-Functional Requirements
 
@@ -166,15 +175,17 @@ The system replaces these informal processes with a centralized database, a serv
 |---|---|---|---|
 | Register and log in | SUC-1 | SUC-1.1 | A customer creates an account, always with the customer role. |
 | | | SUC-1.2 | A registered user authenticates before reserving. |
+| | SUC-1.3 | A new customer verifies the email code and accepts the Terms and Conditions before entering the workspace. |
 | View pickleball court availability | SUC-2 | SUC-2.1 | A customer views the pickleball availability calendar instead of visiting the facility. |
-| | | SUC-2.2 | The system reports each slot as Available, Pending, or Reserved. |
+| | | SUC-2.2 | The system reports each slot as Available, Pending, or Reserved for the selected court only. |
 | Reserve pickleball court | SUC-3 | SUC-3.1 | A customer chooses a pickleball court, date, start time, and duration. |
 | | | SUC-3.2 | The system rejects any reservation overlapping a blocking reservation, at the application layer and again at the database layer. |
 | Make payment | SUC-4 | SUC-4.1 | A customer selects online or on-site payment. |
 | | | SUC-4.2 | For online payment, PayMongo hosts the checkout and the reservation is confirmed only after verification. |
 | | | SUC-4.3 | For on-site payment, the slot is held and released if unpaid before the deadline. |
 | Receive and download receipt | SUC-5 | SUC-5.1 | A customer receives proof of reservation that can be saved offline. |
-| | | SUC-5.2 | The system emails the confirmation and links to the PDF receipt. |
+| | | SUC-5.2 | The system emails the reservation or payment confirmation and attaches the appropriate PDF document. |
+| | SUC-5.4 | An administrator can resend the paid confirmation email, and the resend is audited. |
 | | | SUC-5.3 | The receipt stays downloadable in reservation history, and one customer cannot open another's receipt. |
 | View status and history | SUC-6 | SUC-6.1 | A customer tracks reservation status. |
 | | | SUC-6.2 | A customer re-downloads receipts of paid reservations. |
@@ -203,7 +214,7 @@ The instructor's specification requires that the chosen technologies be **justif
 | Query layer | Eloquent ORM | bundled | Parameterized queries by default, so user input is never concatenated into SQL. |
 | Templating | Blade | bundled | Server-side rendering with automatic output escaping, addressing cross-site scripting without per-field discipline. |
 | Payment provider | PayMongo Checkout Sessions API | v1 | A gateway used by Philippine merchants. Its hosted checkout page receives card and wallet credentials so that this application never handles them, and it signs webhook callbacks with HMAC-SHA256, enabling cryptographic verification rather than trust. |
-| Email | Laravel Mail (SMTP) | bundled | Standard protocol. Configured with a Mailtrap transport and a log-driver fallback so that a mail outage degrades to a visible log entry instead of a failed job. |
+| Email | Laravel Mail (SMTP or Resend HTTPS transport) | bundled/custom transport | Environment-configurable delivery. Local development may use SMTP or Mailtrap; the deployed demo may use Gmail SMTP or Resend. Credentials stay in environment variables. |
 | PDF generation | barryvdh/laravel-dompdf | 3.1.6 | Pure PHP; requires no system binary or headless browser, so receipt generation cannot fail for environmental reasons on the deployment host. |
 | Queue | Laravel queue, `database` driver | bundled | Satisfies the asynchronous email requirement with no additional service. |
 | Scheduler | Laravel Scheduler | bundled | Runs hold expiration every minute without an external cron daemon. |
@@ -410,13 +421,13 @@ A scheduled command runs every minute and marks overdue Pending reservations Exp
 
 `SendConfirmationEmail` is queued to the database driver, so mail-server latency never blocks the customer's request. The notification contains the pickleball court, schedule, amount paid, payment method, payment status, reference number, and receipt number.
 
-The rendered PDF receipt is **attached to the email** through `MailMessage::attachData()`, so the receipt travels with the message itself. A link alone would require the customer to open a browser, authenticate, and depend on the deployment URL staying constant; during development `APP_URL` points at a tunnel whose hostname changes every time the tunnel process restarts, which made emailed links dead on arrival. The message also carries a single action button to the online copy for anyone who prefers it.
+The rendered PDF receipt is **attached to the email** through `MailMessage::attachData()`, so the receipt travels with the message itself. A link alone would require the customer to open a browser, authenticate, and depend on the deployment URL staying constant; during development `APP_URL` points at a tunnel whose hostname changes every time the tunnel process restarts, which made emailed links dead on arrival. The current confirmation message does not use an online receipt action button; it tells the customer that the paid PDF receipt is attached. The receipt remains available from reservation history.
 
 `MailMessage::action()` overwrites rather than appends, so the notification issues exactly one button and falls back to the reservation page when no receipt exists — a detail that would otherwise silently drop the primary call to action. `attachData()` writes to `rawAttachments`, not `attachments`, which is easy to verify incorrectly and would appear to succeed while attaching nothing.
 
 The attachment and the download route serve the identical document: `GenerateReceiptPdf::render()` returns the PDF object and `handle()` streams the download response built from that same renderer. Because the notification is sent by the queued job after the payment transaction commits, `toMail()` renders the PDF at send time from committed data rather than freezing document bytes into the queue payload.
 
-Delivery is verified against a live SMTP provider rather than a log sink. Measured on this project, a plain message completes the SMTP handshake, authentication, and server acceptance in roughly six seconds, and the same message with the 1.7 MB receipt attached completes in roughly twenty-one seconds. Email failure never reverses a confirmed payment or reservation: the job retries independently with backoff and gives up quietly, leaving the confirmed reservation intact.
+Delivery must be verified against the provider configured for the final demonstration. The source supports SMTP and Resend, but a provider configuration is not evidence of inbox delivery until a live recipient receives the message and attachment. Email failure never reverses a confirmed payment or reservation: the job retries independently with backoff and gives up quietly, leaving the confirmed reservation intact.
 
 ## 4.4 Application Security
 
@@ -451,7 +462,7 @@ The measures below follow the OWASP Application Security Verification Standard (
 
 Testing follows the functional suitability and security characteristics of the ISO/IEC 25010 product quality model (ISO/IEC, 2023). The suite was executed against a real PostgreSQL instance using an isolated `testing` schema rather than SQLite, because the exclusion constraint that provides double-booking protection is PostgreSQL-specific and an in-memory SQLite database would silently skip the concurrency tests, producing a misleading pass.
 
-**Result: 131 automated tests, 131 passed, 0 failed.**
+**Verification status at the time of this revision: the current suite contains 158 discovered tests. A final pass/fail total must be recorded only after the PostgreSQL-backed suite is run successfully on the submission environment.**
 
 ## 5.1 Functional Test Cases
 
@@ -582,7 +593,7 @@ All eight specific objectives in §1.3 were achieved and are backed by executabl
 7. **Role-based authorization** with ownership policies (TC-61, TC-62, TC-65, TC-71).
 8. **Filtered reports** counting only verified payments (TC-70).
 
-The system passes 131 automated tests against a real PostgreSQL instance.
+The source currently contains 158 discoverable tests. The final paper must report the exact passing total from a fresh PostgreSQL-backed run rather than carrying forward an earlier count.
 
 ## 6.2 Challenges in Subsystem Integration
 
@@ -605,7 +616,7 @@ The system passes 131 automated tests against a real PostgreSQL instance.
 
 ## 6.4 Conclusion
 
-The Private Pickleball Court Reservation System achieves its central objective: a customer can complete a booking end to end, a verified payment confirms it, a receipt is produced, and an email is delivered — while overlapping bookings, forged callbacks, and unauthorized access are prevented and demonstrated by tests rather than assumed.
+The Private Pickleball Court Reservation System implements the end-to-end booking, verification, receipt, authorization, reporting, and notification workflows. Final claims about payment and email delivery must be tied to the fresh live evidence and PostgreSQL-backed test run recorded in Appendix B.
 
 The strongest engineering decision in the system is that correctness does not depend on application code behaving correctly. Double booking is prevented by a database constraint that every write path, present or future, must satisfy. Payment confirmation depends on an independent retrieval from the provider rather than on any claim made by the client or by a callback payload. Authorization is resolved per object rather than per page. In each case, a mistake elsewhere in the application degrades into a refused request rather than a corrupted record.
 
@@ -653,17 +664,14 @@ The strongest engineering decision in the system is that correctness does not de
 ## Appendix B — Verification Record
 
 ```
-$ php artisan test
-  Tests:      131
-  Passed:     131
-  Failed:     0
-  Errors:     0
-  Assertions: 332
+$ php artisan test --list-tests
+  Tests discovered: 158
+  Final pass/fail result: to be recorded after PostgreSQL is started
 ```
 
-Test suites: Availability (21), Court Block Management (2), Court CRUD (18), Court Image (9), Create Reservation (12), On-Site Payment Verification (13), PayMongo Webhook (26), Receipt Download (12), Reservations Reports (3), Role Authorization (13), Example (2).
+Test suites include availability, court blocks, court CRUD and images, reservation creation, authentication and email verification, online and on-site payments, PayMongo webhooks, receipt download and attachments, reports, role authorization, reminders, resend behavior, and examples. Exact suite totals must be copied from the final PHPUnit run.
 
-Counts are recorded from the PHPUnit summary line, not estimated. The two suites that changed during the verification work are PayMongo Webhook, which covers the checkout-session retrieval path, and Receipt Download, which now asserts that the confirmation email attaches the receipt PDF with the correct filename and MIME type and that a pending reservation attaches nothing.
+Counts must be copied from the PHPUnit summary line of the final verification run, not estimated. The current suite also covers email verification, terms acceptance, pending reservation mail, confirmation attachments, reminders, resend behavior, PayMongo webhook retrieval, and receipt authorization.
 
 ---
 
