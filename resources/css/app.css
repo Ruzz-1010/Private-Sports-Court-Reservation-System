@@ -140,6 +140,25 @@
 .auth-shell input:not([type=checkbox]) { color-scheme: dark; }
 .auth-shell label { color: #cbd5e1; }
 .auth-shell :where(a, button, input):focus-visible { outline: 2px solid #bef264; outline-offset: 3px; }
+/* Dashboard building blocks: compact, consistent cards for both workspaces. */
+.dash { --dash-surface: #0f1622; }
+.dash-card { border: 1px solid rgba(255, 255, 255, .07); border-radius: .85rem; background: #111827; box-shadow: 0 10px 28px -24px #000; }
+.dash-card-hover { transition: border-color .15s, background .15s; }
+.dash-card-hover:hover { border-color: rgba(255, 255, 255, .14); }
+.dash-card-next { background: linear-gradient(140deg, rgba(190, 242, 100, .1), #111827 46%); border-color: rgba(190, 242, 100, .18); }
+.dash-eyebrow { color: #c4e994; font-size: .6rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+.dash-chip { display: inline-flex; align-items: center; gap: .375rem; border: 1px solid rgba(255, 255, 255, .07); border-radius: .55rem; background: rgba(255, 255, 255, .03); padding: .4rem .6rem; color: #cbd5e1; font-size: .68rem; font-weight: 650; line-height: 1; }
+.dash-chip-count { background: rgba(0, 0, 0, .28); }
+.dash-chip-button { color: #fff; transition: border-color .15s, color .15s; }
+.dash-chip-button:hover { border-color: rgba(190, 242, 100, .4); color: #d5f99c; }
+.dash-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: .375rem; border-radius: .55rem; background: #bef264; padding: .5rem .85rem; color: #15200c; font-size: .72rem; font-weight: 700; line-height: 1; transition: background .15s; }
+.dash-btn-primary:hover { background: #d3f78c; }
+.dash-btn-ghost { display: inline-flex; align-items: center; justify-content: center; gap: .375rem; border: 1px solid rgba(255, 255, 255, .1); border-radius: .55rem; padding: .5rem .8rem; color: #e2e8f0; font-size: .72rem; font-weight: 650; line-height: 1; transition: background .15s, border-color .15s; }
+.dash-btn-ghost:hover { border-color: rgba(255, 255, 255, .2); background: rgba(255, 255, 255, .06); }
+.dash-btn-amber { display: flex; align-items: center; justify-content: center; border-radius: .55rem; background: #fcd34d; padding: .5rem .8rem; color: #1a1508; font-size: .72rem; font-weight: 700; line-height: 1; transition: background .15s; }
+.dash-btn-amber:hover { background: #fde68a; }
+.dash :where(.dash-btn-primary, .dash-btn-ghost, .dash-btn-amber, .dash-chip-button):focus-visible { outline: 2px solid #bef264; outline-offset: 2px; }
+
 @media (min-width: 1024px) {
     .workspace-content > .max-w-3xl, .workspace-content > .max-w-2xl { max-width: 56rem; }
 }
