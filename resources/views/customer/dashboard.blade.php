@@ -2,7 +2,7 @@
 
 @section('content')
 @php
-    $firstName = explode(' ', trim($user->name))[0];
+    $firstName = $user->firstName();
     $metrics = [
         ['label' => 'Confirmed', 'value' => $confirmedCount, 'note' => 'Active reservations', 'tone' => 'lime', 'icon' => 'M5 13l4 4L19 7'],
         ['label' => 'Awaiting payment', 'value' => $pendingCount, 'note' => 'Slots currently on hold', 'tone' => 'amber', 'icon' => 'M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0Z'],

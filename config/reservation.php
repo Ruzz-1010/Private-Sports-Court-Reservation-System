@@ -138,6 +138,28 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Password rules
+    |--------------------------------------------------------------------------
+    |
+    | Applied wherever Password::defaults() is used, which today means customer
+    | registration. Letters plus numbers is the minimum the facility wants; the
+    | stricter switches exist so they can be turned on without code changes.
+    */
+
+    'password' => [
+        'min_length' => (int) env('PASSWORD_MIN_LENGTH', 8),
+
+        // bcrypt stops reading after 72 bytes, so anything longer is not used.
+        'max_length' => (int) env('PASSWORD_MAX_LENGTH', 72),
+
+        'require_letters' => (bool) env('PASSWORD_REQUIRE_LETTERS', true),
+        'require_numbers' => (bool) env('PASSWORD_REQUIRE_NUMBERS', true),
+        'require_mixed_case' => (bool) env('PASSWORD_REQUIRE_MIXED_CASE', false),
+        'require_symbols' => (bool) env('PASSWORD_REQUIRE_SYMBOLS', false),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Reference numbers
     |--------------------------------------------------------------------------
     */

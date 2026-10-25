@@ -23,10 +23,11 @@ class EmailVerificationTest extends TestCase
     private function register(string $email = 'juan@example.com'): User
     {
         $this->post('/register', [
-            'name' => 'Juan Dela Cruz',
+            'first_name' => 'Juan',
+            'last_name' => 'Dela Cruz',
             'email' => $email,
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
+            'password' => 'pickleball2026',
+            'password_confirmation' => 'pickleball2026',
             'terms' => '1',
         ]);
 
@@ -48,10 +49,11 @@ class EmailVerificationTest extends TestCase
         Notification::fake();
 
         $this->post('/register', [
-            'name' => 'Juan Dela Cruz',
+            'first_name' => 'Juan',
+            'last_name' => 'Dela Cruz',
             'email' => 'juan@example.com',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
+            'password' => 'pickleball2026',
+            'password_confirmation' => 'pickleball2026',
             'terms' => '1',
         ])->assertRedirect(route('verification.notice'));
     }
@@ -139,12 +141,12 @@ class EmailVerificationTest extends TestCase
     {
         $user = User::factory()->unverified()->create([
             'role' => Role::Customer,
-            'password' => 'password123',
+            'password' => 'pickleball2026',
         ]);
 
         $this->post('/login', [
             'email' => $user->email,
-            'password' => 'password123',
+            'password' => 'pickleball2026',
         ])->assertRedirect(route('verification.notice'));
     }
 

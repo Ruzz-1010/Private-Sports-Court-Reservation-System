@@ -389,6 +389,27 @@ Never put it inside a `auth` or `role:` group.
   and the register form has a required checkbox pointing at the page. Agreeing
   is enforced on the server, not only by the checkbox.
 
+## Names and passwords
+
+The register form asks for a **first name** and a **last name**, but the
+`users` table still has a single `name` column, so nothing else in the system
+changed: reports, receipts, emails and the admin screens keep reading
+`users.name`.
+
+- `RegisteredUserController@store` validates `first_name` and `last_name`
+  separately, then stores `trim(first_name.' '.last_name)` as `name`. Do not add
+  a migration for two columns unless the user asks: the split is presentational.
+- `User::firstName()` returns the first word of the stored name, and is what the
+  customer dashboard greets with.
+- One password policy lives in `App\Providers\AppServiceProvider::boot` as
+  `Password::defaults(...)`, driven by `config/reservation.php` under
+  `password`: `min_length`, `max_length`, `require_letters`, `require_numbers`,
+  `require_mixed_case`, `require_symbols`. Letters plus numbers are on by
+  default, which is the "combination of letters" the facility asked for.
+- Change the policy through the `PASSWORD_*` values in `.env`, never by editing
+  the rule inside a controller. Do not add `uncompromised()`: it calls an
+  external API, so registration would fail when the machine is offline.
+
 ### Email verification
 
 A new self-registered account is not usable until the customer enters a code

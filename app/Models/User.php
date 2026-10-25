@@ -43,6 +43,14 @@ class User extends Authenticatable
     }
 
     /**
+     * The customer's first name, taken from the stored full name.
+     */
+    public function firstName(): string
+    {
+        return explode(' ', trim((string) $this->name))[0];
+    }
+
+    /**
      * Determine whether the user has the given role.
      */
     public function hasRole(Role $role): bool

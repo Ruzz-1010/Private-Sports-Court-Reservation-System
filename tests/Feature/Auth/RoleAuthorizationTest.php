@@ -24,10 +24,11 @@ class RoleAuthorizationTest extends TestCase
     public function test_registration_requires_agreeing_to_the_terms(): void
     {
         $this->post('/register', [
-            'name' => 'Juan Dela Cruz',
+            'first_name' => 'Juan',
+            'last_name' => 'Dela Cruz',
             'email' => 'juan@example.com',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
+            'password' => 'pickleball2026',
+            'password_confirmation' => 'pickleball2026',
         ])->assertSessionHasErrors('terms');
 
         $this->assertDatabaseCount('users', 0);
@@ -43,10 +44,11 @@ class RoleAuthorizationTest extends TestCase
     public function test_new_users_are_always_created_as_customers(): void
     {
         $this->post('/register', [
-            'name' => 'Juan Dela Cruz',
+            'first_name' => 'Juan',
+            'last_name' => 'Dela Cruz',
             'email' => 'juan@example.com',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
+            'password' => 'pickleball2026',
+            'password_confirmation' => 'pickleball2026',
             'terms' => '1',
             'role' => 'admin',
         ]);
@@ -60,10 +62,84 @@ class RoleAuthorizationTest extends TestCase
     public function test_registration_requires_a_matching_password_confirmation(): void
     {
         $this->post('/register', [
-            'name' => 'Juan Dela Cruz',
+            'first_name' => 'Juan',
+            'last_name' => 'Dela Cruz',
             'email' => 'juan@example.com',
-            'password' => 'password123',
-            'password_confirmation' => 'different123',
+            'password' => 'pickleball2026',
+            'password_confirmation' => 'different2026',
+        ])->assertSessionHasErrors('password');
+
+        $this->assertDatabaseCount('users', 0);
+    }
+
+    public function test_registration_combines_the_two_name_fields_into_the_stored_name(): void
+    {
+        $this->post('/register', [
+            'first_name' => 'Juan',
+            'last_name' => 'Dela Cruz',
+            'email' => 'juan@example.com',
+            'password' => 'pickleball2026',
+            'password_confirmation' => 'pickleball2026',
+            'terms' => '1',
+        ]);
+
+        $user = User::where('email', 'juan@example.com')->firstOrFail();
+
+        $this->assertSame('Juan Dela Cruz', $user->name);
+        $this->assertSame('Juan', $user->firstName());
+    }
+
+    public function test_registration_requires_a_first_and_last_name(): void
+    {
+        $this->post('/register', [
+            'first_name' => '',
+            'last_name' => '',
+            'email' => 'juan@example.com',
+            'password' => 'pickleball2026',
+            'password_confirmation' => 'pickleball2026',
+            'terms' => '1',
+        ])->assertSessionHasErrors(['first_name', 'last_name']);
+
+        $this->assertDatabaseCount('users', 0);
+    }
+
+    public function test_registration_rejects_a_password_without_numbers(): void
+    {
+        $this->post('/register', [
+            'first_name' => 'Juan',
+            'last_name' => 'Dela Cruz',
+            'email' => 'juan@example.com',
+            'password' => 'onlyletters',
+            'password_confirmation' => 'onlyletters',
+            'terms' => '1',
+        ])->assertSessionHasErrors('password');
+
+        $this->assertDatabaseCount('users', 0);
+    }
+
+    public function test_registration_rejects_a_password_without_letters(): void
+    {
+        $this->post('/register', [
+            'first_name' => 'Juan',
+            'last_name' => 'Dela Cruz',
+            'email' => 'juan@example.com',
+            'password' => '12345678',
+            'password_confirmation' => '12345678',
+            'terms' => '1',
+        ])->assertSessionHasErrors('password');
+
+        $this->assertDatabaseCount('users', 0);
+    }
+
+    public function test_registration_rejects_a_short_password(): void
+    {
+        $this->post('/register', [
+            'first_name' => 'Juan',
+            'last_name' => 'Dela Cruz',
+            'email' => 'juan@example.com',
+            'password' => 'abc12',
+            'password_confirmation' => 'abc12',
+            'terms' => '1',
         ])->assertSessionHasErrors('password');
 
         $this->assertDatabaseCount('users', 0);

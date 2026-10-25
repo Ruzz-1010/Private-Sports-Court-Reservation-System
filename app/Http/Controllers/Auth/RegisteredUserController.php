@@ -33,16 +33,23 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'first_name' => ['required', 'string', 'max:100'],
+            'last_name' => ['required', 'string', 'max:100'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Password::defaults()],
             'terms' => ['accepted'],
         ], [
             'terms.accepted' => 'You must agree to the Terms and Conditions to create an account.',
+            'first_name.required' => 'Enter your first name.',
+            'last_name.required' => 'Enter your last name.',
         ]);
 
+        // The form asks for the name in two parts, but the database keeps one
+        // `name` column, so reports, receipts and emails need no change.
         $user = User::create([
-            ...$validated,
+            'name' => trim($validated['first_name'].' '.$validated['last_name']),
+            'email' => $validated['email'],
+            'password' => $validated['password'],
             'role' => Role::Customer,
         ]);
 
